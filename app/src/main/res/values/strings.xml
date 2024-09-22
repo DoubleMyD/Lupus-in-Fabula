@@ -3,4 +3,9 @@
     <string name="cancel_button">Cancel</string>
     <string name="confirm_button">Confirm</string>
     <string name="name_field">Name</string>
+    <string name="role_range">The player range for that role is %d to %d</string>
+    <string name="total_players">Total players: %d</string>
+    <string name="remaining_players">Remaining players: %d</string>
+    <string name="error_not_all_players_selected">Not all players are selected. Please select all players.</string>
+
 </resources>

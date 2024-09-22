@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
 import com.example.lupusinfabulav1.R
 
-enum class Role (val roleName: String, @DrawableRes val icon: Int, val color: Color){
+enum class Role (val roleName: String, @DrawableRes val image: Int, val color: Color){
     CITTADINO("Cittadino", R.drawable.ic_launcher_foreground, Color.Green.copy(alpha = 0.5f)),
     ASSASSINO("Assassino", R.drawable.wolf_muso, Color.Blue.copy(alpha = 0.5f)),
     VEGGENTE("Veggie", R.drawable.veggente_luna, Color.DarkGray.copy(alpha = 0.5f)),

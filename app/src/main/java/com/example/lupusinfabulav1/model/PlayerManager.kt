@@ -1,7 +1,9 @@
 package com.example.lupusinfabulav1.model
 
+import com.example.lupusinfabulav1.data.PlayersRepository
+
 class PlayerManager {
-    private val _players = mutableListOf<Player>()
+    private val _players = PlayersRepository.players.toMutableList()//mutableListOf<Player>()
     val players: List<Player> get() = _players
 
     fun addPlayer(player: Player): Boolean{
@@ -11,6 +13,10 @@ class PlayerManager {
     fun removePlayer(player: Player) {
         _players.remove(player)
     }
+
+
+
+
 
 
 }

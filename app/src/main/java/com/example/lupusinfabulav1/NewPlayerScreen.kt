@@ -1,9 +1,14 @@
 package com.example.lupusinfabulav1
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,10 +16,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -25,45 +33,78 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import coil.compose.AsyncImage
+import com.example.lupusinfabulav1.data.ImageRepository
+import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
 
 @Composable
 fun NewPlayerScreen(
     onConfirmClick: (String, Int) -> Unit,
-    onImageClick: () -> Int,
+    onCancelClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onCancelClick: () -> Unit = {},
-    onRandomImageClick: () -> Unit = {},
 ){
     var name by remember { mutableStateOf("") }
-    var imageRes by remember { mutableIntStateOf(R.drawable.android_superhero1) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),//"contract" says what action/activity we want to perform/launch
+        onResult = { uri: Uri? -> selectedImageUri = uri }
+    )
+
+    var randomImage by remember { mutableIntStateOf(ImageRepository.defaultImages.random()) }
+    val onRandomImageClick = {
+        selectedImageUri = null
+        randomImage = ImageRepository.defaultImages.random()
+    }
 
     Column(
         modifier = modifier
             .padding(dimensionResource(id = R.dimen.padding_medium))
     ) {
-        Spacer( modifier = Modifier.weight(1f) )
+        //Spacer( modifier = Modifier.weight(1f) )
         Box(
-            modifier = Modifier.fillMaxWidth().weight(4f)
-        ){
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { imageRes = onImageClick( ) }
-            )
-            Icon(
-                imageVector = Icons.Default.Refresh,
-                contentDescription = null,
-                modifier = Modifier
-                    .clickable { onRandomImageClick() }
-            )
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(4f)
+        ) {
+            val imageModifier = Modifier
+                .fillMaxSize()
+                .clickable {
+                    singlePhotoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)  //it tells what type of media you want to show (if only video, or only images and so on )
+                    )
+                }
+
+            if (selectedImageUri != null) {
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Selected image",
+                    contentScale = ContentScale.Crop,
+                    modifier = imageModifier
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = randomImage),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = imageModifier
+                )
+            }
+            FilledIconButton(
+                onClick = { onRandomImageClick() }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                )
+            }
         }
         Spacer( modifier = Modifier.weight(1f) )
         EditNumberField(
@@ -75,27 +116,16 @@ fun NewPlayerScreen(
             ),
             value = name,
             onValueChanged = { name = it },
-            modifier = Modifier.fillMaxWidth().weight(1f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         )
         Spacer( modifier = Modifier.weight(1f) )
-        Row(
+        CancelAndConfirmButtons(
+            onConfirmClick = { onConfirmClick(name, 1) },
+            onCancelClick = onCancelClick,
             modifier = Modifier.weight(1f)
-        ){
-            Button(
-                onClick = { onCancelClick() },
-                modifier = Modifier.weight(2f)
-            ) {
-                Text( text = stringResource(id = R.string.cancel_button) )
-            }
-            Spacer( modifier = Modifier.weight(1f) )
-            Button(
-                onClick = { onConfirmClick(name, imageRes) }, //Check if the name is available, if yes return to HOME_PAGE, if not prompt a message to change the name
-                modifier = Modifier.weight(2f)
-            ) {
-                Text( text = stringResource(id = R.string.confirm_button) )
-            }
-        }
-
+        )
     }
 }
 
@@ -112,12 +142,82 @@ fun EditNumberField(@StringRes label: Int, @DrawableRes leadingIcon: Int, keyboa
     )
 }
 
+
+
+
+@Composable
+fun ImagePicker(){
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),//"contract" says what action/activity we want to perform/launch
+        onResult = { uri -> selectedImageUri = uri }
+    )
+
+    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),//"contract" says what action/activity we want to perform/launch
+        onResult = { uris -> selectedImageUris = uris }
+    )
+
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Button(
+                    onClick = {
+                        singlePhotoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)  //it tells what type of media you want to show (if only video, or only images and so on )
+                        )
+                    }
+                ) {
+                    Text(text = "Select Image")
+                }
+                Button(
+                    onClick = {
+                        multiplePhotoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+                ) {
+                    Text(text = "Select more images")
+                }
+            }
+        }
+
+        item {
+            AsyncImage(
+                model = selectedImageUri,
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        items(selectedImageUris) { uri ->
+            AsyncImage(
+                model = uri,
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun NewPlayerScreenPreview(){
     NewPlayerScreen(
         onConfirmClick = { _, _ -> },
-        onImageClick = { R.drawable.android_superhero1 },
-        onRandomImageClick = {}
+        onCancelClick = {  }
     )
 }
