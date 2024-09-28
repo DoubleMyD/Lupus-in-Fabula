@@ -29,7 +29,7 @@ import com.example.lupusinfabulav1.model.PlayersForRoleEvent
 import com.example.lupusinfabulav1.model.PlayersForRoleViewModel
 import com.example.lupusinfabulav1.model.VillageEvent
 import com.example.lupusinfabulav1.model.VillageViewModel
-import com.example.lupusinfabulav1.ui.LupusInFabulaAppBar
+import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 
 class MainActivity : AppCompatActivity() {

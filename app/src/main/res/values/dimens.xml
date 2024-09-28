@@ -18,4 +18,8 @@
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="image_size">64dp</dimen>
+    <dimen name="border_width_small">2dp</dimen>">
+    <dimen name="border_width_medium">4dp</dimen>">
+    <dimen name="border_width_large">8dp</dimen>">
+
 </resources>

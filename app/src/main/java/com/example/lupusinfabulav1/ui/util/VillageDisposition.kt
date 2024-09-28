@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.ui
+package com.example.lupusinfabulav1.ui.util
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

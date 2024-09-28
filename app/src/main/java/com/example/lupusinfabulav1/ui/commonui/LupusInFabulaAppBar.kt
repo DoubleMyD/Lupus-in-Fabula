@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.ui
+package com.example.lupusinfabulav1.ui.commonui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,6 +11,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

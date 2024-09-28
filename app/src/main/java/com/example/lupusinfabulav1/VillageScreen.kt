@@ -2,25 +2,18 @@ package com.example.lupusinfabulav1
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,14 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.lupusinfabulav1.data.VillageUiState
 import com.example.lupusinfabulav1.model.Player
-import com.example.lupusinfabulav1.model.getPainter
+import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
+import com.example.lupusinfabulav1.ui.playerCard.PlayerCard
 import kotlin.math.pow
 
 private const val TAG = "VillageScreen"
@@ -61,8 +54,8 @@ fun VillageScreen6(
 ) {
     val getBorder: @Composable (Player) -> BorderStroke = { player ->
         when {
-            player == uiState.selectedPlayer -> BorderStroke(2.dp, Color.Black)
-            player.role ==uiState.currentRole -> BorderStroke(4.dp, uiState.currentRole.color)
+            player == uiState.selectedPlayer -> BorderStroke(dimensionResource(id = R.dimen.border_width_small), Color.Black)
+            player.role ==uiState.currentRole -> BorderStroke(dimensionResource(id = R.dimen.border_width_medium), uiState.currentRole.color)
             else -> CardDefaults.outlinedCardBorder()
         }
     }
@@ -79,12 +72,9 @@ fun VillageScreen6(
             onDismissRequest = { playerToShowInfo = null },
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
         ) {
-            PlayerCard(
-                border = getBorder(playerToShowInfo!!),
-                orientation = Orientation.Vertical,
+            PlayerCardInfo(
                 player = playerToShowInfo!!,
-                onPlayerTap = { },
-                onPlayerLongPress = { },
+                backgroundColor = playerToShowInfo!!.role.color.copy(alpha = 0.1f),
                 modifier = Modifier
                     .size(400.dp)
                     .padding(dimensionResource(id = R.dimen.padding_medium))
@@ -98,7 +88,7 @@ fun VillageScreen6(
         contentAlignment = Alignment.Center, // Center the content
         modifier = modifier
             .fillMaxSize()
-            .background(uiState.currentRole.color.copy(alpha = 0.1f)), // Ensure the Box takes up the entire screen
+            .background(uiState.currentRole.color.copy(alpha = 0.05f)), // Ensure the Box takes up the entire screen
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -207,115 +197,6 @@ fun VillageScreen6Preview() {
             .fillMaxSize()
             .padding(dimensionResource(id = R.dimen.padding_small))
     )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun PlayerCard(alphaColor: Float = 0.1f, border: BorderStroke, orientation: Orientation = Orientation.Horizontal, player: Player, onPlayerTap:() -> Unit, onPlayerLongPress:() -> Unit, modifier: Modifier = Modifier) {
-    val backgroundColor = player.role.color.copy(alpha = alphaColor)
-
-    val cardModifier = Modifier
-        .fillMaxSize()
-        .background(backgroundColor)
-
-    OutlinedCard(
-        border = border,
-        modifier = modifier
-            .combinedClickable(
-                onClick = { onPlayerTap() },
-                onLongClick = { onPlayerLongPress() }
-            )
-    ) {
-        if (Orientation.Vertical == orientation) {
-            PlayerCardVertical(
-                player = player,
-                modifier = cardModifier
-            )
-        }
-        if (Orientation.Horizontal == orientation) {
-            PlayerCardHorizontal(
-                player = player,
-                modifier = cardModifier
-            )
-        }
-    }
-}
-
-@Composable
-fun PlayerCardVertical(
-    player: Player,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = player.name,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                modifier = Modifier
-                    .weight(4f)
-                    .basicMarquee(velocity = 10.dp, repeatDelayMillis = 1000 * 10)
-            )
-            Image(
-                painter = painterResource(id = player.role.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .weight(1f)
-            )
-        }
-        Image(
-            painter = player.imageSource.getPainter(),
-            contentDescription = player.name,
-            modifier = Modifier
-                .weight(3f)
-                .padding(vertical = 4.dp)
-        )
-    }
-}
-
-@Composable
-fun PlayerCardHorizontal(
-    player: Player,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .weight(4f)
-                .padding(4.dp)
-                .fillMaxSize()
-        ) {
-            Image(
-                painter = painterResource(id = player.role.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(32.dp)
-            )
-        }
-        Image(
-            painter = player.imageSource.getPainter(),
-            contentDescription = player.name,
-            modifier = Modifier
-                .weight(7f)
-                .fillMaxSize()
-        )
-    }
 }
 
 private fun calculateWeights(players: List<Player>): VillageLayoutWeights {
