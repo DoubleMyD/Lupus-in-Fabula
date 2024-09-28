@@ -130,6 +130,7 @@ fun PlayerCardHorizontalPreview(){
         onPlayerLongPress = {},
         onPlayerTap = {},
         rolesVotedBy = Role.entries,
-        votedCount = 10
+        votedCount = 10,
+        alphaColor = 0.1f
     )
 }

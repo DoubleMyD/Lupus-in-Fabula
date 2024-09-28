@@ -1,10 +1,12 @@
 package com.example.lupusinfabulav1.model
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lupusinfabulav1.data.VillageUiState
 import com.example.lupusinfabulav1.model.voting.RoleVotes
 import com.example.lupusinfabulav1.model.voting.VoteManager
+import com.example.lupusinfabulav1.model.voting.VoteMessage
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,10 +16,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val TAG = "VillageViewModel"
 // Define possible UI events, such as showing a message
 sealed class VillageEvent{
     data object ErrorNotAllPlayersHaveVoted: VillageEvent()
     data object GameNotStarted: VillageEvent()
+    data object AllPlayersHaveVoted: VillageEvent()
+    data object Tie: VillageEvent()
+    data object Tie_Restart_Voting: VillageEvent()
 }
 
 class VillageViewModel : ViewModel() {
@@ -33,7 +39,7 @@ class VillageViewModel : ViewModel() {
     private val roles = Role.entries
     private var roleIndex = 0
 
-    private val voterIndex = 0
+    private var voterIndex = 0
 
     init {
         viewModelScope.launch {
@@ -52,7 +58,7 @@ class VillageViewModel : ViewModel() {
                 goToNextRole()
             } else {
                 viewModelScope.launch {
-                    _uiEvent.emit(VillageEvent.ErrorNotAllPlayersHaveVoted)
+                    _uiEvent.emit(VillageEvent.Tie)
                 }
             }
         } else {
@@ -74,34 +80,54 @@ class VillageViewModel : ViewModel() {
             currentState.copy(currentRole = roles[roleIndex])
         }
 
-        val voterPlayers = _uiState.value.players.filter { it.role == roles[roleIndex] }
+        voterIndex = 0
+        val voterPlayers = _uiState.value.players.filter { it.role == roles[roleIndex] && it.alive }
         voteManager.startVoting(_uiState.value.currentRole, voterPlayers)
+
+        updateSelectedPlayer(voterPlayers.first())
+        updateCurrentVoting(voteManager.getLastVotingState())
     }
 
     fun vote(voter: Player, votedPlayer: Player) {
         if (_uiState.value.isGameStarted) {
-            if(votedPlayer.alive) {
-                voteManager.vote(voter = voter, votedPlayer = votedPlayer)
-                val votingState = voteManager.getLastVotingState()
-
-                val newSelectedPlayer = getNextVoter(votingState.voters)
-                updateSelectedPlayer(newSelectedPlayer)
-                updateCurrentVoting(votingState)
+            if (!votedPlayer.alive) {
+                return
             }
+            if (voteManager.isVotingFinished()) {
+                viewModelScope.launch {
+                    _uiEvent.emit(VillageEvent.AllPlayersHaveVoted)
+                }
+                return
+            }
+            val voteMessage = voteManager.vote(voter = voter, votedPlayer = votedPlayer)
+
+            val votingState = voteManager.getLastVotingState()
+            updateCurrentVoting(votingState)
+
+            if (voteManager.isLastVote()) {
+                if (voteMessage == VoteMessage.RESTART) {
+                    viewModelScope.launch {
+                        _uiEvent.emit(VillageEvent.Tie_Restart_Voting)
+                    }
+                    startNewVoting()
+                }
+                return
+            }
+
+            val newSelectedPlayer = getNextVoter(votingState.voters)
+            updateSelectedPlayer(newSelectedPlayer)
         } else {
             viewModelScope.launch {
-                _uiEvent.emit(VillageEvent.ErrorNotAllPlayersHaveVoted)
+                _uiEvent.emit(VillageEvent.GameNotStarted)
             }
         }
     }
-/*
-    fun getPlayerVotedCount(player: Player):Int {
-        val votingState = voteManager.getLastVotingState()
-        return votingState.votesPairPlayers.count { it.votedPlayer == player }
-    }
-*/
+
     private fun getNextVoter(voters: List<Player>): Player{
-        val nextIndex = voterIndex + 1
+        val nextIndex = ++voterIndex
+        Log.d(TAG, "Voters: ${voters}")
+        Log.d(TAG, "nextIndex: ${nextIndex}")
+        Log.d(TAG, "getNextPlayerr: ${voters[nextIndex]}")
         return voters[nextIndex]
     }
 

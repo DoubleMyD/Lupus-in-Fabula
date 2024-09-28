@@ -1,7 +1,14 @@
 package com.example.lupusinfabulav1.model.voting
 
+import android.util.Log
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.Role
+
+private const val TAG = "VoteManager"
+
+enum class VoteMessage{
+    IS_OK, RESTART,
+}
 
 data class VotePairPlayers(
     val voter: Player,
@@ -18,14 +25,16 @@ data class RoleVotes(
 class VoteManager {
     private val votingHistory: MutableList<RoleVotes> = mutableListOf()
     private var votingFinished: Boolean = false
+    private var lastVote: Boolean = false
 
     fun startVoting(role: Role, voters: List<Player>) {
         votingFinished = false
+        lastVote = false
         val voting = RoleVotes(role, voters, emptyList(), emptyList())
         votingHistory.add(voting)
     }
 
-    fun vote(voter: Player, votedPlayer: Player) {
+    fun vote(voter: Player, votedPlayer: Player): VoteMessage{
         val currentVoting = getLastVotingState()
         val newVotes = currentVoting.votedPlayers + votedPlayer
         val newPairPlayer = currentVoting.votesPairPlayers + VotePairPlayers(voter, votedPlayer)
@@ -35,6 +44,12 @@ class VoteManager {
             votesPairPlayers = newPairPlayer
         )
         votingHistory[votingHistory.lastIndex] = newVoting
+
+        if(newVoting.voters.size - newVoting.votedPlayers.size == 0) {
+            lastVote = true
+            getMostVotedPlayer()
+        }
+        return VoteMessage.IS_OK
     }
 
     fun getMostVotedPlayer() : Player? {
@@ -56,11 +71,19 @@ class VoteManager {
        }
     }
 
+    fun isVotingFinished(): Boolean {
+        return votingFinished
+    }
+
+    fun isLastVote(): Boolean {
+        return lastVote
+    }
+
     fun getLastVotingState(): RoleVotes {
         return votingHistory.last()
     }
 
-    fun handleTie(votedPlayers: List<Player>) {
-
+    private fun handleTie(role: Role, votedPlayers: List<Player>) {
+        startVoting(role, votedPlayers)
     }
 }

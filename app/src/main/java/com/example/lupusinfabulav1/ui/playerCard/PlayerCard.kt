@@ -19,11 +19,11 @@ fun PlayerCard(
     player: Player,
     rolesVotedBy: List<Role>,
     votedCount: Int,
+    alphaColor: Float,
     onPlayerTap: () -> Unit,
     onPlayerLongPress: () -> Unit,
     modifier: Modifier = Modifier,
     orientation: Orientation = Orientation.Horizontal,
-    alphaColor: Float = 0.1f,
     ) {
     val backgroundColor = player.role.color.copy(alpha = alphaColor)
     val cardModifier = Modifier

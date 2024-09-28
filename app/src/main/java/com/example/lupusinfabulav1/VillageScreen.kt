@@ -55,7 +55,7 @@ fun VillageScreen6(
 ) {
     val getBorder: @Composable (Player) -> BorderStroke = { player ->
         when {
-            player.alive && player == uiState.selectedPlayer -> BorderStroke(dimensionResource(id = R.dimen.border_width_small), Color.Black)
+            player.alive && player == uiState.selectedPlayer -> BorderStroke(dimensionResource(id = R.dimen.border_width_large), Color.Black)
             player.alive && player.role ==uiState.currentRole -> BorderStroke(dimensionResource(id = R.dimen.border_width_medium), uiState.currentRole.color)
             player.alive -> CardDefaults.outlinedCardBorder()
             else -> CardDefaults.outlinedCardBorder(false)
@@ -66,6 +66,9 @@ fun VillageScreen6(
     }
     val getPlayerVotedCount: (Player) -> Int = { player ->
         uiState.currentVoting.votesPairPlayers.count { it.votedPlayer == player }
+    }
+    val getBackgroundAlphaColor: (Player) -> Float = { player ->
+        if (uiState.currentVoting.votesPairPlayers.any { it.voter == player }) 0.4f else 0.1f
     }
     // Memoize the calculations for all required variables
     val layoutWeights = remember(uiState.players) { calculateWeights(uiState.players) }
@@ -109,11 +112,12 @@ fun VillageScreen6(
                 val firstPlayer = uiState.players.first()
                 Spacer(modifier = Modifier.weight(layoutWeights.totalSpacingWeight / 2f))
                 PlayerCard(
+                    alphaColor = getBackgroundAlphaColor(firstPlayer),
                     votedCount = getPlayerVotedCount(firstPlayer),
                     rolesVotedBy = getVotedByRole(firstPlayer),
                     border = getBorder(firstPlayer),
                     player = firstPlayer,
-                    onPlayerTap = { onPlayerTap(uiState.selectedPlayer, firstPlayer) },
+                    onPlayerTap = { uiState.selectedPlayer?.let { onPlayerTap(it, firstPlayer) } },
                     onPlayerLongPress = { onPlayerLongPress(firstPlayer) },
                     modifier = Modifier.weight(layoutWeights.singleCardWeight),
                 )
@@ -132,21 +136,23 @@ fun VillageScreen6(
                 Row(modifier = Modifier.weight(1f)) {
                     Spacer(modifier = Modifier.weight(edgeWeight))
                     PlayerCard(
+                        alphaColor = getBackgroundAlphaColor(firstRowPlayer),
                         votedCount = getPlayerVotedCount(firstRowPlayer),
                         rolesVotedBy = getVotedByRole(firstRowPlayer),
                         border = getBorder(firstRowPlayer),
                         player = firstRowPlayer,
-                        onPlayerTap = { onPlayerTap(uiState.selectedPlayer, firstRowPlayer) },
+                        onPlayerTap = { uiState.selectedPlayer?.let { onPlayerTap(it, firstRowPlayer) } },
                         onPlayerLongPress = { onPlayerLongPress(firstRowPlayer) },
                         modifier = Modifier.weight(singleCardWeight)
                     )
                     Spacer(modifier = Modifier.weight(middleWeight))
                     PlayerCard(
+                        alphaColor = getBackgroundAlphaColor(secondRowPlayer),
                         votedCount = getPlayerVotedCount(secondRowPlayer),
                         rolesVotedBy = getVotedByRole(secondRowPlayer),
                         border = getBorder(secondRowPlayer),
                         player = secondRowPlayer,
-                        onPlayerTap = { onPlayerTap(uiState.selectedPlayer, secondRowPlayer) },
+                        onPlayerTap = { uiState.selectedPlayer?.let { onPlayerTap(it, secondRowPlayer) } },
                         onPlayerLongPress = { onPlayerLongPress(secondRowPlayer) },
                         modifier = Modifier.weight(singleCardWeight)
                     )
@@ -160,11 +166,12 @@ fun VillageScreen6(
                 if (isOdd) {
                     val penultimatePlayer = uiState.players[uiState.players.size - 2]
                     PlayerCard(
+                        alphaColor = getBackgroundAlphaColor(penultimatePlayer),
                         votedCount = getPlayerVotedCount(penultimatePlayer),
                         rolesVotedBy = getVotedByRole(penultimatePlayer),
                         border = getBorder(penultimatePlayer),
                         player = penultimatePlayer,
-                        onPlayerTap = { onPlayerTap(uiState.selectedPlayer, penultimatePlayer) },
+                        onPlayerTap = { uiState.selectedPlayer?.let { onPlayerTap(it, penultimatePlayer) } },
                         onPlayerLongPress = { onPlayerLongPress(penultimatePlayer) },
                         modifier = Modifier.weight(layoutWeights.singleCardWeight)
                     )
@@ -172,11 +179,12 @@ fun VillageScreen6(
                 }
                 val lastPlayer = uiState.players.last()
                 PlayerCard(
+                    alphaColor = getBackgroundAlphaColor(lastPlayer),
                     votedCount = getPlayerVotedCount(lastPlayer),
                     rolesVotedBy = getVotedByRole(lastPlayer),
                     border = getBorder(lastPlayer),
                     player = lastPlayer,
-                    onPlayerTap = { onPlayerTap(uiState.selectedPlayer, lastPlayer) },
+                    onPlayerTap = { uiState.selectedPlayer?.let { onPlayerTap(it, lastPlayer) } },
                     onPlayerLongPress = { onPlayerLongPress(lastPlayer) },
                     modifier = Modifier.weight(layoutWeights.singleCardWeight)
                 )
@@ -190,7 +198,7 @@ fun VillageScreen6(
         ) {
             Spacer(modifier = Modifier.weight(layoutWeights.singleCardWeight + layoutWeights.maxMiddleWeight / 2))
             Image(
-                painter = painterResource(id = R.drawable.android_superhero1),
+                painter = painterResource(id = uiState.currentRole.image),
                 contentDescription = null,
                 modifier = Modifier
                     .weight(layoutWeights.totalSpacingWeight - layoutWeights.maxMiddleWeight * 0.4f)

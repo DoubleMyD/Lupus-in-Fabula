@@ -8,7 +8,7 @@ data class VillageUiState(
     val isGameStarted: Boolean = false,
     val players: List<Player> = PlayersRepository.players,
     val currentRole: Role = Role.CITTADINO,
-    val selectedPlayer: Player = players.first(),
+    val selectedPlayer: Player? = null,
     val votedPlayerByRole: Map<Role, Player> = emptyMap(),   //Per ogni ruolo contiene il giocatore votato nell'ultimo turno del ruolo
     val currentVoting: RoleVotes = RoleVotes(currentRole, emptyList(), emptyList(), emptyList()),
     )
