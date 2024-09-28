@@ -30,8 +30,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.lupusinfabulav1.data.VillageUiState
 import com.example.lupusinfabulav1.model.Player
-import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
+import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCard
+import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
 import kotlin.math.pow
 
 private const val TAG = "VillageScreen"
@@ -54,10 +55,17 @@ fun VillageScreen6(
 ) {
     val getBorder: @Composable (Player) -> BorderStroke = { player ->
         when {
-            player == uiState.selectedPlayer -> BorderStroke(dimensionResource(id = R.dimen.border_width_small), Color.Black)
-            player.role ==uiState.currentRole -> BorderStroke(dimensionResource(id = R.dimen.border_width_medium), uiState.currentRole.color)
-            else -> CardDefaults.outlinedCardBorder()
+            player.alive && player == uiState.selectedPlayer -> BorderStroke(dimensionResource(id = R.dimen.border_width_small), Color.Black)
+            player.alive && player.role ==uiState.currentRole -> BorderStroke(dimensionResource(id = R.dimen.border_width_medium), uiState.currentRole.color)
+            player.alive -> CardDefaults.outlinedCardBorder()
+            else -> CardDefaults.outlinedCardBorder(false)
         }
+    }
+    val getVotedByRole: (Player) -> List<Role> = { player ->
+        Role.entries.filter { uiState.votedPlayerByRole[it] == player }
+    }
+    val getPlayerVotedCount: (Player) -> Int = { player ->
+        uiState.currentVoting.votesPairPlayers.count { it.votedPlayer == player }
     }
     // Memoize the calculations for all required variables
     val layoutWeights = remember(uiState.players) { calculateWeights(uiState.players) }
@@ -101,11 +109,13 @@ fun VillageScreen6(
                 val firstPlayer = uiState.players.first()
                 Spacer(modifier = Modifier.weight(layoutWeights.totalSpacingWeight / 2f))
                 PlayerCard(
+                    votedCount = getPlayerVotedCount(firstPlayer),
+                    rolesVotedBy = getVotedByRole(firstPlayer),
                     border = getBorder(firstPlayer),
                     player = firstPlayer,
                     onPlayerTap = { onPlayerTap(uiState.selectedPlayer, firstPlayer) },
                     onPlayerLongPress = { onPlayerLongPress(firstPlayer) },
-                    modifier = Modifier.weight(layoutWeights.singleCardWeight)
+                    modifier = Modifier.weight(layoutWeights.singleCardWeight),
                 )
                 Spacer(modifier = Modifier.weight(layoutWeights.totalSpacingWeight / 2f))
             }
@@ -122,6 +132,8 @@ fun VillageScreen6(
                 Row(modifier = Modifier.weight(1f)) {
                     Spacer(modifier = Modifier.weight(edgeWeight))
                     PlayerCard(
+                        votedCount = getPlayerVotedCount(firstRowPlayer),
+                        rolesVotedBy = getVotedByRole(firstRowPlayer),
                         border = getBorder(firstRowPlayer),
                         player = firstRowPlayer,
                         onPlayerTap = { onPlayerTap(uiState.selectedPlayer, firstRowPlayer) },
@@ -130,6 +142,8 @@ fun VillageScreen6(
                     )
                     Spacer(modifier = Modifier.weight(middleWeight))
                     PlayerCard(
+                        votedCount = getPlayerVotedCount(secondRowPlayer),
+                        rolesVotedBy = getVotedByRole(secondRowPlayer),
                         border = getBorder(secondRowPlayer),
                         player = secondRowPlayer,
                         onPlayerTap = { onPlayerTap(uiState.selectedPlayer, secondRowPlayer) },
@@ -146,6 +160,8 @@ fun VillageScreen6(
                 if (isOdd) {
                     val penultimatePlayer = uiState.players[uiState.players.size - 2]
                     PlayerCard(
+                        votedCount = getPlayerVotedCount(penultimatePlayer),
+                        rolesVotedBy = getVotedByRole(penultimatePlayer),
                         border = getBorder(penultimatePlayer),
                         player = penultimatePlayer,
                         onPlayerTap = { onPlayerTap(uiState.selectedPlayer, penultimatePlayer) },
@@ -156,6 +172,8 @@ fun VillageScreen6(
                 }
                 val lastPlayer = uiState.players.last()
                 PlayerCard(
+                    votedCount = getPlayerVotedCount(lastPlayer),
+                    rolesVotedBy = getVotedByRole(lastPlayer),
                     border = getBorder(lastPlayer),
                     player = lastPlayer,
                     onPlayerTap = { onPlayerTap(uiState.selectedPlayer, lastPlayer) },

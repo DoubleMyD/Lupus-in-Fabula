@@ -10,12 +10,15 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.Role
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayerCard(
     border: BorderStroke,
     player: Player,
+    rolesVotedBy: List<Role>,
+    votedCount: Int,
     onPlayerTap: () -> Unit,
     onPlayerLongPress: () -> Unit,
     modifier: Modifier = Modifier,
@@ -44,6 +47,8 @@ fun PlayerCard(
         if (Orientation.Horizontal == orientation) {
             PlayerCardHorizontal(
                 player = player,
+                rolesVotedBy = rolesVotedBy,
+                votedCount = votedCount,
                 modifier = cardModifier
             )
         }

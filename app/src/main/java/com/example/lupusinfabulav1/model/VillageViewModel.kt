@@ -3,6 +3,7 @@ package com.example.lupusinfabulav1.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lupusinfabulav1.data.VillageUiState
+import com.example.lupusinfabulav1.model.voting.RoleVotes
 import com.example.lupusinfabulav1.model.voting.VoteManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +48,8 @@ class VillageViewModel : ViewModel() {
             val mostVotedPlayer = voteManager.getMostVotedPlayer()
 
             if (mostVotedPlayer != null) {
-                prepareForNextRole()
+                updateVotedPlayerByRole(_uiState.value.currentRole, mostVotedPlayer)
+                goToNextRole()
             } else {
                 viewModelScope.launch {
                     _uiEvent.emit(VillageEvent.ErrorNotAllPlayersHaveVoted)
@@ -62,10 +64,10 @@ class VillageViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(isGameStarted = true)
         }
-        prepareForNextRole()
+        goToNextRole()
     }
 
-    private fun prepareForNextRole() {
+    private fun goToNextRole() {
         roleIndex = (roleIndex + 1) % roles.size
 
         _uiState.update { currentState ->
@@ -78,18 +80,26 @@ class VillageViewModel : ViewModel() {
 
     fun vote(voter: Player, votedPlayer: Player) {
         if (_uiState.value.isGameStarted) {
-            voteManager.vote(voter = voter, votedPlayer = votedPlayer)
-            val votingState = voteManager.getLastVotingState()
+            if(votedPlayer.alive) {
+                voteManager.vote(voter = voter, votedPlayer = votedPlayer)
+                val votingState = voteManager.getLastVotingState()
 
-            val newSelectedPlayer = getNextVoter(votingState.voters)
-            updateSelectedPlayer(newSelectedPlayer)
+                val newSelectedPlayer = getNextVoter(votingState.voters)
+                updateSelectedPlayer(newSelectedPlayer)
+                updateCurrentVoting(votingState)
+            }
         } else {
             viewModelScope.launch {
                 _uiEvent.emit(VillageEvent.ErrorNotAllPlayersHaveVoted)
             }
         }
     }
-
+/*
+    fun getPlayerVotedCount(player: Player):Int {
+        val votingState = voteManager.getLastVotingState()
+        return votingState.votesPairPlayers.count { it.votedPlayer == player }
+    }
+*/
     private fun getNextVoter(voters: List<Player>): Player{
         val nextIndex = voterIndex + 1
         return voters[nextIndex]
@@ -98,6 +108,19 @@ class VillageViewModel : ViewModel() {
     private fun updateSelectedPlayer(player: Player) {
         _uiState.update { currentState ->
             currentState.copy(selectedPlayer = player)
+        }
+    }
+
+    private fun updateVotedPlayerByRole(role: Role, votedPlayer: Player) {
+        val votedPlayerByRole = role to votedPlayer
+        _uiState.update { currentState ->
+            currentState.copy(votedPlayerByRole = currentState.votedPlayerByRole + votedPlayerByRole)
+        }
+    }
+
+    private fun updateCurrentVoting(votingState: RoleVotes){
+        _uiState.update { currentState ->
+            currentState.copy(currentVoting = votingState)
         }
     }
 

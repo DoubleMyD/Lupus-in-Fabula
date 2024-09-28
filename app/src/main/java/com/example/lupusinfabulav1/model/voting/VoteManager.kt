@@ -12,7 +12,7 @@ data class RoleVotes(
     val role: Role,
     val voters: List<Player>,
     val votedPlayers: List<Player>,
-    val pairPlayers: List<VotePairPlayers>
+    val votesPairPlayers: List<VotePairPlayers>
 )
 
 class VoteManager {
@@ -28,11 +28,11 @@ class VoteManager {
     fun vote(voter: Player, votedPlayer: Player) {
         val currentVoting = getLastVotingState()
         val newVotes = currentVoting.votedPlayers + votedPlayer
-        val newPairPlayer = currentVoting.pairPlayers + VotePairPlayers(voter, votedPlayer)
+        val newPairPlayer = currentVoting.votesPairPlayers + VotePairPlayers(voter, votedPlayer)
 
         val newVoting = currentVoting.copy(
             votedPlayers = newVotes,
-            pairPlayers = newPairPlayer
+            votesPairPlayers = newPairPlayer
         )
         votingHistory[votingHistory.lastIndex] = newVoting
     }
