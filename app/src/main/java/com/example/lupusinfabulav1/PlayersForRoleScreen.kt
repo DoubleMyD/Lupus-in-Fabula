@@ -17,9 +17,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -28,7 +25,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.lupusinfabulav1.data.PlayersForRoleUiState
-import com.example.lupusinfabulav1.model.PlayersForRoleViewModel
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
 
@@ -36,7 +32,6 @@ import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
 fun PlayersForRoleScreen(
     onConfirmClick: () -> Unit,
     onCancelClick: () -> Unit,
-    playerSize: Int,
     uiState: PlayersForRoleUiState,
     onSliderValueChange: (Float) -> Unit,
     onRandomNumberClick: () -> Unit,
@@ -64,15 +59,13 @@ fun PlayersForRoleScreen(
                     sliderValue = uiState.sliderValue,
                     onSliderValueChange = { newValue -> onSliderValueChange(newValue) },
                     onRandomNumberClick = { onRandomNumberClick() },
-                    minAllowedValue = uiState.minAllowedValue,
-                    maxAllowedValue = uiState.maxAllowedValue,
                     modifier = Modifier.weight(1f)
                 )
             }
         }
         Spacer( modifier = Modifier.weight(1f) )
         Text(
-            text = stringResource(id = R.string.total_players, playerSize),
+            text = stringResource(id = R.string.total_players, uiState.playersSize),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Text(
@@ -109,8 +102,6 @@ fun PlayerCountSlider(
     sliderValue: Float,
     onSliderValueChange: (Float) -> Unit,
     onRandomNumberClick: () -> Unit,
-    minAllowedValue: Int,
-    maxAllowedValue: Int,
     modifier: Modifier = Modifier,
     startRange: Float = 1f,
     finishRange: Float = 10f,
@@ -148,10 +139,7 @@ fun PlayerCountSlider(
 
             Slider(
                 value = sliderValue,
-                onValueChange = { newValue ->
-                    val validValue = newValue.coerceIn(minAllowedValue.toFloat(), maxAllowedValue.toFloat())
-                    onSliderValueChange(validValue)
-                },
+                onValueChange = { newValue -> onSliderValueChange(newValue) },
                 valueRange = startRange..finishRange,
                 steps = (finishRange - startRange).toInt() - 1, // Adjust steps according to the range
                 modifier = Modifier.weight(8f)
@@ -275,6 +263,5 @@ fun PlayersForRoleScreenPreview(){
         onRandomNumberClick = {},
         onRoleSelection = {},
         onRandomizeAllClick = {},
-        playerSize = 1
     )
 }

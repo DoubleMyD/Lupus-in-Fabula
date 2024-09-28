@@ -7,5 +7,9 @@
     <string name="total_players">Total players: %d</string>
     <string name="remaining_players">Remaining players: %d</string>
     <string name="error_not_all_players_selected">Not all players are selected. Please select all players.</string>
+    <string name="error_name_not_available">The name is not available. Please change name</string>
+    <string name="error_too_many_players_selected">You already reached the total players size</string>
+    <string name="game_not_started">Game is not started. Click on the center icon to start the game</string>
+    <string name="error_not_all_players_have_voted">Not all players have voted. Please finish voting</string>
 
 </resources>

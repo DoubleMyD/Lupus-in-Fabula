@@ -2,64 +2,66 @@ package com.example.lupusinfabulav1.data
 
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerImageSource
 import com.example.lupusinfabulav1.model.Role
 
 object PlayersRepository {
+    private var i = 1
     val players = listOf(
         Player(
-            name = "Dodo",
+            name = i++.toString(),
             role = Role.ASSASSINO,
-            imageRes = R.drawable.android_superhero1
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero1)
         ),
         Player(
-            name = "Supreme",
+            name = i++.toString(),
             role = Role.CITTADINO,
-            imageRes = R.drawable.android_superhero2
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero2)
         ),
         Player(
-            name = "Vedo",
+            name = i++.toString(),
             role = Role.VEGGENTE,
-            imageRes = R.drawable.android_superhero3
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero3)
         ),
         Player(
-            name = "CACCCC",
+            name = i++.toString(),
             role = Role.FACILI_COSTUMI,
-            imageRes = R.drawable.android_superhero4
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero4)
         ),
         Player(
-            name = "SAAASSS",
+            name = i++.toString(),
             role = Role.ASSASSINO,
-            imageRes = R.drawable.android_superhero5
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero5)
         ),
         Player(
-            name = "Lover",
+            name = i++.toString(),
             role = Role.CUPIDO,
-            imageRes = R.drawable.android_superhero6
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero6)
         ),
         Player(
-            name = "Dodo",
+            name = i++.toString(),
             role = Role.MEDIUM,
-            imageRes = R.drawable.ic_launcher_background
+            imageSource = PlayerImageSource.Resource(R.drawable.ic_launcher_background)
         ),
         Player(
-            name = "City",
+            name = i++.toString(),
             role = Role.CITTADINO,
-            imageRes = R.drawable.android_superhero1
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero1)
         ),
 
 /*
         Player(
-            name = "Dodo",
+            name = i++.toString(),
             role = Role.MEDIUM,
             imageRes = R.drawable.ic_launcher_background
         ),
         Player(
-            name = "City",
+            name = i++.toString(),
             role = Role.CITTADINO,
             imageRes = R.drawable.android_superhero1
         ),
         Player(
-            name = "Dodo",
+            name = i++.toString(),
             role = Role.MEDIUM,
             imageRes = R.drawable.ic_launcher_background
         ),*/
@@ -69,86 +71,92 @@ object PlayersRepository {
 
 
         Player(
-            name = "a",
+            name = i++.toString(),
             role = Role.ASSASSINO,
-            imageRes = R.drawable.android_superhero1
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero1)
         ),
         Player(
-            name = "b",
+            name = i++.toString(),
             role = Role.CITTADINO,
-            imageRes = R.drawable.android_superhero2
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero2)
         ),
         Player(
-            name = "c",
+            name = i++.toString(),
             role = Role.VEGGENTE,
-            imageRes = R.drawable.android_superhero3
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero3)
         ),
         Player(
-            name = "d",
+            name = i++.toString(),
             role = Role.FACILI_COSTUMI,
-            imageRes = R.drawable.android_superhero4
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero4)
         ),
         Player(
-            name = "e",
+            name = i++.toString(),
             role = Role.ASSASSINO,
-            imageRes = R.drawable.android_superhero5
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero5)
         ),
         Player(
-            name = "f",
+            name = i++.toString(),
             role = Role.CUPIDO,
-            imageRes = R.drawable.android_superhero6
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero6)
         ),
         Player(
-            name = "g",
+            name = i++.toString(),
             role = Role.MEDIUM,
-            imageRes = R.drawable.ic_launcher_background
+            imageSource = PlayerImageSource.Resource(R.drawable.ic_launcher_background)
         ),
         Player(
-            name = "h",
+            name = i++.toString(),
             role = Role.CITTADINO,
-            imageRes = R.drawable.android_superhero1
+            imageSource = PlayerImageSource.Resource(R.drawable.android_superhero1)
+        ),
+
+        Player(
+            name = "fiorellone gigante",
+            role = Role.CITTADINO,
+            imageSource = PlayerImageSource.Resource(R.drawable.cupido_bow)
         ),
 
 
 /*
         Player(
-            name = "Dodo",
+            name = i++.toString(),
             role = Role.ASSASSINO,
             imageRes = R.drawable.android_superhero1
         ),
         Player(
-            name = "Supreme",
+            name = i++.toString(),
             role = Role.CITTADINO,
             imageRes = R.drawable.android_superhero2
         ),
         Player(
-            name = "Vedo",
+            name = i++.toString(),
             role = Role.VEGGENTE,
             imageRes = R.drawable.android_superhero3
         ),
         Player(
-            name = "CACCCC",
+            name = i++.toString(),
             role = Role.FACILI_COSTUMI,
             imageRes = R.drawable.android_superhero4
         ),
         Player(
-            name = "SAAASSS",
+            name = i++.toString(),
             role = Role.ASSASSINO,
             imageRes = R.drawable.android_superhero5
         ),
 
         Player(
-            name = "Lover",
+            name = i++.toString(),
             role = Role.CUPIDO,
             imageRes = R.drawable.android_superhero6
         ),
         Player(
-            name = "Dodo",
+            name = i++.toString(),
             role = Role.MEDIUM,
             imageRes = R.drawable.ic_launcher_background
         ),
         Player(
-            name = "City",
+            name = i++.toString(),
             role = Role.CITTADINO,
             imageRes = R.drawable.android_superhero1
         ),

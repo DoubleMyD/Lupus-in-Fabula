@@ -1,22 +1,19 @@
 package com.example.lupusinfabulav1.model
 
 import com.example.lupusinfabulav1.data.PlayersRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-class PlayerManager {
-    private val _players = PlayersRepository.players.toMutableList()//mutableListOf<Player>()
-    val players: List<Player> get() = _players
+object PlayerManager {
+    private val _players = MutableStateFlow(PlayersRepository.players)
+    val players: StateFlow<List<Player>> = _players.asStateFlow()
 
-    fun addPlayer(player: Player): Boolean{
-       return _players.add(player)
+    fun addPlayer(player: Player) {
+        _players.value += player
     }
 
     fun removePlayer(player: Player) {
-        _players.remove(player)
+        _players.value -= player
     }
-
-
-
-
-
-
 }

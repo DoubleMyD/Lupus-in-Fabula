@@ -41,12 +41,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.example.lupusinfabulav1.data.ImageRepository
+import com.example.lupusinfabulav1.model.PlayerImageSource
+import com.example.lupusinfabulav1.model.getPainter
 import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
 
 @Composable
 fun NewPlayerScreen(
-    onConfirmClick: (String, Int) -> Unit,
+    onConfirmClick: (String, PlayerImageSource) -> Unit,
     onCancelClick: () -> Unit,
     modifier: Modifier = Modifier,
 ){
@@ -62,6 +65,17 @@ fun NewPlayerScreen(
     val onRandomImageClick = {
         selectedImageUri = null
         randomImage = ImageRepository.defaultImages.random()
+    }
+
+    val imageSource = if (selectedImageUri != null) {
+        PlayerImageSource.UriSource(selectedImageUri.toString())
+    } else {
+        PlayerImageSource.Resource(randomImage)
+    }
+
+    val painter = when (imageSource) {
+        is PlayerImageSource.Resource -> painterResource(id = imageSource.resId)
+        is PlayerImageSource.UriSource -> rememberAsyncImagePainter(model = imageSource.uri) // Use coil for Uri
     }
 
     Column(
@@ -81,7 +95,13 @@ fun NewPlayerScreen(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)  //it tells what type of media you want to show (if only video, or only images and so on )
                     )
                 }
-
+            Image(
+                painter = imageSource.getPainter(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = imageModifier
+            )
+            /*
             if (selectedImageUri != null) {
                 AsyncImage(
                     model = selectedImageUri,
@@ -97,6 +117,7 @@ fun NewPlayerScreen(
                     modifier = imageModifier
                 )
             }
+             */
             FilledIconButton(
                 onClick = { onRandomImageClick() }
             ) {
@@ -122,7 +143,7 @@ fun NewPlayerScreen(
         )
         Spacer( modifier = Modifier.weight(1f) )
         CancelAndConfirmButtons(
-            onConfirmClick = { onConfirmClick(name, 1) },
+            onConfirmClick = { onConfirmClick(name, imageSource) },
             onCancelClick = onCancelClick,
             modifier = Modifier.weight(1f)
         )
@@ -145,73 +166,7 @@ fun EditNumberField(@StringRes label: Int, @DrawableRes leadingIcon: Int, keyboa
 
 
 
-@Composable
-fun ImagePicker(){
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
-    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),//"contract" says what action/activity we want to perform/launch
-        onResult = { uri -> selectedImageUri = uri }
-    )
-
-    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(),//"contract" says what action/activity we want to perform/launch
-        onResult = { uris -> selectedImageUris = uris }
-    )
-
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Button(
-                    onClick = {
-                        singlePhotoPickerLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)  //it tells what type of media you want to show (if only video, or only images and so on )
-                        )
-                    }
-                ) {
-                    Text(text = "Select Image")
-                }
-                Button(
-                    onClick = {
-                        multiplePhotoPickerLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    }
-                ) {
-                    Text(text = "Select more images")
-                }
-            }
-        }
-
-        item {
-            AsyncImage(
-                model = selectedImageUri,
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
-        }
-
-        items(selectedImageUris) { uri ->
-            AsyncImage(
-                model = uri,
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
-        }
-
-
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

@@ -19,20 +19,28 @@ private const val TAG = "PlayersForRoleViewModel"
 // Define possible UI events, such as showing a message
 sealed class PlayersForRoleEvent {
     data object ErrorNotAllPlayersSelected : PlayersForRoleEvent()
+    data object ErrorTooManyPlayersSelected : PlayersForRoleEvent()
 }
 
 class PlayersForRoleViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(PlayersForRoleUiState())
     val uiState: StateFlow<PlayersForRoleUiState> = _uiState.asStateFlow()
 
-    val playersSize = PlayerManager().players.size
-
     // Event channel for UI interactions like Toasts or Dialogs
     private val _uiEvent = MutableSharedFlow<PlayersForRoleEvent>()
     val uiEvent: SharedFlow<PlayersForRoleEvent> = _uiEvent.asSharedFlow()
 
+    init {
+        viewModelScope.launch {
+            PlayerManager.players.collect { players ->
+                _uiState.value = _uiState.value.copy(playersSize = players.size)
+                updateRemainingPlayers()
+            }
+        }
+    }
+
     fun checkIfAllPlayersSelected(): Boolean {
-        val isAllSelected = _uiState.value.playersForRole.values.sum() == playersSize
+        val isAllSelected = _uiState.value.playersForRole.values.sum() == _uiState.value.playersSize
 
         if (!isAllSelected) {
             // Trigger event to notify that players are missing
@@ -41,23 +49,32 @@ class PlayersForRoleViewModel : ViewModel() {
             }
         }
 
-        return isAllSelected    }
+        return isAllSelected
+    }
     /**
      * update the slider value and the playersForRole map
      */
     fun updateSliderValue(newValue: Float) {
+        val validValue = newValue.coerceIn(_uiState.value.minAllowedValue.toFloat(), _uiState.value.maxAllowedValue.toFloat())
+
+        if(newValue.toInt() > _uiState.value.maxAllowedValue) {
+            viewModelScope.launch {
+                _uiEvent.emit(PlayersForRoleEvent.ErrorTooManyPlayersSelected)
+            }
+        }
+
         _uiState.update { currentState ->
             currentState.copy(
-                sliderValue = newValue,
+                sliderValue = validValue,
             )
         }
-        updatePlayersForRole(_uiState.value.currentRole, newValue.toInt())
+        updatePlayersForRole(_uiState.value.currentRole, validValue.toInt())
         updateMaxAndMinAllowedValue()
         updateRemainingPlayers()
     }
 
     private fun updateRemainingPlayers() {
-        val newValue = playersSize - _uiState.value.playersForRole.values.sum()
+        val newValue = _uiState.value.playersSize - _uiState.value.playersForRole.values.sum()
 
         _uiState.update { currentState ->
             currentState.copy(
@@ -69,7 +86,7 @@ class PlayersForRoleViewModel : ViewModel() {
     private fun updateMaxAndMinAllowedValue() {
         _uiState.update { currentState ->
             val currentSelectedPlayer = currentState.playersForRole.values.sum()
-            val remainPlayers = abs(playersSize - currentSelectedPlayer)
+            val remainPlayers = abs(_uiState.value.playersSize - currentSelectedPlayer)
             val maxAllowedValue = (remainPlayers + currentState.sliderValue.toInt()).coerceAtMost(currentState.finishRange)
 
             Log.d(TAG, "currentSelectedPlayer: $currentSelectedPlayer ; remainPlayers: $remainPlayers ; maxAllowedValue: $maxAllowedValue")
@@ -79,7 +96,6 @@ class PlayersForRoleViewModel : ViewModel() {
                 maxAllowedValue = maxAllowedValue,
             )
         }
-
     }
 
     /**
@@ -92,7 +108,7 @@ class PlayersForRoleViewModel : ViewModel() {
 
     fun onRandomizeAllClick() {
         val updatedPlayersForRole = _uiState.value.playersForRole.toMutableMap()
-        var remainingPlayers = playersSize // Total number of players
+        var remainingPlayers = _uiState.value.playersSize // Total number of players
 
         // Ideal player count per role
         val idealDistribution = mapOf(
@@ -182,7 +198,7 @@ class PlayersForRoleViewModel : ViewModel() {
         updateSliderValue(currentPlayersForRole.toFloat())
     }
 
-    fun updatePlayersForRole(role: Role, newValue: Int){
+    private fun updatePlayersForRole(role: Role, newValue: Int){
         val updatedPlayersForRole = _uiState.value.playersForRole.toMutableMap()
         updatedPlayersForRole[role] = newValue
         _uiState.update { currentState ->
@@ -190,7 +206,7 @@ class PlayersForRoleViewModel : ViewModel() {
         }
     }
 
-    fun updatePlayersForRole(updatedPlayersForRole: Map<Role, Int>){
+    private fun updatePlayersForRole(updatedPlayersForRole: Map<Role, Int>){
         _uiState.update { currentState ->
             currentState.copy(playersForRole = updatedPlayersForRole)
         }
