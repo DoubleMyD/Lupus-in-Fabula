@@ -1,5 +1,6 @@
 package com.example.lupusinfabulav1
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -61,6 +62,7 @@ fun LupusInFabulaApp(
     villageViewModel: VillageViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
+    val context = LocalContext.current
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
@@ -68,80 +70,13 @@ fun LupusInFabulaApp(
         backStackEntry?.destination?.route ?: LupusInFabulaScreen.HOME_PAGE.name
     )
 
-    val context = LocalContext.current
-
-    val newPlayerUiEvent = newPlayerViewModel.uiEvent.collectAsState(initial = null)
+    // Collect UI events for each ViewModel
+    HandleNewPlayerEvents(newPlayerViewModel, context)
+    HandlePlayersForRoleEvents(playersForRoleViewModel, context)
+    HandleVillageEvents(villageViewModel, context)
 
     val playersForRoleUiState by playersForRoleViewModel.uiState.collectAsState()
-    val playersForRoleUiEvent = playersForRoleViewModel.uiEvent.collectAsState(initial = null)
-
     val villageUiState by villageViewModel.uiState.collectAsState()
-    val villageUiEvent = villageViewModel.uiEvent.collectAsState(initial = null)
-
-    LaunchedEffect(newPlayerUiEvent.value) {
-        when (newPlayerUiEvent.value) {
-            NewPlayerEvent.ErrorNameNotAvailable -> {
-                Toast.makeText(
-                    context,
-                    R.string.error_name_not_available,
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            }
-
-            else -> Unit // Handle other events if necessary
-        }
-    }
-
-    // Observe UI events from the ViewModel
-    LaunchedEffect(villageUiEvent.value) {
-        // Immediately process the event when it's emitted
-        when (villageUiEvent.value) {
-            is VillageEvent.ErrorNotAllPlayersHaveVoted -> {
-                Toast.makeText(
-                    context,
-                    R.string.error_not_all_players_have_voted,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            is VillageEvent.GameNotStarted -> {
-                Toast.makeText(
-                    context,
-                    R.string.game_not_started,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            else -> Unit // Handle other potential events
-        }
-    }
-
-    // Observe UI events from the ViewModel
-    LaunchedEffect(playersForRoleUiEvent.value) {
-        when (playersForRoleUiEvent.value) {
-            PlayersForRoleEvent.ErrorNotAllPlayersSelected -> {
-                Toast.makeText(
-                    context,
-                    R.string.error_not_all_players_selected,
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            }
-
-            PlayersForRoleEvent.ErrorTooManyPlayersSelected -> {
-                Toast.makeText(
-                    context,
-                    R.string.error_too_many_players_selected,
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            }
-
-            else -> Unit // Handle other potential events
-        }
-    }
-
 
     Scaffold(
         topBar = {
@@ -215,27 +150,59 @@ fun LupusInFabulaApp(
     }
 }
 
+@Composable
+private fun HandleNewPlayerEvents(viewModel: NewPlayerViewModel, context: Context) {
+    val newPlayerUiEvent = viewModel.uiEvent.collectAsState(initial = null)
 
-//
-//// Observe UI events from the ViewModel
-//LaunchedEffect(villageUiEvent.value) {
-//    when (villageUiEvent.value) {
-//        VillageEvent.ErrorNotAllPlayersHaveVoted -> {
-//            Toast.makeText(
-//                context,
-//                R.string.error_not_all_players_have_voted,
-//                Toast.LENGTH_SHORT
-//            ).show()
-//        }
-//
-//        VillageEvent.GameNotStarted -> {
-//            Toast.makeText(
-//                context,
-//                R.string.game_not_started,
-//                Toast.LENGTH_SHORT
-//            ).show()
-//        }
-//
-//        else -> Unit // Handle other potential events
-//    }
-//}
+    LaunchedEffect(newPlayerUiEvent.value) {
+        when (newPlayerUiEvent.value) {
+            NewPlayerEvent.ErrorNameNotAvailable -> {
+                Toast.makeText(context, R.string.error_name_not_available, Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit // Handle other events if necessary
+        }
+    }
+}
+
+@Composable
+private fun HandlePlayersForRoleEvents(viewModel: PlayersForRoleViewModel, context: Context) {
+    val playersForRoleUiEvent = viewModel.uiEvent.collectAsState(initial = null)
+
+    LaunchedEffect(playersForRoleUiEvent.value) {
+        when (playersForRoleUiEvent.value) {
+            PlayersForRoleEvent.ErrorNotAllPlayersSelected -> {
+                Toast.makeText(context, R.string.error_not_all_players_selected, Toast.LENGTH_SHORT).show()
+            }
+            PlayersForRoleEvent.ErrorTooManyPlayersSelected -> {
+                Toast.makeText(context, R.string.error_too_many_players_selected, Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit // Handle other potential events
+        }
+    }
+}
+
+@Composable
+private fun HandleVillageEvents(viewModel: VillageViewModel, context: Context) {
+    val villageUiEvent = viewModel.uiEvent.collectAsState(initial = null)
+
+    LaunchedEffect(villageUiEvent.value) {
+        when (villageUiEvent.value) {
+            is VillageEvent.ErrorNotAllPlayersHaveVoted -> {
+                Toast.makeText(context, R.string.error_not_all_players_have_voted, Toast.LENGTH_SHORT).show()
+            }
+            is VillageEvent.AllPlayersHaveVoted -> {
+                Toast.makeText(context, R.string.all_players_have_voted, Toast.LENGTH_SHORT).show()
+            }
+            is VillageEvent.Tie -> {
+                Toast.makeText(context, R.string.tie, Toast.LENGTH_SHORT).show()
+            }
+            is VillageEvent.TieRestartVoting -> {
+                Toast.makeText(context, R.string.tie_restart_voting, Toast.LENGTH_SHORT).show()
+            }
+            is VillageEvent.GameNotStarted -> {
+                Toast.makeText(context, R.string.game_not_started, Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit //Toast.makeText(context, "An unexpected error occurred", Toast.LENGTH_SHORT).show()
+        }
+    }
+}

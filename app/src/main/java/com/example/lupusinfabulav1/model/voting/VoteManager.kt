@@ -48,6 +48,7 @@ class VoteManager {
         if(newVoting.voters.size - newVoting.votedPlayers.size == 0) {
             lastVote = true
             getMostVotedPlayer()
+            return VoteMessage.RESTART
         }
         return VoteMessage.IS_OK
     }
@@ -83,7 +84,7 @@ class VoteManager {
         return votingHistory.last()
     }
 
-    private fun handleTie(role: Role, votedPlayers: List<Player>) {
+    fun handleTie(role: Role, votedPlayers: List<Player>) {
         startVoting(role, votedPlayers)
     }
 }

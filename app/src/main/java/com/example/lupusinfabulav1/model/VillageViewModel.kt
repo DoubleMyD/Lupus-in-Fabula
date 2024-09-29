@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.lupusinfabulav1.data.VillageUiState
 import com.example.lupusinfabulav1.model.voting.RoleVotes
 import com.example.lupusinfabulav1.model.voting.VoteManager
-import com.example.lupusinfabulav1.model.voting.VoteMessage
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,7 +22,7 @@ sealed class VillageEvent{
     data object GameNotStarted: VillageEvent()
     data object AllPlayersHaveVoted: VillageEvent()
     data object Tie: VillageEvent()
-    data object Tie_Restart_Voting: VillageEvent()
+    data object TieRestartVoting: VillageEvent()
 }
 
 class VillageViewModel : ViewModel() {
@@ -54,19 +53,22 @@ class VillageViewModel : ViewModel() {
             val mostVotedPlayer = voteManager.getMostVotedPlayer()
 
             if (mostVotedPlayer != null) {
+//                Log.d(TAG, "Most voted player: $mostVotedPlayer")
                 updateVotedPlayerByRole(_uiState.value.currentRole, mostVotedPlayer)
                 goToNextRole()
             } else {
-                viewModelScope.launch {
-                    _uiEvent.emit(VillageEvent.Tie)
+                if(voteManager.isLastVote()) {
+//                    Log.d(TAG, "Tie")
+                    startNewVoting(_uiState.value.currentRole)
+                    triggerEvent(VillageEvent.Tie)
                 }
             }
         } else {
-            startNewVoting()
+            startVoting()
         }
     }
 
-    private fun startNewVoting() {
+    private fun startVoting() {
         _uiState.update { currentState ->
             currentState.copy(isGameStarted = true)
         }
@@ -74,18 +76,17 @@ class VillageViewModel : ViewModel() {
     }
 
     private fun goToNextRole() {
-        roleIndex = (roleIndex + 1) % roles.size
+        val nextRole = getNextRole()
+        updateCurrentRole(nextRole)
+        Log.d(TAG, "Next role: $nextRole")
 
-        _uiState.update { currentState ->
-            currentState.copy(currentRole = roles[roleIndex])
-        }
-
-        voterIndex = 0
-        val voterPlayers = _uiState.value.players.filter { it.role == roles[roleIndex] && it.alive }
-        voteManager.startVoting(_uiState.value.currentRole, voterPlayers)
-
-        updateSelectedPlayer(voterPlayers.first())
-        updateCurrentVoting(voteManager.getLastVotingState())
+        startNewVoting(nextRole)
+//        voterIndex = 0
+//        val voterPlayers = _uiState.value.players.filter { it.role == nextRole && it.alive }
+//        voteManager.startVoting(nextRole, voterPlayers)
+//
+//        updateSelectedPlayer(voterPlayers.first())
+//        updateCurrentVoting(voteManager.getLastVotingState())
     }
 
     fun vote(voter: Player, votedPlayer: Player) {
@@ -93,10 +94,8 @@ class VillageViewModel : ViewModel() {
             if (!votedPlayer.alive) {
                 return
             }
-            if (voteManager.isVotingFinished()) {
-                viewModelScope.launch {
-                    _uiEvent.emit(VillageEvent.AllPlayersHaveVoted)
-                }
+            if (voteManager.isVotingFinished() || voteManager.isLastVote()) {
+                triggerEvent(VillageEvent.AllPlayersHaveVoted)
                 return
             }
             val voteMessage = voteManager.vote(voter = voter, votedPlayer = votedPlayer)
@@ -105,30 +104,55 @@ class VillageViewModel : ViewModel() {
             updateCurrentVoting(votingState)
 
             if (voteManager.isLastVote()) {
-                if (voteMessage == VoteMessage.RESTART) {
-                    viewModelScope.launch {
-                        _uiEvent.emit(VillageEvent.Tie_Restart_Voting)
-                    }
-                    startNewVoting()
-                }
+//                if (voteMessage == VoteMessage.RESTART) {
+////                    viewModelScope.launch {
+////                        _uiEvent.emit(VillageEvent.Tie_Restart_Voting)
+////                    }
+//                    //startNewVoting()
+//                }
                 return
             }
 
             val newSelectedPlayer = getNextVoter(votingState.voters)
             updateSelectedPlayer(newSelectedPlayer)
         } else {
-            viewModelScope.launch {
-                _uiEvent.emit(VillageEvent.GameNotStarted)
-            }
+            triggerEvent(VillageEvent.GameNotStarted)
         }
+    }
+
+    // Trigger an event
+    private fun triggerEvent(event: VillageEvent) {
+        viewModelScope.launch {
+            _uiEvent.emit(event) // Emit event
+        }
+    }
+
+    private fun startNewVoting(votingRole: Role) {
+        voterIndex = 0
+        val voterPlayers = _uiState.value.players.filter { it.role == votingRole && it.alive }
+        voteManager.startVoting(votingRole, voterPlayers)
+
+        updateSelectedPlayer(voterPlayers.first())
+        updateCurrentVoting(voteManager.getLastVotingState())
     }
 
     private fun getNextVoter(voters: List<Player>): Player{
         val nextIndex = ++voterIndex
-        Log.d(TAG, "Voters: ${voters}")
-        Log.d(TAG, "nextIndex: ${nextIndex}")
-        Log.d(TAG, "getNextPlayerr: ${voters[nextIndex]}")
+//        Log.d(TAG, "Voters: ${voters}")
+//        Log.d(TAG, "nextIndex: ${nextIndex}")
+//        Log.d(TAG, "getNextPlayerr: ${voters[nextIndex]}")
         return voters[nextIndex]
+    }
+
+    private fun getNextRole(): Role {
+        val nextIndex = (++roleIndex) % roles.size
+        return roles[nextIndex]
+    }
+
+    private fun updateCurrentRole(role: Role) {
+        _uiState.update { currentState ->
+            currentState.copy(currentRole = role)
+        }
     }
 
     private fun updateSelectedPlayer(player: Player) {

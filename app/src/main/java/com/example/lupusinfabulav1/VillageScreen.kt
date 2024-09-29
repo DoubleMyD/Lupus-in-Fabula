@@ -1,6 +1,7 @@
 package com.example.lupusinfabulav1
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +33,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.lupusinfabulav1.data.VillageUiState
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.Role
+import com.example.lupusinfabulav1.model.VillageEvent
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCard
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
 import kotlin.math.pow
@@ -55,6 +58,7 @@ fun VillageScreen6(
 ) {
     val getBorder: @Composable (Player) -> BorderStroke = { player ->
         when {
+            uiState.isGameStarted.not() -> CardDefaults.outlinedCardBorder()
             player.alive && player == uiState.selectedPlayer -> BorderStroke(dimensionResource(id = R.dimen.border_width_large), Color.Black)
             player.alive && player.role ==uiState.currentRole -> BorderStroke(dimensionResource(id = R.dimen.border_width_medium), uiState.currentRole.color)
             player.alive -> CardDefaults.outlinedCardBorder()
@@ -225,6 +229,8 @@ fun VillageScreen6Preview() {
     )
 }
 
+
+
 private fun calculateWeights(players: List<Player>): VillageLayoutWeights {
     val rowPlayers = players.subList(1, players.size - 1)
     val numRows = (rowPlayers.size) / 2
@@ -291,5 +297,28 @@ private fun fastStartCurve(t: Float, minValue: Float, maxValue: Float): Float {
     // Fast start curve using square root: ranges from min_value to max_value over t in [0, 1]
     return minValue + (maxValue - minValue) * (t.pow(0.2f))
 }
+
+//private fun getBackgroundAlphaColor(player: Player, uiState: VillageUiState): Float {
+//    return if (uiState.currentVoting.votesPairPlayers.any { it.voter == player }) 0.4f else 0.1f
+//}
+//
+//private fun getVotedByRole(player: Player, uiState: VillageUiState): List<Role> {
+//    return Role.entries.filter { uiState.votedPlayerByRole[it] == player }
+//}
+//
+//private fun getPlayerVotedCount(player: Player, uiState: VillageUiState): Int {
+//    return uiState.currentVoting.votesPairPlayers.count { it.votedPlayer == player }
+//}
+//
+//@Composable
+//private fun getBorder(player: Player, uiState: VillageUiState): BorderStroke {
+//    return when {
+//        uiState.isGameStarted.not() -> CardDefaults.outlinedCardBorder()
+//        player.alive && player == uiState.selectedPlayer -> BorderStroke(dimensionResource(id = R.dimen.border_width_large), Color.Black)
+//        player.alive && player.role == uiState.currentRole -> BorderStroke(dimensionResource(id = R.dimen.border_width_medium), uiState.currentRole.color)
+//        player.alive -> CardDefaults.outlinedCardBorder()
+//        else -> CardDefaults.outlinedCardBorder(false)
+//    }
+//}
 
 

@@ -11,5 +11,8 @@
     <string name="error_too_many_players_selected">You already reached the total players size</string>
     <string name="game_not_started">Game is not started. Click on the center icon to start the game</string>
     <string name="error_not_all_players_have_voted">Not all players have voted. Please finish voting</string>
+    <string name="all_players_have_voted">All players already voted. Please go to next role</string>
+    <string name="tie">There is a tie in the player voted</string>
+    <string name="tie_restart_voting">Tie detected. Restart voting</string>
 
 </resources>
