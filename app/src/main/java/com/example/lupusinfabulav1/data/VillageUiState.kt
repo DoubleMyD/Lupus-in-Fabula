@@ -5,6 +5,7 @@ import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.model.voting.RoleVotes
 
 data class VillageUiState(
+    val round: Int = 0,
     val isGameStarted: Boolean = false,
     val players: List<Player> = PlayersRepository.players,
     val currentRole: Role = Role.CITTADINO,
