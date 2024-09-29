@@ -206,10 +206,10 @@ fun VillageScreen6(
                 contentDescription = null,
                 modifier = Modifier
                     .weight(layoutWeights.totalSpacingWeight - layoutWeights.maxMiddleWeight * 0.4f)
+                    .clickable { onCenterIconClick() }
                     .padding(
                         dimensionResource(id = R.dimen.padding_small)
                     )
-                    .clickable { onCenterIconClick() }
             )
             Spacer(modifier = Modifier.weight(layoutWeights.singleCardWeight + layoutWeights.maxMiddleWeight / 2))
         }

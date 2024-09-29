@@ -183,10 +183,11 @@ private fun HandlePlayersForRoleEvents(viewModel: PlayersForRoleViewModel, conte
 
 @Composable
 private fun HandleVillageEvents(viewModel: VillageViewModel, context: Context) {
-    val villageUiEvent = viewModel.uiEvent.collectAsState(initial = null)
+    //val villageUiEvent = viewModel.uiEvent.collectAsState(initial = null)
+    val villageUiEvent by viewModel.uiEvent.collectAsState()
 
-    LaunchedEffect(villageUiEvent.value) {
-        when (villageUiEvent.value) {
+    LaunchedEffect(villageUiEvent, ) {
+        when (villageUiEvent) {
             is VillageEvent.ErrorNotAllPlayersHaveVoted -> {
                 Toast.makeText(context, R.string.error_not_all_players_have_voted, Toast.LENGTH_SHORT).show()
             }
