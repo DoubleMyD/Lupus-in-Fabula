@@ -20,12 +20,10 @@ data class RoleVotes(
 
 class VoteManager {
     private val votingHistory: MutableList<RoleVotes> = mutableListOf()
-    private var votingFinished: Boolean = false
     private var lastVote: Boolean = false
     private var voterIndex: Int = 0
 
     fun startVoting(role: Role, voters: List<Player>) {
-        votingFinished = false
         lastVote = false
         voterIndex = 0
         val voting = RoleVotes(role, voters, emptyList(), emptyList())
@@ -43,13 +41,15 @@ class VoteManager {
         )
         votingHistory[votingHistory.lastIndex] = newVoting
 
-        if(newVoting.voters.size - newVoting.votedPlayers.size == 0) {
+        if(newVoting.voters.size == newVoting.votedPlayers.size) {
             lastVote = true
             getMostVotedPlayer()
         }
     }
 
     fun getMostVotedPlayer() : Player? {
+        if(lastVote.not()) return null
+
         val lastVoting = getLastVotingState()
 
         val voteCounts = lastVoting.votedPlayers
@@ -58,14 +58,11 @@ class VoteManager {
         val maxCount = voteCounts.maxOfOrNull { it.value } ?: 0
         val mostVotedPlayers = voteCounts.filter { it.value == maxCount }.keys
 
-        val allHaveVoted = lastVoting.voters.size == lastVoting.votedPlayers.size
-
-       if(mostVotedPlayers.size == 1 && allHaveVoted){
-           votingFinished = true
-           return mostVotedPlayers.first()
-       }else{
-           return null
-       }
+        return if(mostVotedPlayers.size == 1){
+            mostVotedPlayers.first()
+        }else{
+            null
+        }
     }
 
     fun getNextVoter(): Player{
@@ -75,10 +72,6 @@ class VoteManager {
 //        Log.d(TAG, "nextIndex: ${nextIndex}")
 //        Log.d(TAG, "getNextPlayerr: ${voters[nextIndex]}")
         return voters[nextIndex]
-    }
-
-    fun isVotingFinished(): Boolean {
-        return votingFinished
     }
 
     fun isLastVote(): Boolean {

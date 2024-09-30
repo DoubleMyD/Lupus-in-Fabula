@@ -98,7 +98,7 @@ class VillageViewModel : ViewModel() {
             if (!votedPlayer.alive) {
                 return
             }
-            if (voteManager.isVotingFinished() || voteManager.isLastVote()) {
+            if ( voteManager.isLastVote()) {
                 triggerAndClearEvent(VillageEvent.AllPlayersHaveVoted)
                 Log.d(TAG, "All players have voted")
                 return
