@@ -14,5 +14,10 @@
     <string name="all_players_have_voted">All players already voted. Please go to next role</string>
     <string name="tie">There is a tie in the player voted</string>
     <string name="tie_restart_voting">Tie detected. Restart voting</string>
+    <string name="role_event_assassin_killed_players">The killer killed %s</string>
+    <string name="role_event_cupido_killed_players">%s was voted by Cupido! Also %s dies!</string>
+    <string name="role_event_facili_costumi_saved_player">Facili Costumi saved a player from the killers!</string>
+    <string name="role_event_veggente_discover_killer">The Veggente discover that %s is a killer</string>
+    <string name="cupido_already_voted">You can\'t vote the same player twice in a couple!</string>
 
 </resources>

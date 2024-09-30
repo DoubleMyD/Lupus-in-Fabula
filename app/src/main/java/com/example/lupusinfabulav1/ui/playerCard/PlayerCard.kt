@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.Role
 
@@ -34,9 +35,10 @@ fun PlayerCard(
         border = border,
         modifier = modifier
             .combinedClickable(
-                onClick = { onPlayerTap() },
+                onClick = { if(player.alive) onPlayerTap() },
                 onLongClick = { onPlayerLongPress() }
             )
+            .alpha(if(player.alive) 1f else 0.5f)
     ) {
         if (Orientation.Vertical == orientation) {
             PlayerCardVertical(

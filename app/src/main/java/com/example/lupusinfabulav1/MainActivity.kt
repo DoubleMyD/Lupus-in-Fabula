@@ -2,6 +2,7 @@ package com.example.lupusinfabulav1
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,10 +29,13 @@ import com.example.lupusinfabulav1.model.NewPlayerEvent
 import com.example.lupusinfabulav1.model.NewPlayerViewModel
 import com.example.lupusinfabulav1.model.PlayersForRoleEvent
 import com.example.lupusinfabulav1.model.PlayersForRoleViewModel
+import com.example.lupusinfabulav1.model.RoleTypeEvent
 import com.example.lupusinfabulav1.model.VillageEvent
 import com.example.lupusinfabulav1.model.VillageViewModel
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
+
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -203,7 +207,24 @@ private fun HandleVillageEvents(viewModel: VillageViewModel, context: Context) {
             is VillageEvent.GameNotStarted -> {
                 Toast.makeText(context, R.string.game_not_started, Toast.LENGTH_SHORT).show()
             }
-            else -> Unit //Toast.makeText(context, "An unexpected error occurred", Toast.LENGTH_SHORT).show()
+
+            is VillageEvent.CupidoAlreadyVoted -> {
+                Toast.makeText(context, R.string.cupido_already_voted, Toast.LENGTH_SHORT).show()
+            }
+            is VillageEvent.RoleEvent -> handleRoleEvent(context, (villageUiEvent as VillageEvent.RoleEvent).roleEvent)
+
+            else -> Unit
+            //Toast.makeText(context, "An unexpected error occurred", Toast.LENGTH_SHORT).show()
         }
+        Log.d(TAG, "Event triggered: $villageUiEvent")
+    }
+}
+
+private fun handleRoleEvent(context: Context, roleTypeEvent: RoleTypeEvent) {
+    when(roleTypeEvent){
+        is RoleTypeEvent.AssassinKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_assassin_killed_players, roleTypeEvent.playerKilled.name), Toast.LENGTH_SHORT).show()
+        is RoleTypeEvent.CupidoKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_cupido_killed_players, roleTypeEvent.playersKilled.first.name, roleTypeEvent.playersKilled.second.name), Toast.LENGTH_SHORT).show()
+        is RoleTypeEvent.FaciliCostumiSavedPlayer -> Toast.makeText(context, R.string.role_event_facili_costumi_saved_player, Toast.LENGTH_SHORT).show()
+        is RoleTypeEvent.VeggenteDiscoverKiller -> Toast.makeText(context, context.getString(R.string.role_event_veggente_discover_killer, roleTypeEvent.killer.name), Toast.LENGTH_SHORT).show()
     }
 }

@@ -1,7 +1,6 @@
 package com.example.lupusinfabulav1
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +31,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.lupusinfabulav1.data.VillageUiState
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.Role
-import com.example.lupusinfabulav1.model.VillageEvent
+import com.example.lupusinfabulav1.model.voting.MostVotedPlayer
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCard
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
 import kotlin.math.pow
@@ -59,20 +57,38 @@ fun VillageScreen6(
     val getBorder: @Composable (Player) -> BorderStroke = { player ->
         when {
             uiState.isGameStarted.not() -> CardDefaults.outlinedCardBorder()
-            player.alive && player == uiState.selectedPlayer -> BorderStroke(dimensionResource(id = R.dimen.border_width_large), Color.Black)
-            player.alive && player.role ==uiState.currentRole -> BorderStroke(dimensionResource(id = R.dimen.border_width_medium), uiState.currentRole.color)
+            player.alive && player == uiState.selectedPlayer -> BorderStroke(
+                dimensionResource(id = R.dimen.border_width_large),
+                Color.Black
+            )
+
+            uiState.currentVoting.voters.contains(player) -> BorderStroke(
+                dimensionResource(id = R.dimen.border_width_medium),
+                uiState.currentRole.color
+            )
+
             player.alive -> CardDefaults.outlinedCardBorder()
             else -> CardDefaults.outlinedCardBorder(false)
         }
     }
     val getVotedByRole: (Player) -> List<Role> = { player ->
-        Role.entries.filter { uiState.votedPlayerByRole[it] == player }
+        Role.entries.filter { role ->
+            when (val votedPlayer = uiState.votedPlayerByRole[role]) {
+                is MostVotedPlayer.SinglePlayer -> votedPlayer.player == player
+                is MostVotedPlayer.PairPlayers -> votedPlayer.player1 == player || votedPlayer.player2 == player
+                null -> false
+            }
+        }
     }
     val getPlayerVotedCount: (Player) -> Int = { player ->
         uiState.currentVoting.votesPairPlayers.count { it.votedPlayer == player }
     }
     val getBackgroundAlphaColor: (Player) -> Float = { player ->
-        if (uiState.currentVoting.votesPairPlayers.any { it.voter == player }) 0.4f else 0.1f
+        val hasVoted = when (uiState.currentRole) {
+            Role.CUPIDO -> uiState.currentVoting.votesPairPlayers.count { it.voter == player } == 2
+            else -> uiState.currentVoting.votesPairPlayers.any { it.voter == player }
+        }
+        if (hasVoted) 0.4f else 0.1f
     }
     // Memoize the calculations for all required variables
     val layoutWeights = remember(uiState.players) { calculateWeights(uiState.players) }
@@ -145,7 +161,14 @@ fun VillageScreen6(
                         rolesVotedBy = getVotedByRole(firstRowPlayer),
                         border = getBorder(firstRowPlayer),
                         player = firstRowPlayer,
-                        onPlayerTap = { uiState.selectedPlayer?.let { onPlayerTap(it, firstRowPlayer) } },
+                        onPlayerTap = {
+                            uiState.selectedPlayer?.let {
+                                onPlayerTap(
+                                    it,
+                                    firstRowPlayer
+                                )
+                            }
+                        },
                         onPlayerLongPress = { onPlayerLongPress(firstRowPlayer) },
                         modifier = Modifier.weight(singleCardWeight)
                     )
@@ -156,7 +179,14 @@ fun VillageScreen6(
                         rolesVotedBy = getVotedByRole(secondRowPlayer),
                         border = getBorder(secondRowPlayer),
                         player = secondRowPlayer,
-                        onPlayerTap = { uiState.selectedPlayer?.let { onPlayerTap(it, secondRowPlayer) } },
+                        onPlayerTap = {
+                            uiState.selectedPlayer?.let {
+                                onPlayerTap(
+                                    it,
+                                    secondRowPlayer
+                                )
+                            }
+                        },
                         onPlayerLongPress = { onPlayerLongPress(secondRowPlayer) },
                         modifier = Modifier.weight(singleCardWeight)
                     )
@@ -175,7 +205,14 @@ fun VillageScreen6(
                         rolesVotedBy = getVotedByRole(penultimatePlayer),
                         border = getBorder(penultimatePlayer),
                         player = penultimatePlayer,
-                        onPlayerTap = { uiState.selectedPlayer?.let { onPlayerTap(it, penultimatePlayer) } },
+                        onPlayerTap = {
+                            uiState.selectedPlayer?.let {
+                                onPlayerTap(
+                                    it,
+                                    penultimatePlayer
+                                )
+                            }
+                        },
                         onPlayerLongPress = { onPlayerLongPress(penultimatePlayer) },
                         modifier = Modifier.weight(layoutWeights.singleCardWeight)
                     )
@@ -228,7 +265,6 @@ fun VillageScreen6Preview() {
             .padding(dimensionResource(id = R.dimen.padding_small))
     )
 }
-
 
 
 private fun calculateWeights(players: List<Player>): VillageLayoutWeights {
