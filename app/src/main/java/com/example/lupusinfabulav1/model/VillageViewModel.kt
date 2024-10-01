@@ -60,31 +60,31 @@ class VillageViewModel : ViewModel() {
     }
 
     fun nextRole() {
-        if (_uiState.value.isGameStarted) {
-            val mostVotedPlayer = voteManager.getMostVotedPlayer()
-
-            if (mostVotedPlayer != null) {
-                if(_uiState.value.currentRole == Role.CITTADINO){
-                    val mostCittadinoVotedPlayer = mostVotedPlayer as MostVotedPlayer.SinglePlayer
-                    updateKilledPlayer( listOf(mostCittadinoVotedPlayer.player) )
-                } else {
-                    updateVotedPlayerByRole(_uiState.value.currentRole, mostVotedPlayer)
-                }
-                goToNextRole()
-            } else {
-                if (voteManager.isLastVote()) {
-                    if (_uiState.value.currentRole == Role.MEDIUM) {
-                        goToNextRole()
-                    } else {
-                        startNewVoting(_uiState.value.currentRole)
-                        triggerAndClearEvent(VillageEvent.Tie)
-                    }
-                } else {
-                    triggerAndClearEvent(VillageEvent.ErrorNotAllPlayersHaveVoted)
-                }
-            }
-        } else {
+        if (!_uiState.value.isGameStarted) {
             startVoting()
+            return
+        }
+
+        val mostVotedPlayer = voteManager.getMostVotedPlayer()
+        if (mostVotedPlayer != null) {
+            if (_uiState.value.currentRole == Role.CITTADINO) {
+                val mostCittadinoVotedPlayer = mostVotedPlayer as MostVotedPlayer.SinglePlayer
+                updateKilledPlayer(listOf(mostCittadinoVotedPlayer.player))
+            } else {
+                updateVotedPlayerByRole(_uiState.value.currentRole, mostVotedPlayer)
+            }
+            goToNextRole()
+        } else {
+            if (voteManager.isLastVote()) {
+                if (_uiState.value.currentRole == Role.MEDIUM) {
+                    goToNextRole()
+                } else {
+                    startNewVoting(_uiState.value.currentRole)
+                    triggerAndClearEvent(VillageEvent.Tie)
+                }
+            } else {
+                triggerAndClearEvent(VillageEvent.ErrorNotAllPlayersHaveVoted)
+            }
         }
     }
 
