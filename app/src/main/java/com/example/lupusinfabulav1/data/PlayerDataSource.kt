@@ -111,11 +111,11 @@ object PlayersRepository {
             imageSource = PlayerImageSource.Resource(R.drawable.android_superhero1)
         ),
 
-//        Player(
-//            name = "fiorellone gigante",
-//            role = Role.CITTADINO,
-//            imageSource = PlayerImageSource.Resource(R.drawable.cupido_bow)
-//        ),
+        Player(
+            name = "fiorellone gigante",
+            role = Role.CITTADINO,
+            imageSource = PlayerImageSource.Resource(R.drawable.cupido_bow)
+        ),
 
 
 /*

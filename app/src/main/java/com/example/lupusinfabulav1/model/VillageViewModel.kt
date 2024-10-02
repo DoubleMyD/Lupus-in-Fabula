@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 private const val TAG = "VillageViewModel"
 
@@ -32,6 +33,11 @@ sealed class RoleTypeEvent {
     data class CupidoKilledPlayers(val playersKilled: Pair<Player, Player>) : RoleTypeEvent()
     data class FaciliCostumiSavedPlayer(val playerSaved: Player) : RoleTypeEvent()
     data class VeggenteDiscoverKiller(val killer: Player) : RoleTypeEvent()
+}
+
+sealed class WinCondition {
+    data object Assassin : WinCondition()
+    data object Villager : WinCondition()
 }
 
 class VillageViewModel : ViewModel() {
@@ -100,6 +106,8 @@ class VillageViewModel : ViewModel() {
         updateCurrentRole(nextRole)
 
         if (nextRole == Role.CITTADINO) {
+            Log.d(TAG, "Round: ${_uiState.value.round}")
+            Log.d(TAG, "next Role: $nextRole")
             handleRoundVoteResult()
         }
         if (nextRole == Role.ASSASSINO) {
@@ -116,7 +124,6 @@ class VillageViewModel : ViewModel() {
             }
             if (voteManager.isLastVote()) {
                 triggerAndClearEvent(VillageEvent.AllPlayersHaveVoted)
-                Log.d(TAG, "All players have voted")
                 return
             }
             if(voteManager.getLastVotingState().role == Role.CUPIDO){
@@ -149,7 +156,6 @@ class VillageViewModel : ViewModel() {
 
     private fun handleRoundVoteResult() {
         val votedPlayerByRole = _uiState.value.votedPlayerByRole
-
         /*
         THE ORDER IS IMPORTANT :
             1) controlli se il giocatore è stato salvato
@@ -161,58 +167,75 @@ class VillageViewModel : ViewModel() {
                 2.1) se l'assassino è stato sgamato, notifica i veggenti
 
          */
-
         val assasinVotedPlayer = votedPlayerByRole[Role.ASSASSINO] as MostVotedPlayer.SinglePlayer
         if (votedPlayerByRole[Role.FACILI_COSTUMI] != votedPlayerByRole[Role.ASSASSINO]) {
             val cupidoVotedPlayers = votedPlayerByRole[Role.CUPIDO] as MostVotedPlayer.PairPlayers
-            val cupidoKilled =
+            val cupidoKilled = 
                 cupidoVotedPlayers.player1 == assasinVotedPlayer.player || cupidoVotedPlayers.player2 == assasinVotedPlayer.player
 
             if (cupidoKilled) {
-                cupidoVotedPlayers.player1.kill()
-                cupidoVotedPlayers.player2.kill()
-                val cupidoKilledPlayersEvent = RoleTypeEvent.CupidoKilledPlayers(
-                    Pair(cupidoVotedPlayers.player1, cupidoVotedPlayers.player2)
-                )
-                updateKilledPlayer(listOf(cupidoVotedPlayers.player1, cupidoVotedPlayers.player2))
-
-                triggerAndClearEvent(VillageEvent.RoleEvent(cupidoKilledPlayersEvent))
-                triggerAndClearEvent(VillageEvent.RoleEvent(cupidoKilledPlayersEvent))
+                handleCupidoKilled(cupidoVotedPlayers)
             } else {
-                assasinVotedPlayer.player.kill()
-                updateKilledPlayer(listOf(assasinVotedPlayer.player))
-
-                triggerAndClearEvent(
-                    VillageEvent.RoleEvent(
-                        RoleTypeEvent.AssassinKilledPlayers(
-                            assasinVotedPlayer.player
-                        )
-                    )
-
-                )
+                handleAssassinKilled(assasinVotedPlayer)
             }
         } else {
-            triggerAndClearEvent(
-                VillageEvent.RoleEvent(
-                    RoleTypeEvent.FaciliCostumiSavedPlayer(
-                        assasinVotedPlayer.player
-                    )
+            triggerAndClearEvent(VillageEvent.RoleEvent(
+                    RoleTypeEvent.FaciliCostumiSavedPlayer(assasinVotedPlayer.player)
                 )
             )
         }
 
         val veggentePlayer = _uiState.value.players.filter { it.role == Role.VEGGENTE && it.alive }
         if (veggentePlayer.isNotEmpty()) {
-            val veggenteVotedPlayer =
-                votedPlayerByRole[Role.VEGGENTE] as MostVotedPlayer.SinglePlayer
-            triggerAndClearEvent(
-                VillageEvent.RoleEvent(
-                    RoleTypeEvent.VeggenteDiscoverKiller(
-                        veggenteVotedPlayer.player
-                    )
-                )
-            )
+            val veggenteVotedPlayer = votedPlayerByRole[Role.VEGGENTE] as MostVotedPlayer.SinglePlayer
+            handleVeggenteDiscover(veggenteVotedPlayer)
         }
+
+        val winner = checkWinCondition()
+        when(winner){
+            Role.ASSASSINO -> updateIsGameFinished(_uiState.value.players.filter { it.role == Role.ASSASSINO })
+            Role.CITTADINO -> updateIsGameFinished(_uiState.value.players.filter { it.role != Role.ASSASSINO })
+            else -> {}
+        }
+    }
+
+    private fun checkWinCondition(): Role?{
+        val playersAlive = _uiState.value.players.filter { it.alive }
+        val assassinPlayer = playersAlive.filter { it.role == Role.ASSASSINO }
+        val otherPlayers = playersAlive.filter { it.role != Role.ASSASSINO }
+
+        if(assassinPlayer.isEmpty())
+            return Role.CITTADINO
+        if(otherPlayers.size < assassinPlayer.size)
+            return Role.ASSASSINO
+        return null
+    }
+    
+    private fun handleCupidoKilled(cupidoVotedPlayers: MostVotedPlayer.PairPlayers){
+        //cupidoVotedPlayers.player1.kill()
+        //cupidoVotedPlayers.player2.kill()
+        val cupidoKilledPlayersEvent = RoleTypeEvent.CupidoKilledPlayers(Pair(cupidoVotedPlayers.player1, cupidoVotedPlayers.player2))
+        updateKilledPlayer(listOf(cupidoVotedPlayers.player1, cupidoVotedPlayers.player2))
+
+        triggerAndClearEvent(VillageEvent.RoleEvent(cupidoKilledPlayersEvent))
+        triggerAndClearEvent(VillageEvent.RoleEvent(cupidoKilledPlayersEvent))
+    }
+
+    private fun handleAssassinKilled(assasinVotedPlayer: MostVotedPlayer.SinglePlayer){
+        //assasinVotedPlayer.player.kill()
+        updateKilledPlayer(listOf(assasinVotedPlayer.player))
+
+        triggerAndClearEvent(VillageEvent.RoleEvent(
+                RoleTypeEvent.AssassinKilledPlayers(assasinVotedPlayer.player)
+            )
+        )
+    }
+
+    private fun handleVeggenteDiscover( veggenteVotedPlayer: MostVotedPlayer.SinglePlayer){
+        triggerAndClearEvent(VillageEvent.RoleEvent(
+                RoleTypeEvent.VeggenteDiscoverKiller(veggenteVotedPlayer.player)
+            )
+        )
     }
 
 
@@ -241,8 +264,12 @@ class VillageViewModel : ViewModel() {
     }
 
     private fun getNextRole(): Role {
-        val nextIndex = (++roleIndex) % roles.size
-        return roles[nextIndex]
+        Log.d(TAG + "nextRole", "\n\nnext Role before update: ${roles[roleIndex]}")
+        Log.d(TAG + "nextRole", "index before update: $roleIndex")
+        roleIndex = (++roleIndex) % roles.size
+        Log.d(TAG + "nextRole", "roleIndex : $roleIndex / roles: $roles")
+        Log.d(TAG + "nextRole", "next Role after update: ${roles[roleIndex]}")
+        return roles[roleIndex]
     }
 
     private fun updateKilledPlayer(listOfKilledPlayers: List<Player>) {
@@ -269,10 +296,23 @@ class VillageViewModel : ViewModel() {
             currentState.copy(players = updatedPlayers)
         }
     }
+    
+    private fun updateIsGameFinished(winnerPlayers: List<Player>){
+        _uiState.update { currentState ->
+            currentState.copy(isGameFinished = true)
+        }
+        updateWinnerPlayers(winnerPlayers)
+    }
+    
+    private fun updateWinnerPlayers(winnerPlayers: List<Player>){
+        _uiState.update { currentState ->
+            currentState.copy(winnerPlayers = winnerPlayers)
+        }
+    }
 
     private fun resetVotedPlayerByRole() {
         _uiState.update { currentState ->
-            currentState.copy(votedPlayerByRole = emptyMap())
+            currentState.copy(votedPlayerByRole = currentState.votedPlayerByRole.filter { it.key == Role.CUPIDO })
         }
     }
 
@@ -310,7 +350,6 @@ class VillageViewModel : ViewModel() {
     }
 
     private fun updateRoleToVote() {
-        Log.d(TAG, "Round: ${_uiState.value.round}")
         if (_uiState.value.round == 1 || _uiState.value.round == 3) {
             roles.remove(Role.MEDIUM)
         } else if (_uiState.value.round == 2) {

@@ -8,6 +8,8 @@ import com.example.lupusinfabulav1.model.voting.RoleVotes
 data class VillageUiState(
     val round: Int = 0,
     val isGameStarted: Boolean = false,
+    val isGameFinished: Boolean = false,
+    val winnerPlayers: List<Player> = emptyList(),
     val players: List<Player> = PlayersRepository.players,
     val currentRole: Role = Role.CITTADINO,
     val selectedPlayer: Player? = null,
