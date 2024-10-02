@@ -1,6 +1,5 @@
 package com.example.lupusinfabulav1.model.voting
 
-import android.util.Log
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.Role
 
@@ -121,10 +120,8 @@ class VoteManager {
             }
 
             pairCountMap[normalizedPair] = pairCountMap.getOrDefault(normalizedPair, 0) + 1
-            Log.d(TAG, "Pair: ${firstVote.name}, ${secondVote.name}, NormalizedPair: ${normalizedPair.first.name}, ${normalizedPair.second.name}, Count: ${pairCountMap[normalizedPair]}")
         }
 
-        Log.d(TAG, "started PairPlayers: ${lastVoting.votesPairPlayers.map { "${it.voter.name} voted ${it.votedPlayer.name}" }}")
         // Find the pair with the highest count
         val maxEntry = pairCountMap.maxByOrNull { it.value }
 

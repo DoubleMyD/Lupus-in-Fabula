@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 private const val TAG = "VillageViewModel"
 
@@ -33,11 +32,6 @@ sealed class RoleTypeEvent {
     data class CupidoKilledPlayers(val playersKilled: Pair<Player, Player>) : RoleTypeEvent()
     data class FaciliCostumiSavedPlayer(val playerSaved: Player) : RoleTypeEvent()
     data class VeggenteDiscoverKiller(val killer: Player) : RoleTypeEvent()
-}
-
-sealed class WinCondition {
-    data object Assassin : WinCondition()
-    data object Villager : WinCondition()
 }
 
 class VillageViewModel : ViewModel() {
