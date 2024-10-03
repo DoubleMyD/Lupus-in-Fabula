@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.data
+package com.example.lupusinfabulav1.ui
 
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Role

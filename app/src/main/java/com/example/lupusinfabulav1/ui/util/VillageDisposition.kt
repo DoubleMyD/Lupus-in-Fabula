@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
-import com.example.lupusinfabulav1.RoleCard
+import com.example.lupusinfabulav1.ui.Screens.RoleCard
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.model.getPainter

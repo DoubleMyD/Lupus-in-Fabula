@@ -5,7 +5,7 @@ import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.PlayerImageSource
 import com.example.lupusinfabulav1.model.Role
 
-object PlayersRepository {
+object FakePlayersRepository {
     private var i = 1
     val players = listOf(
         Player(

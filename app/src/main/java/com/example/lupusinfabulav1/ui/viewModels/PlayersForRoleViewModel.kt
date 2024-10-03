@@ -1,9 +1,11 @@
-package com.example.lupusinfabulav1.model
+package com.example.lupusinfabulav1.ui.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lupusinfabulav1.data.PlayersForRoleUiState
+import com.example.lupusinfabulav1.ui.PlayersForRoleUiState
+import com.example.lupusinfabulav1.model.PlayerManager
+import com.example.lupusinfabulav1.model.Role
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

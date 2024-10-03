@@ -1,7 +1,6 @@
-package com.example.lupusinfabulav1
+package com.example.lupusinfabulav1.ui.Screens
 
 import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,10 +28,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.lupusinfabulav1.data.VillageUiState
+import com.example.lupusinfabulav1.R
+import com.example.lupusinfabulav1.ui.VillageUiState
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.Role
-import com.example.lupusinfabulav1.model.voting.MostVotedPlayer
+import com.example.lupusinfabulav1.model.MostVotedPlayer
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCard
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
 import kotlin.math.pow
@@ -337,7 +337,7 @@ private fun getPlayerVotedCount(player: Player, uiState: VillageUiState): Int {
 @Composable
 private fun getBorder(player: Player, uiState: VillageUiState): BorderStroke {
     return when {
-        uiState.isGameStarted.not() -> CardDefaults.outlinedCardBorder()
+        uiState.gameStarted.not() -> CardDefaults.outlinedCardBorder()
         player.alive && player == uiState.selectedPlayer -> BorderStroke(
             dimensionResource(id = R.dimen.border_width_large),
             Color.Black

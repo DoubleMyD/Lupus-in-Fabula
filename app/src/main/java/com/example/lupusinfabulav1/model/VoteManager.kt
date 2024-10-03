@@ -1,7 +1,4 @@
-package com.example.lupusinfabulav1.model.voting
-
-import com.example.lupusinfabulav1.model.Player
-import com.example.lupusinfabulav1.model.Role
+package com.example.lupusinfabulav1.model
 
 private const val TAG = "VoteManager"
 

@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1
+package com.example.lupusinfabulav1.ui.Screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 
 @Composable

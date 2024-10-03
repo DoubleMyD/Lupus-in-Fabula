@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1
+package com.example.lupusinfabulav1.ui.Screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.lupusinfabulav1.data.PlayersForRoleUiState
+import com.example.lupusinfabulav1.R
+import com.example.lupusinfabulav1.ui.PlayersForRoleUiState
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
 

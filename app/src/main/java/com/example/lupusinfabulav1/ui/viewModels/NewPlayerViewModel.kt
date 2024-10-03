@@ -1,7 +1,10 @@
-package com.example.lupusinfabulav1.model
+package com.example.lupusinfabulav1.ui.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerImageSource
+import com.example.lupusinfabulav1.model.PlayerManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
