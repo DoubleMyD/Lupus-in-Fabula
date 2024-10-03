@@ -1,12 +1,20 @@
-package com.example.lupusinfabulav1.model
+package com.example.lupusinfabulav1.ui.viewModels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import com.example.lupusinfabulav1.data.VillageUiState
-import com.example.lupusinfabulav1.model.voting.MostVotedPlayer
-import com.example.lupusinfabulav1.model.voting.RoleVotes
-import com.example.lupusinfabulav1.model.voting.VoteManager
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.lupusinfabulav1.LupusInfabulaApplication
+import com.example.lupusinfabulav1.data.PlayersRepository
+import com.example.lupusinfabulav1.ui.VillageUiState
+import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerManager
+import com.example.lupusinfabulav1.model.Role
+import com.example.lupusinfabulav1.model.MostVotedPlayer
+import com.example.lupusinfabulav1.model.RoleVotes
+import com.example.lupusinfabulav1.model.VoteManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +42,10 @@ sealed class RoleTypeEvent {
     data class VeggenteDiscoverKiller(val killer: Player) : RoleTypeEvent()
 }
 
-class VillageViewModel : ViewModel() {
+class VillageViewModel(
+    private val playerManager: PlayerManager,
+    private val voteManager: VoteManager
+) : ViewModel() {
     private val _uiState = MutableStateFlow(VillageUiState())
     val uiState: StateFlow<VillageUiState> = _uiState.asStateFlow()
 
@@ -46,7 +57,7 @@ class VillageViewModel : ViewModel() {
     private val _uiEvent = MutableStateFlow<VillageEvent?>(null)
     val uiEvent: StateFlow<VillageEvent?> = _uiEvent.asStateFlow()
 
-    private val voteManager = VoteManager()
+    //private val voteManager = VoteManager()
 
     private val roles = Role.entries.toMutableList()
     private var roleIndex = 0
@@ -60,7 +71,7 @@ class VillageViewModel : ViewModel() {
     }
 
     fun nextRole() {
-        if (!_uiState.value.isGameStarted) {
+        if (!_uiState.value.gameStarted) {
             startVoting()
             return
         }
@@ -90,7 +101,7 @@ class VillageViewModel : ViewModel() {
 
     private fun startVoting() {
         _uiState.update { currentState ->
-            currentState.copy(isGameStarted = true)
+            currentState.copy(gameStarted = true)
         }
         goToNextRole()
     }
@@ -100,8 +111,6 @@ class VillageViewModel : ViewModel() {
         updateCurrentRole(nextRole)
 
         if (nextRole == Role.CITTADINO) {
-            Log.d(TAG, "Round: ${_uiState.value.round}")
-            Log.d(TAG, "next Role: $nextRole")
             handleRoundVoteResult()
         }
         if (nextRole == Role.ASSASSINO) {
@@ -112,7 +121,7 @@ class VillageViewModel : ViewModel() {
     }
 
     fun vote(voter: Player, votedPlayer: Player) {
-        if (_uiState.value.isGameStarted) {
+        if (_uiState.value.gameStarted) {
             if (!votedPlayer.alive) {
                 return
             }
@@ -173,7 +182,8 @@ class VillageViewModel : ViewModel() {
                 handleAssassinKilled(assasinVotedPlayer)
             }
         } else {
-            triggerAndClearEvent(VillageEvent.RoleEvent(
+            triggerAndClearEvent(
+                VillageEvent.RoleEvent(
                     RoleTypeEvent.FaciliCostumiSavedPlayer(assasinVotedPlayer.player)
                 )
             )
@@ -208,7 +218,12 @@ class VillageViewModel : ViewModel() {
     private fun handleCupidoKilled(cupidoVotedPlayers: MostVotedPlayer.PairPlayers){
         //cupidoVotedPlayers.player1.kill()
         //cupidoVotedPlayers.player2.kill()
-        val cupidoKilledPlayersEvent = RoleTypeEvent.CupidoKilledPlayers(Pair(cupidoVotedPlayers.player1, cupidoVotedPlayers.player2))
+        val cupidoKilledPlayersEvent = RoleTypeEvent.CupidoKilledPlayers(
+            Pair(
+                cupidoVotedPlayers.player1,
+                cupidoVotedPlayers.player2
+            )
+        )
         updateKilledPlayer(listOf(cupidoVotedPlayers.player1, cupidoVotedPlayers.player2))
 
         triggerAndClearEvent(VillageEvent.RoleEvent(cupidoKilledPlayersEvent))
@@ -219,14 +234,16 @@ class VillageViewModel : ViewModel() {
         //assasinVotedPlayer.player.kill()
         updateKilledPlayer(listOf(assasinVotedPlayer.player))
 
-        triggerAndClearEvent(VillageEvent.RoleEvent(
+        triggerAndClearEvent(
+            VillageEvent.RoleEvent(
                 RoleTypeEvent.AssassinKilledPlayers(assasinVotedPlayer.player)
             )
         )
     }
 
     private fun handleVeggenteDiscover( veggenteVotedPlayer: MostVotedPlayer.SinglePlayer){
-        triggerAndClearEvent(VillageEvent.RoleEvent(
+        triggerAndClearEvent(
+            VillageEvent.RoleEvent(
                 RoleTypeEvent.VeggenteDiscoverKiller(veggenteVotedPlayer.player)
             )
         )
@@ -258,11 +275,7 @@ class VillageViewModel : ViewModel() {
     }
 
     private fun getNextRole(): Role {
-        Log.d(TAG + "nextRole", "\n\nnext Role before update: ${roles[roleIndex]}")
-        Log.d(TAG + "nextRole", "index before update: $roleIndex")
         roleIndex = (++roleIndex) % roles.size
-        Log.d(TAG + "nextRole", "roleIndex : $roleIndex / roles: $roles")
-        Log.d(TAG + "nextRole", "next Role after update: ${roles[roleIndex]}")
         return roles[roleIndex]
     }
 
@@ -301,12 +314,6 @@ class VillageViewModel : ViewModel() {
     private fun updateWinnerPlayers(winnerPlayers: List<Player>){
         _uiState.update { currentState ->
             currentState.copy(winnerPlayers = winnerPlayers)
-        }
-    }
-
-    private fun resetVotedPlayerByRole() {
-        _uiState.update { currentState ->
-            currentState.copy(votedPlayerByRole = currentState.votedPlayerByRole.filter { it.key == Role.CUPIDO })
         }
     }
 
@@ -349,6 +356,23 @@ class VillageViewModel : ViewModel() {
         } else if (_uiState.value.round == 2) {
             roles.remove(Role.CUPIDO)
             roles.add(Role.MEDIUM)
+        }
+    }
+
+    private fun resetVotedPlayerByRole() {
+        _uiState.update { currentState ->
+            currentState.copy(votedPlayerByRole = currentState.votedPlayerByRole.filter { it.key == Role.CUPIDO })
+        }
+    }
+
+    // Factory for Dependency Injection
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                //val application = (this[APPLICATION_KEY] as LupusInfabulaApplication)
+                //val playerRepository = application.container.playersRepository
+                VillageViewModel(playerManager = PlayerManager, VoteManager())
+            }
         }
     }
 }
