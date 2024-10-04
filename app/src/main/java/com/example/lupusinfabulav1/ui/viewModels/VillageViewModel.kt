@@ -2,19 +2,16 @@ package com.example.lupusinfabulav1.ui.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.lupusinfabulav1.LupusInfabulaApplication
-import com.example.lupusinfabulav1.data.PlayersRepository
-import com.example.lupusinfabulav1.ui.VillageUiState
+import com.example.lupusinfabulav1.model.MostVotedPlayer
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Role
-import com.example.lupusinfabulav1.model.MostVotedPlayer
 import com.example.lupusinfabulav1.model.RoleVotes
 import com.example.lupusinfabulav1.model.VoteManager
+import com.example.lupusinfabulav1.ui.VillageUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
