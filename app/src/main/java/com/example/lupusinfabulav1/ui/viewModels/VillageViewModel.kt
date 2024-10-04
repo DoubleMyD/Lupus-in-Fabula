@@ -192,7 +192,9 @@ class VillageViewModel(
         val veggentePlayer = _uiState.value.players.filter { it.role == Role.VEGGENTE && it.alive }
         if (veggentePlayer.isNotEmpty()) {
             val veggenteVotedPlayer = votedPlayerByRole[Role.VEGGENTE] as MostVotedPlayer.SinglePlayer
-            handleVeggenteDiscover(veggenteVotedPlayer)
+            if(veggenteVotedPlayer.player.role == Role.ASSASSINO) {
+                handleVeggenteDiscover(veggenteVotedPlayer)
+            }
         }
 
         val winner = checkWinCondition()
@@ -216,8 +218,6 @@ class VillageViewModel(
     }
     
     private fun handleCupidoKilled(cupidoVotedPlayers: MostVotedPlayer.PairPlayers){
-        //cupidoVotedPlayers.player1.kill()
-        //cupidoVotedPlayers.player2.kill()
         val cupidoKilledPlayersEvent = RoleTypeEvent.CupidoKilledPlayers(
             Pair(
                 cupidoVotedPlayers.player1,
@@ -231,7 +231,6 @@ class VillageViewModel(
     }
 
     private fun handleAssassinKilled(assasinVotedPlayer: MostVotedPlayer.SinglePlayer){
-        //assasinVotedPlayer.player.kill()
         updateKilledPlayer(listOf(assasinVotedPlayer.player))
 
         triggerAndClearEvent(
