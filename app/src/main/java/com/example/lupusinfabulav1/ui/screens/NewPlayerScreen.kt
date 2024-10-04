@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.ui.Screens
+package com.example.lupusinfabulav1.ui.screens
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult

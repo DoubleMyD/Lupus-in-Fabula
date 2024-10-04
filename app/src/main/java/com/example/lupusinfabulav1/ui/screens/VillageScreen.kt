@@ -1,6 +1,5 @@
-package com.example.lupusinfabulav1.ui.Screens
+package com.example.lupusinfabulav1.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -291,10 +290,6 @@ private fun calculateWeights(players: List<Player>): VillageLayoutWeights {
         edgeWeights.add(edgeWeights[i])
     }
 
-    // Log the results
-    Log.d(TAG, "middleWeights: $middleWeights")
-    Log.d(TAG, "edgeWeights: $edgeWeights")
-
     // Return all the calculated values as a VillageLayoutWeights object
     return VillageLayoutWeights(
         middleWeights = middleWeights,
@@ -322,12 +317,12 @@ private fun getBackgroundAlphaColor(player: Player, uiState: VillageUiState): Fl
 
 private fun getVotedByRole(player: Player, uiState: VillageUiState): List<Role> {
     return Role.entries.filter { role ->
-            when (val votedPlayer = uiState.votedPlayerByRole[role]) {
-                is MostVotedPlayer.SinglePlayer -> votedPlayer.player == player
-                is MostVotedPlayer.PairPlayers -> votedPlayer.player1 == player || votedPlayer.player2 == player
-                null -> false
-            }
+        when (val votedPlayer = uiState.votedPlayerByRole[role]) {
+            is MostVotedPlayer.SinglePlayer -> votedPlayer.player == player
+            is MostVotedPlayer.PairPlayers -> votedPlayer.player1 == player || votedPlayer.player2 == player
+            null -> false
         }
+    }
 }
 
 private fun getPlayerVotedCount(player: Player, uiState: VillageUiState): Int {
