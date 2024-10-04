@@ -1,7 +1,12 @@
 package com.example.lupusinfabulav1.ui.viewModels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.lupusinfabulav1.LupusInFabulaApplication
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.PlayerImageSource
 import com.example.lupusinfabulav1.model.PlayerManager
@@ -15,7 +20,9 @@ sealed class NewPlayerEvent{
     data object ErrorNameNotAvailable: NewPlayerEvent()
 }
 
-class NewPlayerViewModel : ViewModel() {
+class NewPlayerViewModel(
+    val playerManager: PlayerManager
+) : ViewModel() {
     // Event channel for UI interactions like Toasts or Dialogs
     private val _uiEvent = MutableSharedFlow<NewPlayerEvent>()
     val uiEvent: SharedFlow<NewPlayerEvent> = _uiEvent.asSharedFlow()
@@ -27,7 +34,7 @@ class NewPlayerViewModel : ViewModel() {
     fun addPlayer(name: String, imageSource: PlayerImageSource) : Boolean {
         if (isNameAvailable(name)) {
             val newPlayer = Player(name = name, imageSource = imageSource)
-            PlayerManager.addPlayer(newPlayer)
+            playerManager.addPlayer(newPlayer)
             return true
         } else {
             viewModelScope.launch {
@@ -38,6 +45,17 @@ class NewPlayerViewModel : ViewModel() {
     }
 
     private fun isNameAvailable(name: String) : Boolean{
-        return !PlayerManager.players.value.any { it.name == name } && name.isNotEmpty()
+        return !playerManager.players.value.any { it.name == name } && name.isNotEmpty()
+    }
+
+    // Factory for Dependency Injection
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as LupusInFabulaApplication)
+                val playerManager = application.container.playerManager
+                NewPlayerViewModel(playerManager = playerManager)
+            }
+        }
     }
 }

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-object PlayerManager {
+class PlayerManager {
     private val _players = MutableStateFlow(FakePlayersRepository.players)
     val players: StateFlow<List<Player>> = _players.asStateFlow()
 

@@ -2,9 +2,11 @@ package com.example.lupusinfabulav1.ui.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.lupusinfabulav1.LupusInFabulaApplication
 import com.example.lupusinfabulav1.model.MostVotedPlayer
 import com.example.lupusinfabulav1.model.Player
 import com.example.lupusinfabulav1.model.PlayerManager
@@ -60,11 +62,12 @@ class VillageViewModel(
     private var roleIndex = 0
 
     init {
-        viewModelScope.launch {
-            PlayerManager.players.collect { players ->
-                _uiState.value = _uiState.value.copy(players = players)
-            }
-        }
+//        viewModelScope.launch {
+//            playerManager.players.collect { players ->
+//                _uiState.value = _uiState.value.copy(players = players)
+//            }
+//        }
+        _uiState.value = _uiState.value.copy(players = playerManager.players.value)
     }
 
     fun nextRole() {
@@ -365,9 +368,10 @@ class VillageViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                //val application = (this[APPLICATION_KEY] as LupusInfabulaApplication)
-                //val playerRepository = application.container.playersRepository
-                VillageViewModel(playerManager = PlayerManager, VoteManager())
+                val application = (this[APPLICATION_KEY] as LupusInFabulaApplication)
+                val playerManager = application.container.playerManager
+                val voteManager = application.container.voteManager
+                VillageViewModel(playerManager = playerManager, voteManager)
             }
         }
     }

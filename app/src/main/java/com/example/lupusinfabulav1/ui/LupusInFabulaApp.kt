@@ -37,8 +37,8 @@ enum class LupusInFabulaScreen(val title: String) {
 
 @Composable
 fun LupusInFabulaApp(
-    newPlayerViewModel: NewPlayerViewModel = viewModel(),
-    playersForRoleViewModel: PlayersForRoleViewModel = viewModel(),
+    //newPlayerViewModel: NewPlayerViewModel = viewModel(),
+    //playersForRoleViewModel: PlayersForRoleViewModel = viewModel(),
     //villageViewModel: VillageViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
@@ -51,6 +51,8 @@ fun LupusInFabulaApp(
     )
 
     val villageViewModel : VillageViewModel = viewModel(factory = VillageViewModel.Factory)
+    val playersForRoleViewModel: PlayersForRoleViewModel = viewModel(factory = PlayersForRoleViewModel.Factory)
+    val newPlayerViewModel: NewPlayerViewModel = viewModel(factory = NewPlayerViewModel.Factory)
 
     // Collect UI events for each ViewModel
     HandleNewPlayerEvents(newPlayerViewModel, context)

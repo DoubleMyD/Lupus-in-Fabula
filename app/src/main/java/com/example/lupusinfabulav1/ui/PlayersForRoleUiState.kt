@@ -5,7 +5,7 @@ import com.example.lupusinfabulav1.model.Role
 import kotlin.math.abs
 
 data class PlayersForRoleUiState(
-    val playersSize: Int = PlayerManager.players.value.size,
+    val playersSize: Int = 0,
     val startRange: Int = 1,
     val finishRange: Int = 10,
     val minAllowedValue: Int = 1,

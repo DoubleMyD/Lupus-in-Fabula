@@ -54,6 +54,8 @@ fun VillageScreen6(
     onCenterIconClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    //PAGER  component from yotube, useful for scrolling from different pages
+
     // Memoize the calculations for all required variables
     val layoutWeights = remember(uiState.players) { calculateWeights(uiState.players) }
 

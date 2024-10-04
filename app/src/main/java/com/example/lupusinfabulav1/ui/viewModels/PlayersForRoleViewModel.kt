@@ -2,7 +2,12 @@ package com.example.lupusinfabulav1.ui.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.lupusinfabulav1.LupusInFabulaApplication
 import com.example.lupusinfabulav1.ui.PlayersForRoleUiState
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Role
@@ -24,7 +29,9 @@ sealed class PlayersForRoleEvent {
     data object ErrorTooManyPlayersSelected : PlayersForRoleEvent()
 }
 
-class PlayersForRoleViewModel : ViewModel() {
+class PlayersForRoleViewModel(
+    private val playerManager: PlayerManager
+) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayersForRoleUiState())
     val uiState: StateFlow<PlayersForRoleUiState> = _uiState.asStateFlow()
 
@@ -33,12 +40,13 @@ class PlayersForRoleViewModel : ViewModel() {
     val uiEvent: SharedFlow<PlayersForRoleEvent> = _uiEvent.asSharedFlow()
 
     init {
-        viewModelScope.launch {
-            PlayerManager.players.collect { players ->
-                _uiState.value = _uiState.value.copy(playersSize = players.size)
-                updateRemainingPlayers()
-            }
-        }
+//        viewModelScope.launch {
+//            playerManager.players.collect { players ->
+//                _uiState.value = _uiState.value.copy(playersSize = players.size)
+//                updateRemainingPlayers()
+//            }
+//        }
+        _uiState.value = _uiState.value.copy(playersSize = playerManager.players.value.size)
     }
 
     fun checkIfAllPlayersSelected(): Boolean {
@@ -211,6 +219,16 @@ class PlayersForRoleViewModel : ViewModel() {
     private fun updatePlayersForRole(updatedPlayersForRole: Map<Role, Int>){
         _uiState.update { currentState ->
             currentState.copy(playersForRole = updatedPlayersForRole)
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as LupusInFabulaApplication)
+                val playerManager = application.container.playerManager
+                PlayersForRoleViewModel(playerManager = playerManager)
+            }
         }
     }
 
