@@ -62,12 +62,12 @@ class VillageViewModel(
     private var roleIndex = 0
 
     init {
-//        viewModelScope.launch {
-//            playerManager.players.collect { players ->
-//                _uiState.value = _uiState.value.copy(players = players)
-//            }
-//        }
-        _uiState.value = _uiState.value.copy(players = playerManager.players.value)
+        viewModelScope.launch {
+            //this allows to reflect changes in the players in PlayerManager in the uiState
+            playerManager.players.collect { players ->
+                _uiState.value = _uiState.value.copy(players = players)
+            }
+        }
     }
 
     fun nextRole() {
