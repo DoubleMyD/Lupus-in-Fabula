@@ -73,15 +73,15 @@ fun VillageScreen7(
     var playerToShowInfo by remember { mutableStateOf<Player?>(null) }
     val onPlayerLongPress = { player: Player -> playerToShowInfo = player }
 
-    // Show the dialog if a player is long pressed
-    if (playerToShowInfo != null) {
+    // Show player info dialog
+    playerToShowInfo?.let { player ->
         Dialog(
             onDismissRequest = { playerToShowInfo = null },
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
         ) {
             PlayerCardInfo(
-                player = playerToShowInfo!!,
-                backgroundColor = playerToShowInfo!!.role.color.copy(alpha = 0.1f),
+                player = player,
+                backgroundColor = player.role.color.copy(alpha = 0.1f),
                 modifier = Modifier
                     .size(400.dp)
                     .padding(dimensionResource(id = R.dimen.padding_medium))
@@ -117,49 +117,62 @@ fun VillageScreen7(
             val numRows = (uiState.players.size - 2) / 2
             val isOdd = uiState.players.size % 2 == 1
             val rightPlayers = uiState.players.subList(1, numRows + 1)
-            val leftPlayers = when (isOdd) {
-                true -> uiState.players.subList(numRows + 3, uiState.players.size).reversed()
-                false -> uiState.players.subList(numRows + 2, uiState.players.size).reversed()
+            val leftPlayers = if (isOdd) {
+                uiState.players.subList(numRows + 3, uiState.players.size).reversed()
+            } else {
+                uiState.players.subList(numRows + 2, uiState.players.size).reversed()
             }
 
-            Row(
+            // Render middle player rows
+            MiddlePlayerRows(
+                numRows = numRows,
+                rightPlayers = rightPlayers,
+                leftPlayers = leftPlayers,
+                animationDelays = animationDelays,
+                layoutWeights = layoutWeights,
+                uiState = uiState,
+                onPlayerTap = onPlayerTap,
+                onPlayerLongPress = onPlayerLongPress,
                 modifier = Modifier.weight(numRows.toFloat())
-            ) {
-                Column( //
-                    modifier = Modifier.weight(1f)
-                ) {
-                    for (i in 0 until numRows) {
-                        PlayerRow(
-                            animationDelay = animationDelays[uiState.players.size - i - 1],
-                            player = leftPlayers[i],
-                            uiState = uiState,
-                            leftSpaceWeight = layoutWeights.singleEdgeWeights[i],
-                            rightSpaceWeight = layoutWeights.middleWeights[i] / 2f,
-                            cardWeight = layoutWeights.singleCardWeight,
-                            onPlayerTap = onPlayerTap,
-                            onPlayerLongPress = onPlayerLongPress,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    for (i in 0 until numRows) {
-                        PlayerRow(
-                            animationDelay = animationDelays[i + 1],
-                            player = rightPlayers[i],
-                            uiState = uiState,
-                            leftSpaceWeight = layoutWeights.middleWeights[i] / 2f,
-                            rightSpaceWeight = layoutWeights.singleEdgeWeights[i],
-                            cardWeight = layoutWeights.singleCardWeight,
-                            onPlayerTap = onPlayerTap,
-                            onPlayerLongPress = onPlayerLongPress,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-            }
+            )
+//            Row(
+//                modifier = Modifier.weight(numRows.toFloat())
+//            ) {
+//                Column( //
+//                    modifier = Modifier.weight(1f)
+//                ) {
+//                    for (i in 0 until numRows) {
+//                        PlayerRow(
+//                            animationDelay = animationDelays[uiState.players.size - i - 1],
+//                            player = leftPlayers[i],
+//                            uiState = uiState,
+//                            leftSpaceWeight = layoutWeights.singleEdgeWeights[i],
+//                            rightSpaceWeight = layoutWeights.middleWeights[i] / 2f,
+//                            cardWeight = layoutWeights.singleCardWeight,
+//                            onPlayerTap = onPlayerTap,
+//                            onPlayerLongPress = onPlayerLongPress,
+//                            modifier = Modifier.weight(1f)
+//                        )
+//                    }
+//                }
+//                Column(
+//                    modifier = Modifier.weight(1f)
+//                ) {
+//                    for (i in 0 until numRows) {
+//                        PlayerRow(
+//                            animationDelay = animationDelays[i + 1],
+//                            player = rightPlayers[i],
+//                            uiState = uiState,
+//                            leftSpaceWeight = layoutWeights.middleWeights[i] / 2f,
+//                            rightSpaceWeight = layoutWeights.singleEdgeWeights[i],
+//                            cardWeight = layoutWeights.singleCardWeight,
+//                            onPlayerTap = onPlayerTap,
+//                            onPlayerLongPress = onPlayerLongPress,
+//                            modifier = Modifier.weight(1f)
+//                        )
+//                    }
+//                }
+//            }
             LastRow2(
                 delays = Pair(
                     animationDelays[numRows + 2],
@@ -193,6 +206,52 @@ fun VillageScreen7Preview() {
 }
 
 @Composable
+fun MiddlePlayerRows(
+    numRows: Int,
+    rightPlayers: List<Player>,
+    leftPlayers: List<Player>,
+    animationDelays: List<Long>,
+    layoutWeights: VillageLayoutWeights,
+    uiState: VillageUiState,
+    onPlayerTap: (Player, Player) -> Unit,
+    onPlayerLongPress: (Player) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier) {
+        Column(modifier = Modifier.weight(1f)) {
+            for (i in 0 until numRows) {
+                PlayerRow(
+                    animationDelay = animationDelays[uiState.players.size - i - 1],
+                    player = leftPlayers[i],
+                    uiState = uiState,
+                    leftSpaceWeight = layoutWeights.singleEdgeWeights[i],
+                    rightSpaceWeight = layoutWeights.middleWeights[i] / 2f,
+                    cardWeight = layoutWeights.singleCardWeight,
+                    onPlayerTap = onPlayerTap,
+                    onPlayerLongPress = onPlayerLongPress,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            for (i in 0 until numRows) {
+                PlayerRow(
+                    animationDelay = animationDelays[i + 1],
+                    player = rightPlayers[i],
+                    uiState = uiState,
+                    leftSpaceWeight = layoutWeights.middleWeights[i] / 2f,
+                    rightSpaceWeight = layoutWeights.singleEdgeWeights[i],
+                    cardWeight = layoutWeights.singleCardWeight,
+                    onPlayerTap = onPlayerTap,
+                    onPlayerLongPress = onPlayerLongPress,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun AnimatePlayerRow(
     isVisible: Boolean,
     delayMillis: Long,
@@ -208,11 +267,8 @@ fun AnimatePlayerRow(
         internalVisibleState.value = true
     }
 
-    // Combine both internal and external visibility states
-    val shouldBeVisible = internalVisibleState.value && isVisible
-
     AnimatedVisibility(
-        visible = shouldBeVisible,
+        visible = internalVisibleState.value && isVisible,
         enter = scaleIn(animationSpec = tween(durationMillis = 1000)) + fadeIn(
             animationSpec = tween(durationMillis = 1000)
         ),
