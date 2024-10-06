@@ -24,8 +24,7 @@ fun PlayerCard(
     onPlayerTap: () -> Unit,
     onPlayerLongPress: () -> Unit,
     modifier: Modifier = Modifier,
-    orientation: Orientation = Orientation.Horizontal,
-    ) {
+) {
     val backgroundColor = player.role.color.copy(alpha = alphaColor)
     val cardModifier = Modifier
         .fillMaxSize()
@@ -35,25 +34,17 @@ fun PlayerCard(
         border = border,
         modifier = modifier
             .combinedClickable(
-                onClick = { if(player.alive) onPlayerTap() },
+                onClick = { if (player.alive) onPlayerTap() },
                 onLongClick = { onPlayerLongPress() }
             )
-            .alpha(if(player.alive) 1f else 0.5f)
+            .alpha(if (player.alive) 1f else 0.5f)
     ) {
-        if (Orientation.Vertical == orientation) {
-            PlayerCardVertical(
-                player = player,
-                modifier = cardModifier
-            )
-        }
-        if (Orientation.Horizontal == orientation) {
-            PlayerCardHorizontal(
-                player = player,
-                rolesVotedBy = rolesVotedBy,
-                votedCount = votedCount,
-                modifier = cardModifier
-            )
-        }
+        PlayerCardHorizontal(
+            player = player,
+            rolesVotedBy = rolesVotedBy,
+            votedCount = votedCount,
+            modifier = cardModifier
+        )
     }
 }
 
