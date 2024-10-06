@@ -20,7 +20,6 @@ import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.screens.HomePageScreen
 import com.example.lupusinfabulav1.ui.screens.NewPlayerScreen
 import com.example.lupusinfabulav1.ui.screens.PlayersForRoleScreen
-import com.example.lupusinfabulav1.ui.screens.VillageScreen6
 import com.example.lupusinfabulav1.ui.viewModels.NewPlayerViewModel
 import com.example.lupusinfabulav1.ui.viewModels.PlayersForRoleViewModel
 import com.example.lupusinfabulav1.ui.viewModels.VillageViewModel
