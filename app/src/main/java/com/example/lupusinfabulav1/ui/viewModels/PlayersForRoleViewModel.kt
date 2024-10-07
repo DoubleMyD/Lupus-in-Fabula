@@ -1,6 +1,5 @@
 package com.example.lupusinfabulav1.ui.viewModels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -8,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.lupusinfabulav1.LupusInFabulaApplication
-import com.example.lupusinfabulav1.ui.PlayersForRoleUiState
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Role
+import com.example.lupusinfabulav1.ui.PlayersForRoleUiState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -40,13 +39,12 @@ class PlayersForRoleViewModel(
     val uiEvent: SharedFlow<PlayersForRoleEvent> = _uiEvent.asSharedFlow()
 
     init {
-//        viewModelScope.launch {
-//            playerManager.players.collect { players ->
-//                _uiState.value = _uiState.value.copy(playersSize = players.size)
-//                updateRemainingPlayers()
-//            }
-//        }
-        _uiState.value = _uiState.value.copy(playersSize = playerManager.players.value.size)
+        viewModelScope.launch {
+            playerManager.players.collect { players ->
+                _uiState.value = _uiState.value.copy(playersSize = players.size)
+                updateRemainingPlayers()
+            }
+        }
     }
 
     fun checkIfAllPlayersSelected(): Boolean {
@@ -61,10 +59,11 @@ class PlayersForRoleViewModel(
 
         return isAllSelected
     }
+
     /**
      * update the slider value and the playersForRole map
      */
-    fun updateSliderValue(newValue: Float) {
+    fun checkAndUpdateSliderValue(newValue: Float) {
         val validValue = newValue.coerceIn(_uiState.value.minAllowedValue.toFloat(), _uiState.value.maxAllowedValue.toFloat())
 
         if(newValue.toInt() > _uiState.value.maxAllowedValue) {
@@ -73,12 +72,16 @@ class PlayersForRoleViewModel(
             }
         }
 
+        updateSliderValue(validValue)
+    }
+
+    private fun updateSliderValue(newValue: Float) {
         _uiState.update { currentState ->
             currentState.copy(
-                sliderValue = validValue,
+                sliderValue = newValue,
             )
         }
-        updatePlayersForRole(_uiState.value.currentRole, validValue.toInt())
+        updatePlayersForRole(_uiState.value.currentRole, newValue.toInt())
         updateMaxAndMinAllowedValue()
         updateRemainingPlayers()
     }
@@ -99,8 +102,6 @@ class PlayersForRoleViewModel(
             val remainPlayers = abs(_uiState.value.playersSize - currentSelectedPlayer)
             val maxAllowedValue = (remainPlayers + currentState.sliderValue.toInt()).coerceAtMost(currentState.finishRange)
 
-            Log.d(TAG, "currentSelectedPlayer: $currentSelectedPlayer ; remainPlayers: $remainPlayers ; maxAllowedValue: $maxAllowedValue")
-
             currentState.copy(
                 minAllowedValue = 1,
                 maxAllowedValue = maxAllowedValue,
@@ -113,12 +114,12 @@ class PlayersForRoleViewModel(
      */
     fun onRandomNumberClick() {
         val randomValue = (uiState.value.minAllowedValue..uiState.value.maxAllowedValue).random()
-        updateSliderValue(randomValue.toFloat())
+        checkAndUpdateSliderValue(randomValue.toFloat())
     }
 
     fun onRandomizeAllClick() {
         val updatedPlayersForRole = _uiState.value.playersForRole.toMutableMap()
-        var remainingPlayers = _uiState.value.playersSize // Total number of players
+        var remainingPlayers = _uiState.value.playersSize// Total number of players
 
         // Ideal player count per role
         val idealDistribution = mapOf(
@@ -134,7 +135,7 @@ class PlayersForRoleViewModel(
         val totalWeight = idealDistribution.values.sum()
 
         // Weights map to store the relative weight (i.e., likelihood) of each role being selected
-        val weights = idealDistribution.mapValues { (role, idealCount) ->
+        val weights = idealDistribution.mapValues { (_, idealCount) ->
             idealCount.toFloat() / totalWeight // Normalized weight for each role
         }
 
@@ -142,7 +143,7 @@ class PlayersForRoleViewModel(
 
         // Assign players based on weighted random distribution
         updatedPlayersForRole.forEach { (role, _) ->
-            if (remainingPlayers <= 0) return@forEach // Stop if no players are left
+            if (remainingPlayers <= 0) return//@forEach // Stop if no players are left
 
             val idealValue = idealDistribution[role] ?: 1 // Fallback to 1 if role isn't specified
 
@@ -154,16 +155,16 @@ class PlayersForRoleViewModel(
 
             updatedPlayersForRole[role] = randomValue
             remainingPlayers -= randomValue // Decrease remaining players count
-
-            Log.d(TAG, "Role: $role ; randomValue: $randomValue ; remainingPlayers: $remainingPlayers")
         }
 
         // If remaining players are more than zero, distribute them
         if (remainingPlayers > 0) {
-            distributeRemainingPlayers(updatedPlayersForRole, remainingPlayers)
+            val completedPlayersForRole = distributeRemainingPlayers(updatedPlayersForRole, remainingPlayers)
+            updatedPlayersForRole.putAll(completedPlayersForRole)
         }
 
         updatePlayersForRole(updatedPlayersForRole)
+        updateMaxAndMinAllowedValue()
         updateSliderValue(updatedPlayersForRole[_uiState.value.currentRole]!!.toFloat())
     }
 
@@ -184,28 +185,28 @@ class PlayersForRoleViewModel(
 
     // Function to distribute remaining players in case they are left after initial assignment
     private fun distributeRemainingPlayers(
-        updatedPlayersForRole: MutableMap<Role, Int>, remainingPlayers: Int
-    ) {
+        playersForRole: Map<Role, Int>, remainingPlayers: Int,
+    ): Map<Role, Int> {
         var remaining = remainingPlayers
-        val roles = updatedPlayersForRole.keys.shuffled() // Randomize role selection for distribution
+        val roles = playersForRole.keys.shuffled() // Randomize role selection for distribution
+        val updatedPlayersForRole = playersForRole.toMutableMap()
 
-        for (role in roles) {
-            if (remaining <= 0) break
-            val currentCount = updatedPlayersForRole[role] ?: continue
-            updatedPlayersForRole[role] = currentCount + 1
-            remaining--
+        while (remaining > 0) {
+            for (role in roles) {
+                if (remaining <= 0) break
+                val currentCount = updatedPlayersForRole[role] ?: continue
+                updatedPlayersForRole[role] = currentCount + 1
+                remaining--
+            }
         }
-
-        if (remaining > 0) {
-            Log.d(TAG, "Warning: $remaining players could not be assigned.")
-        }
+        return updatedPlayersForRole
     }
 
     fun updateCurrentRole(selectedRole: Role) {
         _uiState.update { currentState -> currentState.copy(currentRole = selectedRole) }
         val currentPlayersForRole = _uiState.value.playersForRole[selectedRole] ?: 1f
 
-        updateSliderValue(currentPlayersForRole.toFloat())
+        checkAndUpdateSliderValue(currentPlayersForRole.toFloat())
     }
 
     private fun updatePlayersForRole(role: Role, newValue: Int){

@@ -108,7 +108,7 @@ fun LupusInFabulaApp(
                     onCancelClick = { navController.navigate(LupusInFabulaScreen.HOME_PAGE.name) },
                     uiState = playersForRoleUiState,
                     onSliderValueChange = { newValue ->
-                        playersForRoleViewModel.updateSliderValue(
+                        playersForRoleViewModel.checkAndUpdateSliderValue(
                             newValue
                         )
                     },
