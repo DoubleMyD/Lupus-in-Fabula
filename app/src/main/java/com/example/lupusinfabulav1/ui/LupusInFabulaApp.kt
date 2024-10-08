@@ -20,6 +20,7 @@ import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.screens.HomePageScreen
 import com.example.lupusinfabulav1.ui.screens.NewPlayerScreen
 import com.example.lupusinfabulav1.ui.screens.PlayersForRoleScreen
+import com.example.lupusinfabulav1.ui.screens.PlayersListScreen
 import com.example.lupusinfabulav1.ui.viewModels.NewPlayerViewModel
 import com.example.lupusinfabulav1.ui.viewModels.PlayersForRoleViewModel
 import com.example.lupusinfabulav1.ui.viewModels.VillageViewModel
@@ -32,7 +33,7 @@ enum class LupusInFabulaScreen(val title: String) {
     PLAYERS_ROLE("Players Role"),       //Pagina per assegnare un ruolo a un giocatore
     VILLAGE("Village"), //Pagina in cui avviene il gioco
     PLAYER_INFO("Player Info"),    //Pagina per vedere le informazioni di un giocatore
-    PLAYER_LIST("Player List"),    //Pagina per vedere la lista dei giocatori
+    PLAYERS_LIST("Player List"),    //Pagina per vedere la lista dei giocatori
 }
 
 @Composable
@@ -77,7 +78,7 @@ fun LupusInFabulaApp(
             startDestination = LupusInFabulaScreen.HOME_PAGE.name,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                //.verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {
             composable(route = LupusInFabulaScreen.HOME_PAGE.name) {
@@ -124,10 +125,14 @@ fun LupusInFabulaApp(
             composable(route = LupusInFabulaScreen.VILLAGE.name) {
                 VillageScreen7(
                     uiState = villageUiState,
-                    onCenterIconClick = villageViewModel::nextRole,
+                    onCenterIconTap = villageViewModel::nextRole,
+                    onCenterIconLongPress = { },    //navController.navigate(LupusInFabulaScreen.PLAYERS_LIST.name)
                     onPlayerTap = villageViewModel::vote,
                     modifier = Modifier.fillMaxSize()
                 )
+            }
+            composable(route = LupusInFabulaScreen.PLAYERS_LIST.name) {
+                PlayersListScreen(villageUiState.players, Modifier.fillMaxSize())
             }
 
         }
