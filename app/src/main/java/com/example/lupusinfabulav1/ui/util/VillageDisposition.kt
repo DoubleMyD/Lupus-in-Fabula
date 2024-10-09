@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.ui.screens.RoleCard
-import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.model.getPainter
 import kotlin.math.pow
@@ -371,11 +371,11 @@ class VillageDisposition {
 
     @Composable
     fun VillageScreen5(
-        players: List<Player>,
+        playerDetails: List<PlayerDetails>,
         modifier: Modifier = Modifier
     ) {
-        val rowPlayers = players.subList(1, players.size - 1)
-        val isOdd = players.size % 2 == 1
+        val rowPlayers = playerDetails.subList(1, playerDetails.size - 1)
+        val isOdd = playerDetails.size % 2 == 1
 
         val numRows = (rowPlayers.size) / 2
 
@@ -387,7 +387,7 @@ class VillageDisposition {
         val edgeWeights = mutableListOf<Float>()
 
         val maxMiddleWeight = totalSpacingWeight - 2  // 58
-        val minMiddleWeight = when (players.size) {
+        val minMiddleWeight = when (playerDetails.size) {
             6 -> 58f
             7 -> 58f
             8 -> 36f
@@ -430,7 +430,7 @@ class VillageDisposition {
                 Spacer(modifier = Modifier.weight(totalSpacingWeight / 2f))
                 //RoleCard2(number = middleIndex, modifier = Modifier.weight(singleCardWeight))
                 PlayerCard(
-                    player = players.first(),
+                    playerDetails = playerDetails.first(),
                     onClick = {  },
                     modifier = Modifier.weight(singleCardWeight)
                 )
@@ -439,8 +439,8 @@ class VillageDisposition {
             for (i in 0 until numRows) {
                 RowPlayerCards(
                     onClick = {},
-                    firstPlayer = rowPlayers[i * 2],
-                    secondPlayer = rowPlayers[i * 2 + 1],
+                    firstPlayerDetails = rowPlayers[i * 2],
+                    secondPlayerDetails = rowPlayers[i * 2 + 1],
                     edgeWeight = edgeWeights[i],
                     middleWeight = middleWeights[i],
                     singleCardWeight = singleCardWeight,
@@ -451,14 +451,14 @@ class VillageDisposition {
                 Spacer(modifier = Modifier.weight(totalSpacingWeight / 2f))
                 if (isOdd) {
                     PlayerCard(
-                        player = players[players.size - 2],
+                        playerDetails = playerDetails[playerDetails.size - 2],
                         onClick = {  },
                         modifier = Modifier.weight(singleCardWeight)
                     )
                     Spacer(modifier = Modifier.weight(edgeWeights[numRows - 1] * 0.3f))
                 }
                 PlayerCard(
-                    player = players[players.size - 1],
+                    playerDetails = playerDetails[playerDetails.size - 1],
                     onClick = {  },
                     modifier = Modifier.weight(singleCardWeight)
                 )
@@ -470,8 +470,8 @@ class VillageDisposition {
     @Composable
     fun RowPlayerCards(
         onClick: () -> Unit,
-        firstPlayer: Player,
-        secondPlayer: Player,
+        firstPlayerDetails: PlayerDetails,
+        secondPlayerDetails: PlayerDetails,
         edgeWeight: Float,
         middleWeight: Float,
         singleCardWeight: Float,
@@ -479,15 +479,15 @@ class VillageDisposition {
     ) {
         Row(modifier = modifier) {
             Spacer(modifier = Modifier.weight(edgeWeight))
-            PlayerCard(player = firstPlayer, onClick = {onClick()}, modifier = Modifier.weight(singleCardWeight) )
+            PlayerCard(playerDetails = firstPlayerDetails, onClick = {onClick()}, modifier = Modifier.weight(singleCardWeight) )
             Spacer(modifier = Modifier.weight(middleWeight))
-            PlayerCard(player = secondPlayer, onClick = {onClick()}, modifier = Modifier.weight(singleCardWeight) )
+            PlayerCard(playerDetails = secondPlayerDetails, onClick = {onClick()}, modifier = Modifier.weight(singleCardWeight) )
             Spacer(modifier = Modifier.weight(edgeWeight))
         }
     }
 
     @Composable
-    fun PlayerCard(player: Player, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    fun PlayerCard(playerDetails: PlayerDetails, onClick: () -> Unit, modifier: Modifier = Modifier) {
         OutlinedCard(
             onClick = { onClick() },
             modifier = modifier.padding(vertical = 1.dp)
@@ -506,14 +506,14 @@ class VillageDisposition {
                         .padding(2.dp)
                 ) {
                     Text(
-                        text = player.name,
+                        text = playerDetails.name,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .weight(2f)
                             .fillMaxWidth()
                     )
                     Image(
-                        painter = painterResource(id = player.role.image),
+                        painter = painterResource(id = playerDetails.role.image),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(1.dp)
@@ -521,8 +521,8 @@ class VillageDisposition {
                     )
                 }
                 Image(
-                    painter = player.imageSource.getPainter(),
-                    contentDescription = player.name,
+                    painter = playerDetails.imageSource.getPainter(),
+                    contentDescription = playerDetails.name,
                     modifier = Modifier
                         .padding(1.dp)
                         .weight(3f)
