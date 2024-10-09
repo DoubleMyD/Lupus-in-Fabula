@@ -3,20 +3,20 @@ package com.example.lupusinfabulav1.model
 private const val TAG = "VoteManager"
 
 data class VotePairPlayers(
-    val voter: Player,
-    val votedPlayer: Player
+    val voter: PlayerDetails,
+    val votedPlayerDetails: PlayerDetails
 )
 
 data class RoleVotes(
     val role: Role,
-    val voters: List<Player>,
-    val votedPlayers: List<Player>,
+    val voters: List<PlayerDetails>,
+    val votedPlayerDetails: List<PlayerDetails>,
     val votesPairPlayers: List<VotePairPlayers>
 )
 
 sealed class MostVotedPlayer {
-    data class SinglePlayer(val player: Player) : MostVotedPlayer()
-    data class PairPlayers(val player1: Player, val player2: Player) : MostVotedPlayer()
+    data class SinglePlayer(val playerDetails: PlayerDetails) : MostVotedPlayer()
+    data class PairPlayers(val playerDetails1: PlayerDetails, val playerDetails2: PlayerDetails) : MostVotedPlayer()
 }
 
 class VoteManager {
@@ -24,30 +24,30 @@ class VoteManager {
     private var lastVote: Boolean = false
     private var voterIndex: Int = 0
 
-    fun startVoting(role: Role, voters: List<Player>) {
+    fun startVoting(role: Role, voters: List<PlayerDetails>) {
         lastVote = false
         voterIndex = 0
         val voting = RoleVotes(role, voters, emptyList(), emptyList())
         votingHistory.add(voting)
     }
 
-    fun vote(voter: Player, votedPlayer: Player) {
+    fun vote(voter: PlayerDetails, votedPlayerDetails: PlayerDetails) {
         val currentVoting = getLastVotingState()
 
-        val newVotes = currentVoting.votedPlayers + votedPlayer
-        val newPairPlayer = currentVoting.votesPairPlayers + VotePairPlayers(voter, votedPlayer)
+        val newVotes = currentVoting.votedPlayerDetails + votedPlayerDetails
+        val newPairPlayer = currentVoting.votesPairPlayers + VotePairPlayers(voter, votedPlayerDetails)
 
         val newVoting = currentVoting.copy(
-            votedPlayers = newVotes,
+            votedPlayerDetails = newVotes,
             votesPairPlayers = newPairPlayer
         )
         votingHistory[votingHistory.lastIndex] = newVoting
 
         if (newVoting.role == Role.CUPIDO) {
-            if (newVoting.voters.size * 2 == newVoting.votedPlayers.size) {
+            if (newVoting.voters.size * 2 == newVoting.votedPlayerDetails.size) {
                 lastVote = true
             }
-        } else if (newVoting.voters.size == newVoting.votedPlayers.size) {
+        } else if (newVoting.voters.size == newVoting.votedPlayerDetails.size) {
             lastVote = true
         }
     }
@@ -64,7 +64,7 @@ class VoteManager {
         }
     }
 
-    fun getNextVoter(): Player {
+    fun getNextVoter(): PlayerDetails {
         val votingState = getLastVotingState()
         val voters = votingState.voters
 
@@ -89,7 +89,7 @@ class VoteManager {
     }
 
     private fun getMostVotedSinglePlayer(lastVoting: RoleVotes): MostVotedPlayer.SinglePlayer? {
-        val voteCounts = lastVoting.votedPlayers
+        val voteCounts = lastVoting.votedPlayerDetails
             .groupingBy { it }
             .eachCount()
         val maxCount = voteCounts.maxOfOrNull { it.value } ?: 0
@@ -104,12 +104,12 @@ class VoteManager {
 
     private fun getMostVotedPairPlayers(lastVoting: RoleVotes): MostVotedPlayer.PairPlayers?{
         // Map to store the count of each pair (ignoring order)
-        val pairCountMap = mutableMapOf<Pair<Player, Player>, Int>()
+        val pairCountMap = mutableMapOf<Pair<PlayerDetails, PlayerDetails>, Int>()
         val votesPairPlayers = lastVoting.votesPairPlayers
 
         for (i in 0 until votesPairPlayers.size / 2) {
-            val firstVote = votesPairPlayers[i * 2].votedPlayer
-            val secondVote = votesPairPlayers[i * 2 + 1].votedPlayer
+            val firstVote = votesPairPlayers[i * 2].votedPlayerDetails
+            val secondVote = votesPairPlayers[i * 2 + 1].votedPlayerDetails
             val normalizedPair = if (firstVote.name > secondVote.name) {
                 Pair(secondVote, firstVote)
             } else {
