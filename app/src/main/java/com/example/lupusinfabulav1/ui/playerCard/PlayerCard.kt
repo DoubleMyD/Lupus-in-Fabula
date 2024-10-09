@@ -10,14 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.Role
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayerCard(
     border: BorderStroke,
-    player: Player,
+    playerDetails: PlayerDetails,
     rolesVotedBy: List<Role>,
     votedCount: Int,
     alphaColor: Float,
@@ -25,25 +25,25 @@ fun PlayerCard(
     onPlayerLongPress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val backgroundColor = player.role.color.copy(alpha = alphaColor)
+    val backgroundColor = playerDetails.role.color.copy(alpha = alphaColor)
     val cardModifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
 
 
-    val alphaCard = remember(key1 = player.alive) { if (player.alive) 1f else 0.5f }
+    val alphaCard = remember(key1 = playerDetails.alive) { if (playerDetails.alive) 1f else 0.5f }
 
     OutlinedCard(
         border = border,
         modifier = modifier
             .combinedClickable(
-                onClick = { if (player.alive) onPlayerTap() },
+                onClick = { if (playerDetails.alive) onPlayerTap() },
                 onLongClick = { onPlayerLongPress() }
             )
             .alpha(alphaCard)
     ) {
         PlayerCardHorizontal(
-            player = player,
+            playerDetails = playerDetails,
             rolesVotedBy = rolesVotedBy,
             votedCount = votedCount,
             modifier = cardModifier

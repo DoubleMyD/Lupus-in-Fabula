@@ -21,12 +21,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.FakePlayersRepository
-import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.getPainter
 
 @Composable
 fun PlayerCardInfo(
-    player: Player,
+    playerDetails: PlayerDetails,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.White,
     borderColor: Color = Color.Black,
@@ -52,21 +52,21 @@ fun PlayerCardInfo(
                     .padding(dimensionResource(id = R.dimen.padding_medium))
             ) {
                 Text(
-                    text = player.name,
+                    text = playerDetails.name,
                     maxLines = 1,
                     modifier = Modifier
                         .weight(3f)
                 )
                 Image(
-                    painter = painterResource(id = player.role.image),
+                    painter = painterResource(id = playerDetails.role.image),
                     contentDescription = null,
                     modifier = Modifier
                         .weight(1f)
                 )
             }
             Image(
-                painter = player.imageSource.getPainter(),
-                contentDescription = player.name,
+                painter = playerDetails.imageSource.getPainter(),
+                contentDescription = playerDetails.name,
                 modifier = Modifier
                     .weight(4f)
                     .padding(dimensionResource(id = R.dimen.padding_small))
@@ -79,7 +79,7 @@ fun PlayerCardInfo(
 @Composable
 fun PlayerCardInfoPreview(){
     PlayerCardInfo(
-        player = FakePlayersRepository.players[0],
+        playerDetails = FakePlayersRepository.playerDetails[0],
         modifier = Modifier
             .padding(8.dp)
     )

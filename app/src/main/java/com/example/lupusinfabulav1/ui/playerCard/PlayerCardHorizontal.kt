@@ -24,14 +24,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
-import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.model.getPainter
 import kotlin.enums.EnumEntries
 
 @Composable
 fun PlayerCardHorizontal(
-    player: Player,
+    playerDetails: PlayerDetails,
     rolesVotedBy: List<Role>,
     modifier: Modifier = Modifier,
     votedCount: Int = 0,
@@ -57,7 +57,7 @@ fun PlayerCardHorizontal(
                 .fillMaxSize()
         ) {
             Image(
-                painter = painterResource(id = player.role.image),
+                painter = painterResource(id = playerDetails.role.image),
                 contentDescription = null,
                 modifier = Modifier
                     .size(imageVeryBigSize)
@@ -79,8 +79,8 @@ fun PlayerCardHorizontal(
             )
         }
         Image(
-            painter = player.imageSource.getPainter(),
-            contentDescription = player.name,
+            painter = playerDetails.imageSource.getPainter(),
+            contentDescription = playerDetails.name,
             modifier = Modifier
                 .weight(7f)
                 .fillMaxSize()
@@ -152,7 +152,7 @@ private fun RoleIconCards(
 fun PlayerCardHorizontalPreview(){
     PlayerCard(
         border = BorderStroke(2.dp, Color.Black),
-        player = Player("ciao"),
+        playerDetails = PlayerDetails("ciao"),
         modifier = Modifier
             .size(200.dp)
             .padding(4.dp),

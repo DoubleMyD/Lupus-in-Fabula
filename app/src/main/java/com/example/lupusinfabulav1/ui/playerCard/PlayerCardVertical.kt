@@ -14,12 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.getPainter
 
 @Composable
 fun PlayerCardVertical(
-    player: Player,
+    playerDetails: PlayerDetails,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -35,7 +35,7 @@ fun PlayerCardVertical(
                 .fillMaxWidth()
         ) {
             Text(
-                text = player.name,
+                text = playerDetails.name,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 modifier = Modifier
@@ -43,15 +43,15 @@ fun PlayerCardVertical(
                     .basicMarquee(velocity = 10.dp, repeatDelayMillis = 1000 * 10)
             )
             Image(
-                painter = painterResource(id = player.role.image),
+                painter = painterResource(id = playerDetails.role.image),
                 contentDescription = null,
                 modifier = Modifier
                     .weight(1f)
             )
         }
         Image(
-            painter = player.imageSource.getPainter(),
-            contentDescription = player.name,
+            painter = playerDetails.imageSource.getPainter(),
+            contentDescription = playerDetails.name,
             modifier = Modifier
                 .weight(3f)
                 .padding(vertical = 4.dp)
