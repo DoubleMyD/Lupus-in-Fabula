@@ -18,7 +18,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.FakePlayersRepository
-import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.ui.VillageUiState
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
 
@@ -28,20 +28,20 @@ import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
 @Composable
 fun VillageScreen7(
     uiState: VillageUiState,
-    onPlayerTap: (voter: Player, voted: Player) -> Unit,
+    onPlayerTap: (voter: PlayerDetails, voted: PlayerDetails) -> Unit,
     onCenterIconTap: () -> Unit,
     onCenterIconLongPress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Remember the state of the dialog
-    var playerToShowInfo by remember { mutableStateOf<Player?>(null) }
-    val onPlayerLongPress = { player: Player -> playerToShowInfo = player }
+    var playerDetailsToShowInfo by remember { mutableStateOf<PlayerDetails?>(null) }
+    val onPlayerLongPress = { playerDetails: PlayerDetails -> playerDetailsToShowInfo = playerDetails }
 
     // Show player info dialog
-    playerToShowInfo?.let { player ->
+    playerDetailsToShowInfo?.let { player ->
         PlayerInfoDialog(
-            { playerToShowInfo = null },
-            player = player
+            { playerDetailsToShowInfo = null },
+            playerDetails = player
         )
     }
     
@@ -59,20 +59,20 @@ fun VillageScreen7(
                 onPlayerLongPress = onPlayerLongPress,
                 modifier = Modifier.fillMaxSize()
             )
-            1 -> PlayersListScreen(players = uiState.players)
+            1 -> PlayersListScreen(playerDetails = uiState.playerDetails)
         }
     }
 }
 
 @Composable
-private fun PlayerInfoDialog(onDismiss: () -> Unit, player: Player) {
+private fun PlayerInfoDialog(onDismiss: () -> Unit, playerDetails: PlayerDetails) {
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
     ) {
         PlayerCardInfo(
-            player = player,
-            backgroundColor = player.role.color.copy(alpha = 0.1f),
+            playerDetails = playerDetails,
+            backgroundColor = playerDetails.role.color.copy(alpha = 0.1f),
             modifier = Modifier
                 .size(400.dp)
                 .padding(dimensionResource(id = R.dimen.padding_medium))
@@ -88,7 +88,7 @@ fun VillageScreen7Preview() {
         onPlayerTap = { _, _ -> },
         onCenterIconTap = {},
         onCenterIconLongPress = {},
-        uiState = VillageUiState().copy(players = FakePlayersRepository.players),
+        uiState = VillageUiState().copy(playerDetails = FakePlayersRepository.playerDetails),
         modifier = Modifier
             .fillMaxSize()
             .padding(dimensionResource(id = R.dimen.padding_small))
@@ -103,7 +103,7 @@ fun VillageScreenContentPreview() {
         onCenterIconClick = {},
         onPlayerLongPress = {},
         onCenterIconLongPress = {},
-        uiState = VillageUiState().copy(players = FakePlayersRepository.players),
+        uiState = VillageUiState().copy(playerDetails = FakePlayersRepository.playerDetails),
         modifier = Modifier
             .fillMaxSize()
             .padding(dimensionResource(id = R.dimen.padding_small))
