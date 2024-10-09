@@ -9,15 +9,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.data.FakePlayersRepository
-import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
 
 @Composable
-fun PlayersListScreen(players: List<Player>, modifier: Modifier = Modifier){
+fun PlayersListScreen(playerDetails: List<PlayerDetails>, modifier: Modifier = Modifier){
 
     LazyColumn(modifier = modifier){
-        items(players){ player ->
-            PlayerCardInfo(player = player, modifier = Modifier.height(128.dp).fillMaxWidth())
+        items(playerDetails){ player ->
+            PlayerCardInfo(playerDetails = player, modifier = Modifier.height(128.dp).fillMaxWidth())
         }
     }
 }
@@ -25,5 +25,5 @@ fun PlayersListScreen(players: List<Player>, modifier: Modifier = Modifier){
 @Preview(showBackground = true)
 @Composable
 fun PlayersListScreenPreview() {
-    PlayersListScreen(players = FakePlayersRepository.players)
+    PlayersListScreen(playerDetails = FakePlayersRepository.playerDetails)
 }

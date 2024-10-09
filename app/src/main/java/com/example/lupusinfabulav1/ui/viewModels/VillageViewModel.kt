@@ -7,14 +7,18 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.lupusinfabulav1.LupusInFabulaApplication
+import com.example.lupusinfabulav1.data.PlayersRepository
+import com.example.lupusinfabulav1.data.entity.Player
 import com.example.lupusinfabulav1.model.MostVotedPlayer
-import com.example.lupusinfabulav1.model.Player
+import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.model.RoleVotes
 import com.example.lupusinfabulav1.model.VoteManager
+import com.example.lupusinfabulav1.model.toPlayerDetails
 import com.example.lupusinfabulav1.ui.VillageUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,15 +39,15 @@ sealed class VillageEvent {
 }
 
 sealed class RoleTypeEvent {
-    data class AssassinKilledPlayers(val playerKilled: Player) : RoleTypeEvent()
-    data class CupidoKilledPlayers(val playersKilled: Pair<Player, Player>) : RoleTypeEvent()
-    data class FaciliCostumiSavedPlayer(val playerSaved: Player) : RoleTypeEvent()
-    data class VeggenteDiscoverKiller(val killer: Player) : RoleTypeEvent()
+    data class AssassinKilledPlayers(val playerDetailsKilled: PlayerDetails) : RoleTypeEvent()
+    data class CupidoKilledPlayers(val playersKilled: Pair<PlayerDetails, PlayerDetails>) : RoleTypeEvent()
+    data class FaciliCostumiSavedPlayer(val playerDetailsSaved: PlayerDetails) : RoleTypeEvent()
+    data class VeggenteDiscoverKiller(val killer: PlayerDetails) : RoleTypeEvent()
 }
 
 class VillageViewModel(
     private val playerManager: PlayerManager,
-    private val voteManager: VoteManager
+    private val voteManager: VoteManager,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(VillageUiState())
     val uiState: StateFlow<VillageUiState> = _uiState.asStateFlow()
@@ -65,7 +69,7 @@ class VillageViewModel(
         viewModelScope.launch {
             //this allows to reflect changes in the players in PlayerManager in the uiState
             playerManager.players.collect { players ->
-                _uiState.value = _uiState.value.copy(players = players)
+                _uiState.value = _uiState.value.copy(playerDetails = players)
             }
         }
     }
@@ -80,7 +84,7 @@ class VillageViewModel(
         if (mostVotedPlayer != null) {
             if (_uiState.value.currentRole == Role.CITTADINO) {
                 val mostCittadinoVotedPlayer = mostVotedPlayer as MostVotedPlayer.SinglePlayer
-                updateKilledPlayer(listOf(mostCittadinoVotedPlayer.player))
+                updateKilledPlayer(listOf(mostCittadinoVotedPlayer.playerDetails))
             } else {
                 updateVotedPlayerByRole(_uiState.value.currentRole, mostVotedPlayer)
             }
@@ -120,9 +124,9 @@ class VillageViewModel(
 
     }
 
-    fun vote(voter: Player, votedPlayer: Player) {
+    fun vote(voter: PlayerDetails, votedPlayerDetails: PlayerDetails) {
         if (_uiState.value.gameStarted) {
-            if (!votedPlayer.alive) {
+            if (!votedPlayerDetails.alive) {
                 return
             }
             if (voteManager.isLastVote()) {
@@ -130,18 +134,18 @@ class VillageViewModel(
                 return
             }
             if(voteManager.getLastVotingState().role == Role.CUPIDO){
-                if(voteManager.getLastVotingState().votesPairPlayers.any { it.voter == voter && it.votedPlayer == votedPlayer }) {
+                if(voteManager.getLastVotingState().votesPairPlayers.any { it.voter == voter && it.votedPlayerDetails == votedPlayerDetails }) {
                     triggerAndClearEvent(VillageEvent.CupidoAlreadyVoted)
                     return
                 }
             }
 
-            voteManager.vote(voter = voter, votedPlayer = votedPlayer)
+            voteManager.vote(voter = voter, votedPlayerDetails = votedPlayerDetails)
 
             val votingState = voteManager.getLastVotingState()
 
             if (_uiState.value.currentRole == Role.MEDIUM) {
-                updatePlayerRole(voter, votedPlayer.role)
+                updatePlayerRole(voter, votedPlayerDetails.role)
             } else {
                 updateCurrentVoting(votingState)
             }
@@ -174,7 +178,7 @@ class VillageViewModel(
         if (votedPlayerByRole[Role.FACILI_COSTUMI] != votedPlayerByRole[Role.ASSASSINO]) {
             val cupidoVotedPlayers = votedPlayerByRole[Role.CUPIDO] as MostVotedPlayer.PairPlayers
             val cupidoKilled = 
-                cupidoVotedPlayers.player1 == assasinVotedPlayer.player || cupidoVotedPlayers.player2 == assasinVotedPlayer.player
+                cupidoVotedPlayers.playerDetails1 == assasinVotedPlayer.playerDetails || cupidoVotedPlayers.playerDetails2 == assasinVotedPlayer.playerDetails
 
             if (cupidoKilled) {
                 handleCupidoKilled(cupidoVotedPlayers)
@@ -184,29 +188,29 @@ class VillageViewModel(
         } else {
             triggerAndClearEvent(
                 VillageEvent.RoleEvent(
-                    RoleTypeEvent.FaciliCostumiSavedPlayer(assasinVotedPlayer.player)
+                    RoleTypeEvent.FaciliCostumiSavedPlayer(assasinVotedPlayer.playerDetails)
                 )
             )
         }
 
-        val veggentePlayer = _uiState.value.players.filter { it.role == Role.VEGGENTE && it.alive }
+        val veggentePlayer = _uiState.value.playerDetails.filter { it.role == Role.VEGGENTE && it.alive }
         if (veggentePlayer.isNotEmpty()) {
             val veggenteVotedPlayer = votedPlayerByRole[Role.VEGGENTE] as MostVotedPlayer.SinglePlayer
-            if(veggenteVotedPlayer.player.role == Role.ASSASSINO) {
+            if(veggenteVotedPlayer.playerDetails.role == Role.ASSASSINO) {
                 handleVeggenteDiscover(veggenteVotedPlayer)
             }
         }
 
         val winner = checkWinCondition()
         when(winner){
-            Role.ASSASSINO -> updateIsGameFinished(_uiState.value.players.filter { it.role == Role.ASSASSINO })
-            Role.CITTADINO -> updateIsGameFinished(_uiState.value.players.filter { it.role != Role.ASSASSINO })
+            Role.ASSASSINO -> updateIsGameFinished(_uiState.value.playerDetails.filter { it.role == Role.ASSASSINO })
+            Role.CITTADINO -> updateIsGameFinished(_uiState.value.playerDetails.filter { it.role != Role.ASSASSINO })
             else -> {}
         }
     }
 
     private fun checkWinCondition(): Role?{
-        val playersAlive = _uiState.value.players.filter { it.alive }
+        val playersAlive = _uiState.value.playerDetails.filter { it.alive }
         val assassinPlayer = playersAlive.filter { it.role == Role.ASSASSINO }
         val otherPlayers = playersAlive.filter { it.role != Role.ASSASSINO }
 
@@ -220,22 +224,22 @@ class VillageViewModel(
     private fun handleCupidoKilled(cupidoVotedPlayers: MostVotedPlayer.PairPlayers){
         val cupidoKilledPlayersEvent = RoleTypeEvent.CupidoKilledPlayers(
             Pair(
-                cupidoVotedPlayers.player1,
-                cupidoVotedPlayers.player2
+                cupidoVotedPlayers.playerDetails1,
+                cupidoVotedPlayers.playerDetails2
             )
         )
-        updateKilledPlayer(listOf(cupidoVotedPlayers.player1, cupidoVotedPlayers.player2))
+        updateKilledPlayer(listOf(cupidoVotedPlayers.playerDetails1, cupidoVotedPlayers.playerDetails2))
 
         triggerAndClearEvent(VillageEvent.RoleEvent(cupidoKilledPlayersEvent))
         triggerAndClearEvent(VillageEvent.RoleEvent(cupidoKilledPlayersEvent))
     }
 
     private fun handleAssassinKilled(assasinVotedPlayer: MostVotedPlayer.SinglePlayer){
-        updateKilledPlayer(listOf(assasinVotedPlayer.player))
+        updateKilledPlayer(listOf(assasinVotedPlayer.playerDetails))
 
         triggerAndClearEvent(
             VillageEvent.RoleEvent(
-                RoleTypeEvent.AssassinKilledPlayers(assasinVotedPlayer.player)
+                RoleTypeEvent.AssassinKilledPlayers(assasinVotedPlayer.playerDetails)
             )
         )
     }
@@ -243,7 +247,7 @@ class VillageViewModel(
     private fun handleVeggenteDiscover( veggenteVotedPlayer: MostVotedPlayer.SinglePlayer){
         triggerAndClearEvent(
             VillageEvent.RoleEvent(
-                RoleTypeEvent.VeggenteDiscoverKiller(veggenteVotedPlayer.player)
+                RoleTypeEvent.VeggenteDiscoverKiller(veggenteVotedPlayer.playerDetails)
             )
         )
     }
@@ -251,8 +255,8 @@ class VillageViewModel(
 
     private fun startNewVoting(votingRole: Role) {
         val voterPlayers = when (votingRole) {
-            Role.CITTADINO -> _uiState.value.players.filter { it.alive }
-            else -> _uiState.value.players.filter { it.role == votingRole && it.alive }
+            Role.CITTADINO -> _uiState.value.playerDetails.filter { it.alive }
+            else -> _uiState.value.playerDetails.filter { it.role == votingRole && it.alive }
         }
         voteManager.startVoting(votingRole, voterPlayers)
 
@@ -278,41 +282,41 @@ class VillageViewModel(
         return roles[roleIndex]
     }
 
-    private fun updateKilledPlayer(listOfKilledPlayers: List<Player>) {
-        val updatedPlayers = _uiState.value.players.map { player ->
-            if (listOfKilledPlayers.contains(player)) {
+    private fun updateKilledPlayer(listOfKilledPlayerDetails: List<PlayerDetails>) {
+        val updatedPlayers = _uiState.value.playerDetails.map { player ->
+            if (listOfKilledPlayerDetails.contains(player)) {
                 player.copy(alive = false)
             }
             else
                 player
         }
         _uiState.update { currentState ->
-            currentState.copy(players = updatedPlayers)
+            currentState.copy(playerDetails = updatedPlayers)
         }
     }
-    private fun updatePlayerRole(playerToUpdate: Player, newRole: Role) {
+    private fun updatePlayerRole(playerDetailsToUpdate: PlayerDetails, newRole: Role) {
         _uiState.update { currentState ->
-            val updatedPlayers = currentState.players.map { player ->
-                if (player == playerToUpdate) {
+            val updatedPlayers = currentState.playerDetails.map { player ->
+                if (player == playerDetailsToUpdate) {
                     player.changeRole(newRole)
                 } else {
                     player
                 }
             }
-            currentState.copy(players = updatedPlayers)
+            currentState.copy(playerDetails = updatedPlayers)
         }
     }
     
-    private fun updateIsGameFinished(winnerPlayers: List<Player>){
+    private fun updateIsGameFinished(winnerPlayerDetails: List<PlayerDetails>){
         _uiState.update { currentState ->
             currentState.copy(isGameFinished = true)
         }
-        updateWinnerPlayers(winnerPlayers)
+        updateWinnerPlayers(winnerPlayerDetails)
     }
     
-    private fun updateWinnerPlayers(winnerPlayers: List<Player>){
+    private fun updateWinnerPlayers(winnerPlayerDetails: List<PlayerDetails>){
         _uiState.update { currentState ->
-            currentState.copy(winnerPlayers = winnerPlayers)
+            currentState.copy(winnerPlayerDetails = winnerPlayerDetails)
         }
     }
 
@@ -322,9 +326,9 @@ class VillageViewModel(
         }
     }
 
-    private fun updateSelectedPlayer(player: Player) {
+    private fun updateSelectedPlayer(playerDetails: PlayerDetails) {
         _uiState.update { currentState ->
-            currentState.copy(selectedPlayer = player)
+            currentState.copy(selectedPlayerDetails = playerDetails)
         }
     }
 
