@@ -86,7 +86,7 @@ fun HandleVillageEvents(viewModel: VillageViewModel, context: Context) {
 
 private fun handleRoleEvent(context: Context, roleTypeEvent: RoleTypeEvent) {
     when(roleTypeEvent){
-        is RoleTypeEvent.AssassinKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_assassin_killed_players, roleTypeEvent.playerKilled.name), Toast.LENGTH_SHORT).show()
+        is RoleTypeEvent.AssassinKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_assassin_killed_players, roleTypeEvent.playerDetailsKilled.name), Toast.LENGTH_SHORT).show()
         is RoleTypeEvent.CupidoKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_cupido_killed_players, roleTypeEvent.playersKilled.first.name, roleTypeEvent.playersKilled.second.name), Toast.LENGTH_SHORT).show()
         is RoleTypeEvent.FaciliCostumiSavedPlayer -> Toast.makeText(context, R.string.role_event_facili_costumi_saved_player, Toast.LENGTH_SHORT).show()
         is RoleTypeEvent.VeggenteDiscoverKiller -> Toast.makeText(context, context.getString(R.string.role_event_veggente_discover_killer, roleTypeEvent.killer.name), Toast.LENGTH_SHORT).show()
