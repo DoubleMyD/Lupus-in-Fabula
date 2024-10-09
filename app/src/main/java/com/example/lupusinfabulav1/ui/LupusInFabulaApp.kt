@@ -2,8 +2,6 @@ package com.example.lupusinfabulav1.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,10 +19,10 @@ import com.example.lupusinfabulav1.ui.screens.HomePageScreen
 import com.example.lupusinfabulav1.ui.screens.NewPlayerScreen
 import com.example.lupusinfabulav1.ui.screens.PlayersForRoleScreen
 import com.example.lupusinfabulav1.ui.screens.PlayersListScreen
+import com.example.lupusinfabulav1.ui.screens.VillageScreen7
 import com.example.lupusinfabulav1.ui.viewModels.NewPlayerViewModel
 import com.example.lupusinfabulav1.ui.viewModels.PlayersForRoleViewModel
 import com.example.lupusinfabulav1.ui.viewModels.VillageViewModel
-import com.example.lupusinfabulav1.ui.screens.VillageScreen7
 
 enum class LupusInFabulaScreen(val title: String) {
     HOME_PAGE("Home Page"),  //Pagina di ingresso
@@ -91,12 +89,9 @@ fun LupusInFabulaApp(
             }
             composable(route = LupusInFabulaScreen.NEW_PLAYER.name) {
                 NewPlayerScreen(
-                    onConfirmClick = { name, imageSource ->
-                        val isValidPlayer = newPlayerViewModel.addPlayer(name, imageSource)
-                        if (isValidPlayer) {
-                            navController.navigate(LupusInFabulaScreen.PLAYERS_FOR_ROLE.name)
-                        }
-                    },
+                    viewModel = newPlayerViewModel,
+                    navigateBack = { navController.navigate(LupusInFabulaScreen.HOME_PAGE.name) },
+                    onConfirmClick = { name, imageSource ->                    },
                     onCancelClick = { navController.navigate(LupusInFabulaScreen.HOME_PAGE.name) },
                 )
             }
@@ -132,7 +127,7 @@ fun LupusInFabulaApp(
                 )
             }
             composable(route = LupusInFabulaScreen.PLAYERS_LIST.name) {
-                PlayersListScreen(villageUiState.players, Modifier.fillMaxSize())
+                PlayersListScreen(villageUiState.playerDetails, Modifier.fillMaxSize())
             }
 
         }
