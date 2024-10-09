@@ -1,5 +1,8 @@
 package com.example.lupusinfabulav1.data
 
+import android.content.Context
+import com.example.lupusinfabulav1.data.database.ImageIO
+import com.example.lupusinfabulav1.data.database.LupusInFabulaDatabase
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.VoteManager
 
@@ -7,11 +10,13 @@ interface AppContainer {
     val playersRepository: PlayersRepository
     val playerManager: PlayerManager
     val voteManager: VoteManager
+    val imageIO: ImageIO
 }
 
-class DefaultAppContainer : AppContainer {
+class DefaultAppContainer(private val context: Context) : AppContainer {
+
     override val playersRepository: PlayersRepository by lazy {
-        DatabasePlayerRepository()
+        OfflinePlayersRepository(LupusInFabulaDatabase.getDatabase(context).playerDao())
     }
 
     override val playerManager: PlayerManager by lazy {
@@ -21,4 +26,9 @@ class DefaultAppContainer : AppContainer {
     override val voteManager: VoteManager by lazy {
         VoteManager()
     }
+
+    override val imageIO: ImageIO by lazy {
+        ImageIO()
+    }
+
 }
