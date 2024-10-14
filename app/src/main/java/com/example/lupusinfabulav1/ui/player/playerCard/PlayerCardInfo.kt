@@ -1,8 +1,11 @@
 package com.example.lupusinfabulav1.ui.player.playerCard
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,10 +31,13 @@ import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.getPainter
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayerCardInfo(
     playerDetails: PlayerDetails,
     modifier: Modifier = Modifier,
+    onCardClick: () -> Unit = {},
+    onCardLongClick: () -> Unit = {},
     showRoleIcon: Boolean = false,
     backgroundColor: Color = Color.White,
     borderColor: Color = Color.Black,
@@ -39,6 +45,10 @@ fun PlayerCardInfo(
     OutlinedCard(
         border = BorderStroke(dimensionResource(id = R.dimen.border_width_medium), borderColor),
         modifier = modifier
+            .combinedClickable(
+                onClick = { onCardClick() },
+                onLongClick = { onCardLongClick() }
+            )
     ) {
         Row(
             horizontalArrangement = Arrangement.Start,

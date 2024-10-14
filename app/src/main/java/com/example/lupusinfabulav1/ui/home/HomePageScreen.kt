@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
+import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.navigation.NavigationDestination
 import com.example.lupusinfabulav1.ui.player.PlayersListDestination
 
@@ -27,18 +29,42 @@ fun HomePageScreen(
     onNavigateToVillage: () -> Unit,
     onNavigateToPlayersList: () -> Unit,
     modifier: Modifier = Modifier,
-){
-    Column(
+) {
+    Scaffold(
+        topBar = {
+            LupusInFabulaAppBar(
+                title = LupusInFabulaScreen.HOME_PAGE.title,
+                canNavigateBack = false
+            )
+        },
         modifier = modifier
-    ){
-        val modifierColumn = Modifier.padding(dimensionResource(id = R.dimen.padding_small)).weight(1f)
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.padding(innerPadding),
+        ) {
+            val modifierColumn =
+                Modifier
+                    .padding(dimensionResource(id = R.dimen.padding_small))
+                    .weight(1f)
 
-        ScreenCard(modifier = modifierColumn, name = LupusInFabulaScreen.PLAYERS_FOR_ROLE.name, onClick = { onNavigateToPlayersForRole() })
-        ScreenCard(modifier = modifierColumn, name = LupusInFabulaScreen.NEW_PLAYER.name, onClick = { onNavigateToNewPlayer() } )
-        ScreenCard(modifier = modifierColumn, name = LupusInFabulaScreen.VILLAGE.name, onClick = { onNavigateToVillage() } )
-        ScreenCard(modifier = modifierColumn, name = PlayersListDestination.route, onClick = { onNavigateToPlayersList() } )
+            ScreenCard(
+                modifier = modifierColumn,
+                name = LupusInFabulaScreen.PLAYERS_FOR_ROLE.name,
+                onClick = { onNavigateToPlayersForRole() })
+            ScreenCard(
+                modifier = modifierColumn,
+                name = LupusInFabulaScreen.NEW_PLAYER.name,
+                onClick = { onNavigateToNewPlayer() })
+            ScreenCard(
+                modifier = modifierColumn,
+                name = LupusInFabulaScreen.VILLAGE.name,
+                onClick = { onNavigateToVillage() })
+            ScreenCard(
+                modifier = modifierColumn,
+                name = PlayersListDestination.route,
+                onClick = { onNavigateToPlayersList() })
+        }
     }
-
 }
 
 @Composable
@@ -58,10 +84,14 @@ fun ScreenCard(
             modifier = Modifier.fillMaxWidth()
         ) {
             Image(
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)).weight(2f),
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.padding_small))
+                    .weight(2f),
                 painter = painterResource(id = R.drawable.android_superhero1), contentDescription = null)
             Button(onClick = onClick,
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)).weight(1f)) {
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.padding_small))
+                    .weight(1f)) {
                 Text(text = name)
             }
         }

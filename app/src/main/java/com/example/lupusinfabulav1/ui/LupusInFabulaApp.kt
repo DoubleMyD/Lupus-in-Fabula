@@ -58,17 +58,17 @@ fun LupusInFabulaApp(
 
     val playersForRoleUiState by playersForRoleViewModel.uiState.collectAsState()
     val villageUiState by villageViewModel.uiState.collectAsState()
-    val playersListUiState by playersListViewModel.homeUiState.collectAsState()
+    val playersListUiState by playersListViewModel.databasePlayersUiState.collectAsState()
 
-    Scaffold(
-        topBar = {
-            LupusInFabulaAppBar(
-                currentScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
-            )
-        }
-    ) { innerPadding ->
+//    Scaffold(
+//        topBar = {
+//            LupusInFabulaAppBar(
+//                title = currentScreen.title,
+//                canNavigateBack = navController.previousBackStackEntry != null,
+//                navigateUp = { navController.navigateUp() }
+//            )
+//        }
+//    ) { innerPadding ->
 
         NavHost(
             navController = navController,
@@ -76,7 +76,7 @@ fun LupusInFabulaApp(
             modifier = Modifier
                 .fillMaxSize()
                 //.verticalScroll(rememberScrollState())
-                .padding(innerPadding)
+                //.padding(innerPadding)
         ) {
             composable(route = LupusInFabulaScreen.HOME_PAGE.name) {
                 HomePageScreen(
@@ -97,6 +97,7 @@ fun LupusInFabulaApp(
             }
             composable(route = LupusInFabulaScreen.PLAYERS_FOR_ROLE.name) {
                 PlayersForRoleScreen(
+                    navigateUp = { navController.navigateUp() },
                     onConfirmClick = {
                         if (playersForRoleViewModel.checkIfAllPlayersSelected())
                             navController.navigate(LupusInFabulaScreen.HOME_PAGE.name)
@@ -119,6 +120,7 @@ fun LupusInFabulaApp(
             }
             composable(route = LupusInFabulaScreen.VILLAGE.name) {
                 VillageScreen7(
+                    navigateUp = { navController.navigateUp() },
                     uiState = villageUiState,
                     onCenterIconTap = villageViewModel::nextRole,
                     onCenterIconLongPress = { },    //navController.navigate(LupusInFabulaScreen.PLAYERS_LIST.name)
@@ -132,9 +134,15 @@ fun LupusInFabulaApp(
 //                    type = NavType.IntType
 //                })
             ) {
-                PlayersListScreen(playersListUiState.playersDetails, Modifier.fillMaxSize())
+                PlayersListScreen(
+                    navigateUp = { navController.navigateUp() },
+                    playersDetails =  playersListUiState.playersDetails,
+                    onPlayerClick = { playersListViewModel.addPlayer(it) },
+                    onPlayerLongClick = { },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
 
-        }
+        //}
     }
 }

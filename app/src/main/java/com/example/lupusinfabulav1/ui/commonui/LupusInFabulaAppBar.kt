@@ -16,13 +16,13 @@ import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LupusInFabulaAppBar(
-    currentScreen : LupusInFabulaScreen,
+    title : String,
     canNavigateBack: Boolean,
     modifier: Modifier = Modifier,
     navigateUp: () -> Unit = {},
 ){
     TopAppBar(
-        title = { Text(currentScreen.title) },
+        title = { Text(title) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
