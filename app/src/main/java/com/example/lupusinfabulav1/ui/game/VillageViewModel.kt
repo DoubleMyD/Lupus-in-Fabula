@@ -1,5 +1,6 @@
-package com.example.lupusinfabulav1.ui.viewModels
+package com.example.lupusinfabulav1.ui.game
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -8,7 +9,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.lupusinfabulav1.LupusInFabulaApplication
 import com.example.lupusinfabulav1.data.PlayersRepository
-import com.example.lupusinfabulav1.data.entity.Player
 import com.example.lupusinfabulav1.model.MostVotedPlayer
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerManager
@@ -18,10 +18,13 @@ import com.example.lupusinfabulav1.model.VoteManager
 import com.example.lupusinfabulav1.model.toPlayerDetails
 import com.example.lupusinfabulav1.ui.VillageUiState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -46,6 +49,8 @@ sealed class RoleTypeEvent {
 }
 
 class VillageViewModel(
+    savedStateHandle: SavedStateHandle,
+    private val playersRepository: PlayersRepository,
     private val playerManager: PlayerManager,
     private val voteManager: VoteManager,
 ) : ViewModel() {
@@ -60,8 +65,6 @@ class VillageViewModel(
     private val _uiEvent = MutableStateFlow<VillageEvent?>(null)
     val uiEvent: StateFlow<VillageEvent?> = _uiEvent.asStateFlow()
 
-    //private val voteManager = VoteManager()
-
     private val roles = Role.entries.toMutableList()
     private var roleIndex = 0
 
@@ -69,7 +72,7 @@ class VillageViewModel(
         viewModelScope.launch {
             //this allows to reflect changes in the players in PlayerManager in the uiState
             playerManager.players.collect { players ->
-                _uiState.value = _uiState.value.copy(playerDetails = players)
+                _uiState.value = _uiState.value.copy(playersDetails = players)
             }
         }
     }
@@ -193,7 +196,7 @@ class VillageViewModel(
             )
         }
 
-        val veggentePlayer = _uiState.value.playerDetails.filter { it.role == Role.VEGGENTE && it.alive }
+        val veggentePlayer = _uiState.value.playersDetails.filter { it.role == Role.VEGGENTE && it.alive }
         if (veggentePlayer.isNotEmpty()) {
             val veggenteVotedPlayer = votedPlayerByRole[Role.VEGGENTE] as MostVotedPlayer.SinglePlayer
             if(veggenteVotedPlayer.playerDetails.role == Role.ASSASSINO) {
@@ -203,14 +206,14 @@ class VillageViewModel(
 
         val winner = checkWinCondition()
         when(winner){
-            Role.ASSASSINO -> updateIsGameFinished(_uiState.value.playerDetails.filter { it.role == Role.ASSASSINO })
-            Role.CITTADINO -> updateIsGameFinished(_uiState.value.playerDetails.filter { it.role != Role.ASSASSINO })
+            Role.ASSASSINO -> updateIsGameFinished(_uiState.value.playersDetails.filter { it.role == Role.ASSASSINO })
+            Role.CITTADINO -> updateIsGameFinished(_uiState.value.playersDetails.filter { it.role != Role.ASSASSINO })
             else -> {}
         }
     }
 
     private fun checkWinCondition(): Role?{
-        val playersAlive = _uiState.value.playerDetails.filter { it.alive }
+        val playersAlive = _uiState.value.playersDetails.filter { it.alive }
         val assassinPlayer = playersAlive.filter { it.role == Role.ASSASSINO }
         val otherPlayers = playersAlive.filter { it.role != Role.ASSASSINO }
 
@@ -255,8 +258,8 @@ class VillageViewModel(
 
     private fun startNewVoting(votingRole: Role) {
         val voterPlayers = when (votingRole) {
-            Role.CITTADINO -> _uiState.value.playerDetails.filter { it.alive }
-            else -> _uiState.value.playerDetails.filter { it.role == votingRole && it.alive }
+            Role.CITTADINO -> _uiState.value.playersDetails.filter { it.alive }
+            else -> _uiState.value.playersDetails.filter { it.role == votingRole && it.alive }
         }
         voteManager.startVoting(votingRole, voterPlayers)
 
@@ -283,7 +286,7 @@ class VillageViewModel(
     }
 
     private fun updateKilledPlayer(listOfKilledPlayerDetails: List<PlayerDetails>) {
-        val updatedPlayers = _uiState.value.playerDetails.map { player ->
+        val updatedPlayers = _uiState.value.playersDetails.map { player ->
             if (listOfKilledPlayerDetails.contains(player)) {
                 player.copy(alive = false)
             }
@@ -291,19 +294,19 @@ class VillageViewModel(
                 player
         }
         _uiState.update { currentState ->
-            currentState.copy(playerDetails = updatedPlayers)
+            currentState.copy(playersDetails = updatedPlayers)
         }
     }
     private fun updatePlayerRole(playerDetailsToUpdate: PlayerDetails, newRole: Role) {
         _uiState.update { currentState ->
-            val updatedPlayers = currentState.playerDetails.map { player ->
+            val updatedPlayers = currentState.playersDetails.map { player ->
                 if (player == playerDetailsToUpdate) {
                     player.changeRole(newRole)
                 } else {
                     player
                 }
             }
-            currentState.copy(playerDetails = updatedPlayers)
+            currentState.copy(playersDetails = updatedPlayers)
         }
     }
     
@@ -365,18 +368,6 @@ class VillageViewModel(
     private fun resetVotedPlayerByRole() {
         _uiState.update { currentState ->
             currentState.copy(votedPlayerByRole = currentState.votedPlayerByRole.filter { it.key == Role.CUPIDO })
-        }
-    }
-
-    // Factory for Dependency Injection
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as LupusInFabulaApplication)
-                val playerManager = application.container.playerManager
-                val voteManager = application.container.voteManager
-                VillageViewModel(playerManager = playerManager, voteManager)
-            }
         }
     }
 }

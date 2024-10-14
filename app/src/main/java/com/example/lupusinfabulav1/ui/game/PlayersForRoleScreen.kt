@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.ui.screens
+package com.example.lupusinfabulav1.ui.game
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +28,7 @@ import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.ui.PlayersForRoleUiState
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
+import com.example.lupusinfabulav1.ui.navigation.NavigationDestination
 
 @Composable
 fun PlayersForRoleScreen(

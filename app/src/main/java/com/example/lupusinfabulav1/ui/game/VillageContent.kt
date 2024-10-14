@@ -1,5 +1,6 @@
-package com.example.lupusinfabulav1.ui.screens
+package com.example.lupusinfabulav1.ui.game
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +35,7 @@ import com.example.lupusinfabulav1.model.MostVotedPlayer
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.ui.VillageUiState
-import com.example.lupusinfabulav1.ui.playerCard.PlayerCard
+import com.example.lupusinfabulav1.ui.player.playerCard.PlayerCard
 import kotlinx.coroutines.delay
 import kotlin.math.pow
 
@@ -56,8 +58,8 @@ fun VillageContent(
     modifier: Modifier = Modifier
 ){
     // Memoize the calculations for all required variables
-    val layoutWeights = remember(uiState.playerDetails) { calculateWeights(uiState.playerDetails) }
-    val animationDelays = remember(uiState.playerDetails) { calculateAnimationDelays(uiState.playerDetails) }
+    val layoutWeights = remember(uiState.playersDetails) { calculateWeights(uiState.playersDetails) }
+    val animationDelays = remember(uiState.playersDetails) { calculateAnimationDelays(uiState.playersDetails) }
 
     // Use Box to center an item (icon or composable) in the middle of the screen
     Box(
@@ -74,7 +76,7 @@ fun VillageContent(
         ) {
             PlayerRow(
                 animationDelay = animationDelays[0],
-                playerDetails = uiState.playerDetails.first(),
+                playerDetails = uiState.playersDetails.first(),
                 uiState = uiState,
                 leftSpaceWeight = layoutWeights.totalSpacingWeight / 2f,
                 rightSpaceWeight = layoutWeights.totalSpacingWeight / 2f,
@@ -84,15 +86,15 @@ fun VillageContent(
                 modifier = Modifier.weight(1f)
             )
 
-            val numRows = (uiState.playerDetails.size - 2) / 2
-            val isOdd = uiState.playerDetails.size % 2 == 1
-            val rightPlayers = uiState.playerDetails.subList(1, numRows + 1)
+            val numRows = (uiState.playersDetails.size - 2) / 2
+            val isOdd = uiState.playersDetails.size % 2 == 1
+            val rightPlayers = uiState.playersDetails.subList(1, numRows + 1)
             val leftPlayers = if (isOdd) {
-                uiState.playerDetails.subList(numRows + 3, uiState.playerDetails.size).reversed()
+                uiState.playersDetails.subList(numRows + 3, uiState.playersDetails.size).reversed()
             } else {
-                uiState.playerDetails.subList(numRows + 2, uiState.playerDetails.size).reversed()
+                uiState.playersDetails.subList(numRows + 2, uiState.playersDetails.size).reversed()
             }
-
+            Log.d("VillageContent", " players: ${uiState.playersDetails.size}")
             // Render middle player rows
             MiddlePlayerRows(
                 numRows = numRows,
@@ -110,8 +112,8 @@ fun VillageContent(
                     animationDelays[numRows + 2],
                     animationDelays[numRows + 1]
                 ),//left and right player
-                firstRowPlayerDetails = uiState.playerDetails[numRows + 2],
-                secondRowPlayerDetails = uiState.playerDetails[numRows + 1],
+                firstRowPlayerDetails = uiState.playersDetails[numRows + 2],
+                secondRowPlayerDetails = uiState.playersDetails[numRows + 1],
                 layoutWeights = layoutWeights,
                 uiState = uiState,
                 onPlayerTap = onPlayerTap,
@@ -121,6 +123,7 @@ fun VillageContent(
             )
         }
         CenterImage(layoutWeights, uiState, onCenterIconClick, onCenterIconLongPress)
+        Text(text = uiState.playersDetails.size.toString())
     }
 }
 
@@ -140,7 +143,7 @@ fun MiddlePlayerRows(
         Column(modifier = Modifier.weight(1f)) {
             for (i in 0 until numRows) {
                 PlayerRow(
-                    animationDelay = animationDelays[uiState.playerDetails.size - i - 1],
+                    animationDelay = animationDelays[uiState.playersDetails.size - i - 1],
                     playerDetails = leftPlayerDetails[i],
                     uiState = uiState,
                     leftSpaceWeight = layoutWeights.singleEdgeWeights[i],
@@ -238,7 +241,7 @@ fun LastRow2(
 ) {
     Row(modifier = modifier) {
         Spacer(modifier = Modifier.weight(layoutWeights.totalSpacingWeight / 2f))
-        val isOdd = uiState.playerDetails.size % 2 == 1
+        val isOdd = uiState.playersDetails.size % 2 == 1
         if (isOdd) {
             Box(modifier = Modifier.weight(layoutWeights.singleCardWeight)) {
                 AnimatePlayerRow(

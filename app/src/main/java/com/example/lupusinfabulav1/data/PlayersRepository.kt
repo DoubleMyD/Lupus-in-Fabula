@@ -1,6 +1,6 @@
 package com.example.lupusinfabulav1.data
 
-import com.example.lupusinfabulav1.data.entity.Player
+import com.example.lupusinfabulav1.data.database.entity.Player
 import kotlinx.coroutines.flow.Flow
 
 interface PlayersRepository {

@@ -15,14 +15,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
-import com.example.lupusinfabulav1.ui.screens.HomePageScreen
-import com.example.lupusinfabulav1.ui.screens.NewPlayerScreen
-import com.example.lupusinfabulav1.ui.screens.PlayersForRoleScreen
-import com.example.lupusinfabulav1.ui.screens.PlayersListScreen
-import com.example.lupusinfabulav1.ui.screens.VillageScreen7
-import com.example.lupusinfabulav1.ui.viewModels.NewPlayerViewModel
-import com.example.lupusinfabulav1.ui.viewModels.PlayersForRoleViewModel
-import com.example.lupusinfabulav1.ui.viewModels.VillageViewModel
+import com.example.lupusinfabulav1.ui.home.HomePageScreen
+import com.example.lupusinfabulav1.ui.player.NewPlayerScreen
+import com.example.lupusinfabulav1.ui.game.PlayersForRoleScreen
+import com.example.lupusinfabulav1.ui.player.PlayersListScreen
+import com.example.lupusinfabulav1.ui.game.VillageScreen7
+import com.example.lupusinfabulav1.ui.player.NewPlayerViewModel
+import com.example.lupusinfabulav1.ui.game.PlayersForRoleViewModel
+import com.example.lupusinfabulav1.ui.game.VillageViewModel
+import com.example.lupusinfabulav1.ui.player.PlayersListViewModel
 
 enum class LupusInFabulaScreen(val title: String) {
     HOME_PAGE("Home Page"),  //Pagina di ingresso
@@ -36,10 +37,11 @@ enum class LupusInFabulaScreen(val title: String) {
 
 @Composable
 fun LupusInFabulaApp(
-    //newPlayerViewModel: NewPlayerViewModel = viewModel(),
-    //playersForRoleViewModel: PlayersForRoleViewModel = viewModel(),
-    //villageViewModel: VillageViewModel = viewModel(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    newPlayerViewModel: NewPlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    playersForRoleViewModel: PlayersForRoleViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    villageViewModel: VillageViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    playersListViewModel: PlayersListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val context = LocalContext.current
     // Get current back stack entry
@@ -49,10 +51,6 @@ fun LupusInFabulaApp(
         backStackEntry?.destination?.route ?: LupusInFabulaScreen.HOME_PAGE.name
     )
 
-    val villageViewModel : VillageViewModel = viewModel(factory = VillageViewModel.Factory)
-    val playersForRoleViewModel: PlayersForRoleViewModel = viewModel(factory = PlayersForRoleViewModel.Factory)
-    val newPlayerViewModel: NewPlayerViewModel = viewModel(factory = NewPlayerViewModel.Factory)
-
     // Collect UI events for each ViewModel
     HandleNewPlayerEvents(newPlayerViewModel, context)
     HandlePlayersForRoleEvents(playersForRoleViewModel, context)
@@ -60,6 +58,7 @@ fun LupusInFabulaApp(
 
     val playersForRoleUiState by playersForRoleViewModel.uiState.collectAsState()
     val villageUiState by villageViewModel.uiState.collectAsState()
+    val playersListUiState by playersListViewModel.homeUiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -84,6 +83,7 @@ fun LupusInFabulaApp(
                     onNavigateToNewPlayer = { navController.navigate(LupusInFabulaScreen.NEW_PLAYER.name) },
                     onNavigateToPlayersForRole = { navController.navigate(LupusInFabulaScreen.PLAYERS_FOR_ROLE.name) },
                     onNavigateToVillage = { navController.navigate(LupusInFabulaScreen.VILLAGE.name) },
+                    onNavigateToPlayersList = { navController.navigate(LupusInFabulaScreen.PLAYERS_LIST.name) },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -126,8 +126,13 @@ fun LupusInFabulaApp(
                     modifier = Modifier.fillMaxSize()
                 )
             }
-            composable(route = LupusInFabulaScreen.PLAYERS_LIST.name) {
-                PlayersListScreen(villageUiState.playerDetails, Modifier.fillMaxSize())
+            composable(
+                route = LupusInFabulaScreen.PLAYERS_LIST.name,
+//                arguments = listOf(navArgument(PlayersListDestination.playerIdArg) {
+//                    type = NavType.IntType
+//                })
+            ) {
+                PlayersListScreen(playersListUiState.playersDetails, Modifier.fillMaxSize())
             }
 
         }

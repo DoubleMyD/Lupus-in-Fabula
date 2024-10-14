@@ -20,7 +20,7 @@ import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.example.lupusinfabulav1.data.ImageRepository
 import com.example.lupusinfabulav1.data.database.ImageIO
-import com.example.lupusinfabulav1.data.entity.Player
+import com.example.lupusinfabulav1.data.database.entity.Player
 import com.example.lupusinfabulav1.ui.util.getBitmapFromUriNonComposable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking

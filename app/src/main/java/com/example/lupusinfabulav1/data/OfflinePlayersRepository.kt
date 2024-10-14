@@ -1,7 +1,7 @@
 package com.example.lupusinfabulav1.data
 
 import com.example.lupusinfabulav1.data.database.PlayerDao
-import com.example.lupusinfabulav1.data.entity.Player
+import com.example.lupusinfabulav1.data.database.entity.Player
 import kotlinx.coroutines.flow.Flow
 
 class OfflinePlayersRepository(private val playerDao: PlayerDao) : PlayersRepository {

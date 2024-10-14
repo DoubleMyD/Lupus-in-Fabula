@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.data.entity
+package com.example.lupusinfabulav1.data.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

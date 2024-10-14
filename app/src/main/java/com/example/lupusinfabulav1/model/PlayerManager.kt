@@ -1,7 +1,6 @@
 package com.example.lupusinfabulav1.model
 
-import com.example.lupusinfabulav1.data.FakePlayersRepository
-import com.example.lupusinfabulav1.data.PlayersRepository
+import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

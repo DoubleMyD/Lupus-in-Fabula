@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.ui.screens
+package com.example.lupusinfabulav1.ui.game
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,13 +17,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.lupusinfabulav1.R
-import com.example.lupusinfabulav1.data.FakePlayersRepository
+import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.ui.VillageUiState
-import com.example.lupusinfabulav1.ui.playerCard.PlayerCardInfo
+import com.example.lupusinfabulav1.ui.navigation.NavigationDestination
+import com.example.lupusinfabulav1.ui.player.playerCard.PlayerCardInfo
+import com.example.lupusinfabulav1.ui.player.PlayersListScreen
 
 //private const val TAG = "VillageScreen"
-
 
 @Composable
 fun VillageScreen7(
@@ -59,7 +60,7 @@ fun VillageScreen7(
                 onPlayerLongPress = onPlayerLongPress,
                 modifier = Modifier.fillMaxSize()
             )
-            1 -> PlayersListScreen(playerDetails = uiState.playerDetails)
+            1 -> PlayersListScreen(playerDetails = uiState.playersDetails)
         }
     }
 }
@@ -88,7 +89,7 @@ fun VillageScreen7Preview() {
         onPlayerTap = { _, _ -> },
         onCenterIconTap = {},
         onCenterIconLongPress = {},
-        uiState = VillageUiState().copy(playerDetails = FakePlayersRepository.playerDetails),
+        uiState = VillageUiState().copy(playersDetails = FakePlayersRepository.playerDetails),
         modifier = Modifier
             .fillMaxSize()
             .padding(dimensionResource(id = R.dimen.padding_small))
@@ -103,7 +104,7 @@ fun VillageScreenContentPreview() {
         onCenterIconClick = {},
         onPlayerLongPress = {},
         onCenterIconLongPress = {},
-        uiState = VillageUiState().copy(playerDetails = FakePlayersRepository.playerDetails),
+        uiState = VillageUiState().copy(playersDetails = FakePlayersRepository.playerDetails),
         modifier = Modifier
             .fillMaxSize()
             .padding(dimensionResource(id = R.dimen.padding_small))

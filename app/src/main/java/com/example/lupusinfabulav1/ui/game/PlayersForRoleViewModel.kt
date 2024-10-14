@@ -1,5 +1,6 @@
-package com.example.lupusinfabulav1.ui.viewModels
+package com.example.lupusinfabulav1.ui.game
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -20,7 +21,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-private const val TAG = "PlayersForRoleViewModel"
+//private const val TAG = "PlayersForRoleViewModel"
 
 // Define possible UI events, such as showing a message
 sealed class PlayersForRoleEvent {
@@ -29,6 +30,7 @@ sealed class PlayersForRoleEvent {
 }
 
 class PlayersForRoleViewModel(
+    savedStateHandle: SavedStateHandle,
     private val playerManager: PlayerManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayersForRoleUiState())
@@ -222,15 +224,4 @@ class PlayersForRoleViewModel(
             currentState.copy(playersForRole = updatedPlayersForRole)
         }
     }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as LupusInFabulaApplication)
-                val playerManager = application.container.playerManager
-                PlayersForRoleViewModel(playerManager = playerManager)
-            }
-        }
-    }
-
 }

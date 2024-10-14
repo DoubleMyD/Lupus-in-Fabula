@@ -1,6 +1,6 @@
 package com.example.lupusinfabulav1.ui
 
-import com.example.lupusinfabulav1.data.FakePlayersRepository
+import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.model.MostVotedPlayer
@@ -11,7 +11,7 @@ data class VillageUiState(
     val gameStarted: Boolean = false,
     val isGameFinished: Boolean = false,
     val winnerPlayerDetails: List<PlayerDetails> = emptyList(),
-    val playerDetails: List<PlayerDetails> = FakePlayersRepository.playerDetails,
+    val playersDetails: List<PlayerDetails> = FakePlayersRepository.playerDetails,
     val currentRole: Role = Role.CITTADINO,
     val selectedPlayerDetails: PlayerDetails? = null,
     val votedPlayerByRole: Map<Role, MostVotedPlayer> = emptyMap(),   //Per ogni ruolo contiene il giocatore votato nell'ultimo turno del ruolo

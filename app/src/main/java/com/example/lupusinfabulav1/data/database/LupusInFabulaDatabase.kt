@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.lupusinfabulav1.data.entity.Player
+import com.example.lupusinfabulav1.data.database.entity.Player
 
 @Database(entities = [Player::class], version = 1, exportSchema = false)
 abstract class LupusInFabulaDatabase() : RoomDatabase() {

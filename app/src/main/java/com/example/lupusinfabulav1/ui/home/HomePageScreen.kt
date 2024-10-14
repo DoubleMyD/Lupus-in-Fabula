@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.ui.screens
+package com.example.lupusinfabulav1.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -17,12 +17,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
+import com.example.lupusinfabulav1.ui.navigation.NavigationDestination
+import com.example.lupusinfabulav1.ui.player.PlayersListDestination
 
 @Composable
 fun HomePageScreen(
     onNavigateToPlayersForRole: () -> Unit,
     onNavigateToNewPlayer: () -> Unit,
     onNavigateToVillage: () -> Unit,
+    onNavigateToPlayersList: () -> Unit,
     modifier: Modifier = Modifier,
 ){
     Column(
@@ -33,6 +36,7 @@ fun HomePageScreen(
         ScreenCard(modifier = modifierColumn, name = LupusInFabulaScreen.PLAYERS_FOR_ROLE.name, onClick = { onNavigateToPlayersForRole() })
         ScreenCard(modifier = modifierColumn, name = LupusInFabulaScreen.NEW_PLAYER.name, onClick = { onNavigateToNewPlayer() } )
         ScreenCard(modifier = modifierColumn, name = LupusInFabulaScreen.VILLAGE.name, onClick = { onNavigateToVillage() } )
+        ScreenCard(modifier = modifierColumn, name = PlayersListDestination.route, onClick = { onNavigateToPlayersList() } )
     }
 
 }

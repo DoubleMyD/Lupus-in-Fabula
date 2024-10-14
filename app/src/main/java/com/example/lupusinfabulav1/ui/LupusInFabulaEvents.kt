@@ -8,13 +8,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.lupusinfabulav1.R
-import com.example.lupusinfabulav1.ui.viewModels.NewPlayerEvent
-import com.example.lupusinfabulav1.ui.viewModels.NewPlayerViewModel
-import com.example.lupusinfabulav1.ui.viewModels.PlayersForRoleEvent
-import com.example.lupusinfabulav1.ui.viewModels.PlayersForRoleViewModel
-import com.example.lupusinfabulav1.ui.viewModels.RoleTypeEvent
-import com.example.lupusinfabulav1.ui.viewModels.VillageEvent
-import com.example.lupusinfabulav1.ui.viewModels.VillageViewModel
+import com.example.lupusinfabulav1.ui.player.NewPlayerEvent
+import com.example.lupusinfabulav1.ui.player.NewPlayerViewModel
+import com.example.lupusinfabulav1.ui.game.PlayersForRoleEvent
+import com.example.lupusinfabulav1.ui.game.PlayersForRoleViewModel
+import com.example.lupusinfabulav1.ui.game.RoleTypeEvent
+import com.example.lupusinfabulav1.ui.game.VillageEvent
+import com.example.lupusinfabulav1.ui.game.VillageViewModel
 
 private const val TAG = "App Events"
 

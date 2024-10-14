@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.ui.playerCard
+package com.example.lupusinfabulav1.ui.player.playerCard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee

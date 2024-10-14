@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.ui.screens
+package com.example.lupusinfabulav1.ui.player
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,28 +26,40 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import coil.compose.rememberAsyncImagePainter
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.ImageRepository
 import com.example.lupusinfabulav1.model.PlayerImageSource
 import com.example.lupusinfabulav1.model.getPainter
+import com.example.lupusinfabulav1.ui.AppViewModelProvider
 import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
+import com.example.lupusinfabulav1.ui.navigation.NavigationDestination
+import com.example.lupusinfabulav1.ui.util.getBitmapFromDrawable
+import com.example.lupusinfabulav1.ui.util.getBitmapFromUri
+import kotlinx.coroutines.launch
 
 @Composable
 fun NewPlayerScreen(
+    viewModel: NewPlayerViewModel,
+    navigateBack: () -> Unit,
     onConfirmClick: (String, PlayerImageSource) -> Unit,
     onCancelClick: () -> Unit,
     modifier: Modifier = Modifier,
 ){
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
     var name by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -68,9 +80,10 @@ fun NewPlayerScreen(
         PlayerImageSource.Resource(randomImage)
     }
 
-    val painter = when (imageSource) {
-        is PlayerImageSource.Resource -> painterResource(id = imageSource.resId)
-        is PlayerImageSource.UriSource -> rememberAsyncImagePainter(model = imageSource.uri) // Use coil for Uri
+    val bitmap = if (selectedImageUri != null) {
+        getBitmapFromUri(selectedImageUri.toString())
+    } else {
+        getBitmapFromDrawable(context, randomImage)
     }
 
     Column(
@@ -96,23 +109,6 @@ fun NewPlayerScreen(
                 contentScale = ContentScale.Crop,
                 modifier = imageModifier
             )
-            /*
-            if (selectedImageUri != null) {
-                AsyncImage(
-                    model = selectedImageUri,
-                    contentDescription = "Selected image",
-                    contentScale = ContentScale.Crop,
-                    modifier = imageModifier
-                )
-            } else {
-                Image(
-                    painter = painterResource(id = randomImage),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = imageModifier
-                )
-            }
-             */
             FilledIconButton(
                 onClick = { onRandomImageClick() }
             ) {
@@ -138,7 +134,16 @@ fun NewPlayerScreen(
         )
         Spacer( modifier = Modifier.weight(1f) )
         CancelAndConfirmButtons(
-            onConfirmClick = { onConfirmClick(name, imageSource) },
+            onConfirmClick = {
+                if (viewModel.isNameAvailable(name = name)) {
+                    coroutineScope.launch {
+                        if (bitmap != null) {
+                            viewModel.savePlayer(context, name, bitmap)
+                        }
+                    }
+                }
+                navigateBack()
+            },
             onCancelClick = onCancelClick,
             modifier = Modifier.weight(1f)
         )
@@ -167,6 +172,8 @@ fun EditNumberField(@StringRes label: Int, @DrawableRes leadingIcon: Int, keyboa
 @Composable
 fun NewPlayerScreenPreview(){
     NewPlayerScreen(
+        viewModel = viewModel(factory = AppViewModelProvider.Factory),
+        navigateBack = {  },
         onConfirmClick = { _, _ -> },
         onCancelClick = {  }
     )

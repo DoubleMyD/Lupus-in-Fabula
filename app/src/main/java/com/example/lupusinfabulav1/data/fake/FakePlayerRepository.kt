@@ -1,4 +1,4 @@
-package com.example.lupusinfabulav1.data
+package com.example.lupusinfabulav1.data.fake
 
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.model.PlayerDetails
