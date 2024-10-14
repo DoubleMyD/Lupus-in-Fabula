@@ -26,8 +26,9 @@ object AppViewModelProvider {
 
         initializer {
             PlayersListViewModel(
-                this.createSavedStateHandle(),
-                LupusInFabulaApplication().container.playersRepository
+                savedStateHandle = this.createSavedStateHandle(),
+                playersRepository = LupusInFabulaApplication().container.playersRepository,
+                playerManager = LupusInFabulaApplication().container.playerManager,
             )
         }
 
@@ -49,9 +50,9 @@ object AppViewModelProvider {
     }
 }
 
-    /**
-     * Extension function to queries for [Application] object and returns an instance of
-     * [InventoryApplication].
-     */
-    fun CreationExtras.LupusInFabulaApplication(): LupusInFabulaApplication =
-        (this[AndroidViewModelFactory.APPLICATION_KEY] as LupusInFabulaApplication)
+/**
+ * Extension function to queries for [Application] object and returns an instance of
+ * [LupusInFabulaApplication].
+ */
+fun CreationExtras.LupusInFabulaApplication(): LupusInFabulaApplication =
+    (this[AndroidViewModelFactory.APPLICATION_KEY] as LupusInFabulaApplication)

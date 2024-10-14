@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lupusinfabulav1.data.PlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
+import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.toPlayerDetails
 import com.example.lupusinfabulav1.ui.VillageUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,8 @@ data class PlayersListUiState(
 
 class PlayersListViewModel(
     savedStateHandle: SavedStateHandle,
-    private val playersRepository: PlayersRepository
+    private val playersRepository: PlayersRepository,
+    private val playerManager: PlayerManager,
 ) : ViewModel() {
 
     //private val playerId: Int = checkNotNull(savedStateHandle[PlayersListDestination.playerIdArg])
@@ -54,6 +56,12 @@ class PlayersListViewModel(
                 } else {
                     currentState.selectedPlayers + playerDetails
                 })
+        }
+    }
+
+    fun updatePlayerManager(){
+        for (playerDetails in _uiState.value.selectedPlayers) {
+            playerManager.addPlayer(playerDetails)
         }
     }
 
