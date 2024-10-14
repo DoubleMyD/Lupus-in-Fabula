@@ -55,11 +55,17 @@ fun VillageContent(
     onCenterIconClick: () -> Unit,
     onCenterIconLongPress: () -> Unit,
     onPlayerLongPress: (PlayerDetails) -> Unit,
-    modifier: Modifier = Modifier
-){
+    modifier: Modifier = Modifier,
+    shouldDelayAnimation: Boolean = true,
+) {
     // Memoize the calculations for all required variables
-    val layoutWeights = remember(uiState.playersDetails) { calculateWeights(uiState.playersDetails) }
-    val animationDelays = remember(uiState.playersDetails) { calculateAnimationDelays(uiState.playersDetails) }
+    val layoutWeights =
+        remember(uiState.playersDetails) { calculateWeights(uiState.playersDetails) }
+    val animationDelays =
+        remember(uiState.playersDetails, shouldDelayAnimation) {
+            if (shouldDelayAnimation) calculateAnimationDelays(uiState.playersDetails)
+            else List(uiState.playersDetails.size) { 0L }
+        }
 
     // Use Box to center an item (icon or composable) in the middle of the screen
     Box(
@@ -183,7 +189,6 @@ fun AnimatePlayerRow(
     // Use internal state to handle entry visibility with delay
     val internalVisibleState = remember { mutableStateOf(false) }
 
-    // Trigger the entry animation with a delay
     LaunchedEffect(Unit) {
         delay(delayMillis)
         internalVisibleState.value = true
@@ -203,7 +208,12 @@ fun AnimatePlayerRow(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CenterImage(layoutWeights: VillageLayoutWeights, uiState: VillageUiState, onClick: () -> Unit, onCenterIconLongPress: () -> Unit) {
+fun CenterImage(
+    layoutWeights: VillageLayoutWeights,
+    uiState: VillageUiState,
+    onClick: () -> Unit,
+    onCenterIconLongPress: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -214,7 +224,7 @@ fun CenterImage(layoutWeights: VillageLayoutWeights, uiState: VillageUiState, on
             contentDescription = null,
             modifier = Modifier
                 .weight(layoutWeights.totalSpacingWeight - layoutWeights.maxMiddleWeight * 0.4f)
-                .combinedClickable (
+                .combinedClickable(
                     onClick = { onClick() },
                     onLongClick = { onCenterIconLongPress() }
                 )
@@ -322,7 +332,14 @@ private fun PlayerRow(
                 rolesVotedBy = getVotedByRole(playerDetails, uiState),
                 border = getBorder(playerDetails, uiState),
                 playerDetails = playerDetails,
-                onPlayerTap = { uiState.selectedPlayerDetails?.let { onPlayerTap(it, playerDetails) } },
+                onPlayerTap = {
+                    uiState.selectedPlayerDetails?.let {
+                        onPlayerTap(
+                            it,
+                            playerDetails
+                        )
+                    }
+                },
                 onPlayerLongPress = { onPlayerLongPress(playerDetails) },
             )
         }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,48 +20,73 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
+import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.VillageUiState
-import com.example.lupusinfabulav1.ui.navigation.NavigationDestination
+import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
+import com.example.lupusinfabulav1.ui.player.PlayersListContent
 import com.example.lupusinfabulav1.ui.player.playerCard.PlayerCardInfo
-import com.example.lupusinfabulav1.ui.player.PlayersListScreen
 
 //private const val TAG = "VillageScreen"
 
 @Composable
 fun VillageScreen7(
+    navigateUp: () -> Unit,
     uiState: VillageUiState,
     onPlayerTap: (voter: PlayerDetails, voted: PlayerDetails) -> Unit,
     onCenterIconTap: () -> Unit,
     onCenterIconLongPress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var shouldDelayAnimation by remember { mutableStateOf(true) }
+
     // Remember the state of the dialog
     var playerDetailsToShowInfo by remember { mutableStateOf<PlayerDetails?>(null) }
-    val onPlayerLongPress = { playerDetails: PlayerDetails -> playerDetailsToShowInfo = playerDetails }
+    val onPlayerLongPress =
+        { playerDetails: PlayerDetails -> playerDetailsToShowInfo = playerDetails }
 
-    // Show player info dialog
-    playerDetailsToShowInfo?.let { player ->
-        PlayerInfoDialog(
-            { playerDetailsToShowInfo = null },
-            playerDetails = player
-        )
-    }
-    
-    val pageState = rememberPagerState {2}
-    HorizontalPager(
-        state = pageState,
-        modifier = modifier
-    ) { page ->
-        when (page) {
-            0 -> VillageContent(
-                uiState = uiState,
-                onPlayerTap = onPlayerTap,
-                onCenterIconClick = onCenterIconTap,
-                onCenterIconLongPress = onCenterIconLongPress,
-                onPlayerLongPress = onPlayerLongPress,
-                modifier = Modifier.fillMaxSize()
+    Scaffold(
+        topBar = {
+            LupusInFabulaAppBar(
+                title = LupusInFabulaScreen.VILLAGE.title,
+                canNavigateBack = true,
+                navigateUp = navigateUp
             )
-            1 -> PlayersListScreen(playerDetails = uiState.playersDetails)
+        },
+        modifier = modifier
+    ) { innerPadding ->
+        // Show player info dialog
+        playerDetailsToShowInfo?.let { player ->
+            PlayerInfoDialog(
+                { playerDetailsToShowInfo = null },
+                playerDetails = player
+            )
+        }
+
+        val pageState = rememberPagerState { 2 }
+        HorizontalPager(
+            state = pageState,
+            modifier = Modifier.padding(innerPadding)
+        ) { page ->
+            when (page) {
+                0 -> VillageContent(
+                    shouldDelayAnimation = shouldDelayAnimation,
+                    uiState = uiState,
+                    onPlayerTap = onPlayerTap,
+                    onCenterIconClick = onCenterIconTap,
+                    onCenterIconLongPress = onCenterIconLongPress,
+                    onPlayerLongPress = onPlayerLongPress,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                1 -> {
+                    shouldDelayAnimation = false
+                    PlayersListContent(
+                        playersDetails = uiState.playersDetails,
+                        showRoleIcon = true,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
         }
     }
 }
@@ -86,6 +112,7 @@ private fun PlayerInfoDialog(onDismiss: () -> Unit, playerDetails: PlayerDetails
 @Composable
 fun VillageScreen7Preview() {
     VillageScreen7(
+        navigateUp = {},
         onPlayerTap = { _, _ -> },
         onCenterIconTap = {},
         onCenterIconLongPress = {},
