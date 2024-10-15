@@ -19,8 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
-import com.example.lupusinfabulav1.ui.navigation.NavigationDestination
-import com.example.lupusinfabulav1.ui.player.PlayersListDestination
 
 @Composable
 fun HomePageScreen(
@@ -61,7 +59,7 @@ fun HomePageScreen(
                 onClick = { onNavigateToVillage() })
             ScreenCard(
                 modifier = modifierColumn,
-                name = PlayersListDestination.route,
+                name = LupusInFabulaScreen.PLAYERS_LISTS.name,
                 onClick = { onNavigateToPlayersList() })
         }
     }

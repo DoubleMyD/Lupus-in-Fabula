@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -47,7 +46,6 @@ import com.example.lupusinfabulav1.ui.AppViewModelProvider
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
-import com.example.lupusinfabulav1.ui.navigation.NavigationDestination
 import com.example.lupusinfabulav1.ui.util.getBitmapFromDrawable
 import com.example.lupusinfabulav1.ui.util.getBitmapFromUri
 import kotlinx.coroutines.launch
@@ -55,8 +53,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun NewPlayerScreen(
     viewModel: NewPlayerViewModel,
-    navigateBack: () -> Unit,
-    onConfirmClick: (String, PlayerImageSource) -> Unit,
+    navigateUp: () -> Unit,
+    onConfirmClick: () -> Unit,
     onCancelClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -94,7 +92,7 @@ fun NewPlayerScreen(
             LupusInFabulaAppBar(
                 title = LupusInFabulaScreen.VILLAGE.title,
                 canNavigateBack = true,
-                navigateUp = navigateBack
+                navigateUp = navigateUp
             )
         },
         modifier = modifier//.padding(dimensionResource(id = R.dimen.padding_medium))
@@ -155,7 +153,7 @@ fun NewPlayerScreen(
                             }
                         }
                     }
-                    navigateBack()
+                    onConfirmClick()
                 },
                 onCancelClick = onCancelClick,
                 modifier = Modifier.weight(1f)
@@ -190,8 +188,8 @@ fun EditNumberField(
 fun NewPlayerScreenPreview() {
     NewPlayerScreen(
         viewModel = viewModel(factory = AppViewModelProvider.Factory),
-        navigateBack = { },
-        onConfirmClick = { _, _ -> },
+        navigateUp = { },
+        onConfirmClick = { },
         onCancelClick = { }
     )
 }

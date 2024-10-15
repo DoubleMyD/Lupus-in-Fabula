@@ -9,8 +9,10 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.lupusinfabulav1.LupusInFabulaApplication
 import com.example.lupusinfabulav1.ui.game.PlayersForRoleViewModel
 import com.example.lupusinfabulav1.ui.game.VillageViewModel
+import com.example.lupusinfabulav1.ui.playersList.EditListViewModel
 import com.example.lupusinfabulav1.ui.player.NewPlayerViewModel
-import com.example.lupusinfabulav1.ui.player.PlayersListViewModel
+import com.example.lupusinfabulav1.ui.player.PlayersViewModel
+import com.example.lupusinfabulav1.ui.playersList.PlayersListsViewModel
 
 object AppViewModelProvider {
 
@@ -25,9 +27,9 @@ object AppViewModelProvider {
         }
 
         initializer {
-            PlayersListViewModel(
+            PlayersListsViewModel(
                 savedStateHandle = this.createSavedStateHandle(),
-                playersRepository = LupusInFabulaApplication().container.playersRepository,
+                playersListsRepository = LupusInFabulaApplication().container.playersListsRepository,
                 playerManager = LupusInFabulaApplication().container.playerManager,
             )
         }
@@ -45,6 +47,21 @@ object AppViewModelProvider {
                 playersRepository = LupusInFabulaApplication().container.playersRepository,
                 playerManager = LupusInFabulaApplication().container.playerManager,
                 voteManager = LupusInFabulaApplication().container.voteManager
+            )
+        }
+
+        initializer {
+            EditListViewModel(
+                savedStateHandle = this.createSavedStateHandle(),
+                playersRepository = LupusInFabulaApplication().container.playersRepository,
+                playersListsRepository = LupusInFabulaApplication().container.playersListsRepository,
+                playerManager = LupusInFabulaApplication().container.playerManager
+            )
+        }
+
+        initializer {
+            PlayersViewModel(
+                playersRepository = LupusInFabulaApplication().container.playersRepository,
             )
         }
     }

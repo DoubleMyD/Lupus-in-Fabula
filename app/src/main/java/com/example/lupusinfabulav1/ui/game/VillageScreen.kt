@@ -23,7 +23,7 @@ import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.VillageUiState
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
-import com.example.lupusinfabulav1.ui.player.PlayersListContent
+import com.example.lupusinfabulav1.ui.playersList.PlayersListContent
 import com.example.lupusinfabulav1.ui.player.playerCard.PlayerCardInfo
 
 //private const val TAG = "VillageScreen"
