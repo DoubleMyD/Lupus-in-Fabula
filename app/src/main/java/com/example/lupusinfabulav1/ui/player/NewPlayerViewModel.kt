@@ -2,14 +2,8 @@ package com.example.lupusinfabulav1.ui.player
 
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.lupusinfabulav1.LupusInFabulaApplication
 import com.example.lupusinfabulav1.data.PlayersRepository
 import com.example.lupusinfabulav1.data.database.ImageIO
 import com.example.lupusinfabulav1.data.database.entity.Player
@@ -26,7 +20,6 @@ sealed class NewPlayerEvent{
 }
 
 class NewPlayerViewModel(
-    savedStateHandle: SavedStateHandle,
     val playersRepository: PlayersRepository,
     val imageIO: ImageIO,
     val playerManager: PlayerManager

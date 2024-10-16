@@ -1,13 +1,7 @@
 package com.example.lupusinfabulav1.ui.game
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.lupusinfabulav1.LupusInFabulaApplication
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.ui.PlayersForRoleUiState
@@ -30,7 +24,6 @@ sealed class PlayersForRoleEvent {
 }
 
 class PlayersForRoleViewModel(
-    savedStateHandle: SavedStateHandle,
     private val playerManager: PlayerManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayersForRoleUiState())

@@ -1,10 +1,8 @@
 package com.example.lupusinfabulav1.ui.playersList
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lupusinfabulav1.data.PlayersListsRepository
-import com.example.lupusinfabulav1.data.PlayersRepository
 import com.example.lupusinfabulav1.data.database.entity.PlayersList
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerManager
@@ -20,12 +18,10 @@ data class PlayersListsUiState(
 )
 
 class PlayersListsViewModel(
-    savedStateHandle: SavedStateHandle,
     private val playersListsRepository: PlayersListsRepository,
     private val playerManager: PlayerManager,
 ) : ViewModel() {
 
-    //private val playerId: Int = checkNotNull(savedStateHandle[PlayersListDestination.playerIdArg])
     private val _uiState = MutableStateFlow(PlayersListsUiState())
     val uiState: StateFlow<PlayersListsUiState> = _uiState.asStateFlow()
 

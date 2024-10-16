@@ -34,7 +34,7 @@ class PlayersEditListViewModel(
     private val playersListsRepository: PlayersListsRepository,
 ) : ViewModel() {
 
-    val databasePlayersUiState: StateFlow<DatabasePlayersUiState> =
+    val databasePlayers: StateFlow<DatabasePlayersUiState> =
         playersRepository.getAllPlayersStream().map { players ->
             DatabasePlayersUiState(
                 playersDetails = players.map { it.toPlayerDetails() }

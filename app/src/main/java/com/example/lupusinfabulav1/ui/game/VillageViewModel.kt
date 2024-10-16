@@ -1,30 +1,18 @@
 package com.example.lupusinfabulav1.ui.game
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.lupusinfabulav1.LupusInFabulaApplication
-import com.example.lupusinfabulav1.data.PlayersRepository
 import com.example.lupusinfabulav1.model.MostVotedPlayer
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.model.RoleVotes
 import com.example.lupusinfabulav1.model.VoteManager
-import com.example.lupusinfabulav1.model.toPlayerDetails
 import com.example.lupusinfabulav1.ui.VillageUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -49,17 +37,11 @@ sealed class RoleTypeEvent {
 }
 
 class VillageViewModel(
-    savedStateHandle: SavedStateHandle,
-    private val playersRepository: PlayersRepository,
     private val playerManager: PlayerManager,
     private val voteManager: VoteManager,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(VillageUiState())
     val uiState: StateFlow<VillageUiState> = _uiState.asStateFlow()
-
-    // Event channel for UI interactions like Toasts or Dialogs
-//    private val _uiEvent = MutableSharedFlow<VillageEvent>()
-//    val uiEvent: SharedFlow<VillageEvent> = _uiEvent.asSharedFlow()
 
     // Using StateFlow for events (not ideal)
     private val _uiEvent = MutableStateFlow<VillageEvent?>(null)
