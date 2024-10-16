@@ -6,7 +6,7 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 
 @Entity(tableName = "players_lists")
-class PlayersList(
+data class PlayersList(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,

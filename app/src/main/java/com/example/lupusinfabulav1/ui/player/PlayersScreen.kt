@@ -8,20 +8,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.playersList.PlayersListContent
+import kotlinx.serialization.Serializable
 
+@Serializable
+data class PlayersEditListDestination (
+    val listId: Int,
+    val playersIdList: List<Int>
+)
 
 @Composable
 fun PlayersScreen(
@@ -29,6 +37,9 @@ fun PlayersScreen(
     playersDetails: List<PlayerDetails>,
     onFloatingButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
+    cardBackgroundColor: (PlayerDetails) -> Color = { Color.White },
+    floatingButtonImage: () -> ImageVector = { Icons.Default.Check },
+    playerCardAlpha: (PlayerDetails) -> Float = { 1f },
     onPlayerClick: (PlayerDetails) -> Unit = {},
     onPlayerLongClick: (PlayerDetails) -> Unit = {}
 ) {
@@ -47,10 +58,7 @@ fun PlayersScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    onFloatingButtonClick()
-                    navigateUp()
-                },
+                onClick = { onFloatingButtonClick() },
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .padding(
@@ -59,7 +67,7 @@ fun PlayersScreen(
                     )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = floatingButtonImage(),
                     contentDescription = null
                 )
             }
@@ -69,14 +77,15 @@ fun PlayersScreen(
 
         PlayersListContent(
             playersDetails = playersDetails,
-            //cardBackgroundColor = cardBackgroundColor,
+            cardBackgroundColor = cardBackgroundColor,
+            playerCardAlpha = playerCardAlpha,
             onPlayerClick = onPlayerClick,
             onPlayerLongClick = onPlayerLongClick,
-            modifier = Modifier,
             cardModifier = Modifier
-                .padding(innerPadding)
                 .height(224.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            modifier = Modifier
+                .padding(innerPadding),
             //.padding(dimensionResource(id = R.dimen.padding_medium))
         )
     }

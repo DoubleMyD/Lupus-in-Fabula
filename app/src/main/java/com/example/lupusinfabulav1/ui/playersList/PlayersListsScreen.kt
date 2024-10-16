@@ -6,28 +6,25 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.database.entity.PlayersList
+import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerImageSource
 import com.example.lupusinfabulav1.model.getPainter
@@ -89,7 +87,9 @@ fun PlayersListsScreen(
         Lists(
             onListClick = onListClick,
             playersLists = uiState.playersLists,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         )
 
         if (isDialogOpen) {
@@ -113,7 +113,6 @@ fun Lists(
     onListClick: (String) -> Unit = {},
 ) {
     Column(
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
@@ -161,11 +160,10 @@ fun ListPoster(
         ) {
             Text(
                 text = listName,
-                //modifier = Modifier.align(Alignment.Start)
             )
+            Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = stringResource(id = R.string.player_list_size, imageSources.size),
-                //modifier = Modifier.align(Alignment.End)
             )
         }
         Row(
@@ -188,13 +186,16 @@ fun ListPoster(
 }
 
 
-
 @Preview(showBackground = true)
 @Composable
 fun PlayersListScreenPreview() {
     PlayersListsScreen(
         navigateUp = {},
-        uiState = PlayersListsUiState(),
+        uiState = PlayersListsUiState(
+            playersLists = mapOf(
+                PlayersList(1, "test") to FakePlayersRepository.playerDetails
+            )
+        ),
         onListClick = {},
         modifier = Modifier.fillMaxWidth(),
         onCreateNewList = {}

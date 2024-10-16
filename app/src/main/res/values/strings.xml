@@ -21,5 +21,6 @@
     <string name="cupido_already_voted">You can\'t vote the same player twice in a couple!</string>
     <string name="player_list_size">%d players</string>
     <string name="no_lists">Ops....you did not create any list yet!</string>
+    <string name="list_have_no_players">This list does not have any players.</string>
 
 </resources>

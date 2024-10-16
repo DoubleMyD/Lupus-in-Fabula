@@ -152,7 +152,7 @@ private fun RoleIconCards(
 fun PlayerCardHorizontalPreview(){
     PlayerCard(
         border = BorderStroke(2.dp, Color.Black),
-        playerDetails = PlayerDetails("ciao"),
+        playerDetails = PlayerDetails(name = "ciao"),
         modifier = Modifier
             .size(200.dp)
             .padding(4.dp),

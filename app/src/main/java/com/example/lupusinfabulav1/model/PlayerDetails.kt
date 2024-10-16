@@ -22,7 +22,6 @@ import com.example.lupusinfabulav1.data.ImageRepository
 import com.example.lupusinfabulav1.data.database.ImageIO
 import com.example.lupusinfabulav1.data.database.entity.Player
 import com.example.lupusinfabulav1.ui.util.getBitmapFromUriNonComposable
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 
 sealed class PlayerImageSource {
@@ -47,6 +46,7 @@ fun PlayerImageSource.getBitmap(context: Context): Bitmap? {
 }
 
 data class PlayerDetails(
+    val id: Int = 0,
     val name: String,
     val role: Role = Role.CITTADINO,
     val alive: Boolean = true,
@@ -59,6 +59,7 @@ data class PlayerDetails(
 }
 
 fun PlayerDetails.toPlayer(context: Context): Player = Player(
+    id = id,
     name = name,
     role = role,
     alive = alive,
@@ -73,6 +74,7 @@ fun PlayerDetails.toPlayer(context: Context): Player = Player(
 )
 
 fun Player.toPlayerDetails(): PlayerDetails = PlayerDetails(
+    id = id,
     name = name,
     role = role,
     alive = alive,
