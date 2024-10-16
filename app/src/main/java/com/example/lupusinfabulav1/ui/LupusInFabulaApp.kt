@@ -24,12 +24,12 @@ import com.example.lupusinfabulav1.ui.game.PlayersForRoleViewModel
 import com.example.lupusinfabulav1.ui.game.VillageScreen7
 import com.example.lupusinfabulav1.ui.game.VillageViewModel
 import com.example.lupusinfabulav1.ui.home.HomePageScreen
+import com.example.lupusinfabulav1.ui.navigation.EditPlayersListDestination
+import com.example.lupusinfabulav1.ui.navigation.PlayersEditListDestination
 import com.example.lupusinfabulav1.ui.player.NewPlayerScreen
 import com.example.lupusinfabulav1.ui.player.NewPlayerViewModel
-import com.example.lupusinfabulav1.ui.player.PlayersEditListDestination
 import com.example.lupusinfabulav1.ui.player.PlayersEditListViewModel
 import com.example.lupusinfabulav1.ui.player.PlayersScreen
-import com.example.lupusinfabulav1.ui.playersList.EditPlayersListDestination
 import com.example.lupusinfabulav1.ui.playersList.EditPlayersListScreen
 import com.example.lupusinfabulav1.ui.playersList.EditPlayersListViewModel
 import com.example.lupusinfabulav1.ui.playersList.PlayersListsScreen
@@ -79,13 +79,13 @@ fun LupusInFabulaApp(
         //.padding(innerPadding)
     ) {
         composable(route = LupusInFabulaScreen.HOME_PAGE.name) {
-            HomePageScreen(
-                onNavigateToNewPlayer = { navController.navigate(LupusInFabulaScreen.NEW_PLAYER.name) },
-                onNavigateToPlayersForRole = { navController.navigate(LupusInFabulaScreen.PLAYERS_FOR_ROLE.name) },
-                onNavigateToVillage = { navController.navigate(LupusInFabulaScreen.VILLAGE.name) },
-                onNavigateToPlayersList = { navController.navigate(LupusInFabulaScreen.PLAYERS_LISTS.name) },
-                modifier = Modifier.fillMaxSize()
-            )
+//            HomePageScreen(
+//                onNavigateToNewPlayer = { navController.navigate(LupusInFabulaScreen.NEW_PLAYER.name) },
+//                onNavigateToPlayersForRole = { navController.navigate(LupusInFabulaScreen.PLAYERS_FOR_ROLE.name) },
+//                onNavigateToVillage = { navController.navigate(LupusInFabulaScreen.VILLAGE.name) },
+//                onNavigateToPlayersList = { navController.navigate(LupusInFabulaScreen.PLAYERS_LISTS.name) },
+//                modifier = Modifier.fillMaxSize()
+//            )
         }
         composable(route = LupusInFabulaScreen.NEW_PLAYER.name) {
             NewPlayerScreen(

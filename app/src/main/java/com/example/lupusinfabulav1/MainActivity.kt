@@ -19,7 +19,8 @@ class MainActivity : AppCompatActivity() {
             Surface(
                 modifier = Modifier.fillMaxSize()
             ){
-                LupusInFabulaApp()
+                LupusApp()
+                //LupusInFabulaApp()
             }
         }
         /*

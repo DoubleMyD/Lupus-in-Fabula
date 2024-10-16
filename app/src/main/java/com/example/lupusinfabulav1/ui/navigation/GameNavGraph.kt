@@ -24,6 +24,7 @@ enum class GameScreen {
 
 @Composable
 fun GameNavGraph(
+    mainNavController: NavHostController,  // Main controller to navigate between different NavHosts
     navController: NavHostController,
     villageViewModel: VillageViewModel = viewModel(factory = AppViewModelProvider.Factory),
     playersForRoleViewModel: PlayersForRoleViewModel = viewModel(factory = AppViewModelProvider.Factory),

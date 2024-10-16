@@ -20,23 +20,33 @@ import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.toPlayer
 import com.example.lupusinfabulav1.ui.AppViewModelProvider
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
-import com.example.lupusinfabulav1.ui.player.PlayersEditListDestination
 import com.example.lupusinfabulav1.ui.player.PlayersEditListViewModel
 import com.example.lupusinfabulav1.ui.player.PlayersScreen
-import com.example.lupusinfabulav1.ui.playersList.EditPlayersListDestination
 import com.example.lupusinfabulav1.ui.playersList.EditPlayersListScreen
 import com.example.lupusinfabulav1.ui.playersList.EditPlayersListViewModel
 import com.example.lupusinfabulav1.ui.playersList.PlayersListsScreen
 import com.example.lupusinfabulav1.ui.playersList.PlayersListsViewModel
+import kotlinx.serialization.Serializable
 
 enum class PlayersListScreen {
     PLAYERS_LISTS
 }
 
+@Serializable
+data class EditPlayersListDestination(
+    val listId: Int,
+)
+
+@Serializable
+data class PlayersEditListDestination (
+    val listId: Int,
+    val playersIdList: List<Int>
+)
 
 
 @Composable
 fun PlayersListNavGraph(
+    mainNavController: NavHostController,  // Main controller to navigate between different NavHosts
     navController: NavHostController,
     playersListsViewModel: PlayersListsViewModel = viewModel(factory = AppViewModelProvider.Factory),
     editPlayersListViewModel: EditPlayersListViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -46,7 +56,7 @@ fun PlayersListNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = GameScreen.VILLAGE.name
+        startDestination = PlayersListScreen.PLAYERS_LISTS.name
     ) {
         composable(route = PlayersListScreen.PLAYERS_LISTS.name) {
             val playersListsUiState by playersListsViewModel.uiState.collectAsState()

@@ -1,5 +1,7 @@
 package com.example.lupusinfabulav1.ui.navigation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,16 +14,17 @@ import com.example.lupusinfabulav1.ui.AppViewModelProvider
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.player.NewPlayerScreen
 import com.example.lupusinfabulav1.ui.player.NewPlayerViewModel
-import com.example.lupusinfabulav1.ui.player.PlayersEditListDestination
 import com.example.lupusinfabulav1.ui.player.PlayersScreen
 import com.example.lupusinfabulav1.ui.player.PlayersViewModel
 
-enum class PlayerScreen{
-                       PLAYERS,
+enum class PlayerScreen {
+    PLAYERS,
     NEW_PLAYER,
 }
+
 @Composable
 fun PlayerNavGraph(
+    mainNavController: NavHostController,  // Main controller to navigate between different NavHosts
     navController: NavHostController,
     playersViewModel: PlayersViewModel = viewModel(factory = AppViewModelProvider.Factory),
     newPlayerViewModel: NewPlayerViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -30,14 +33,15 @@ fun PlayerNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = GameScreen.VILLAGE.name
+        startDestination = PlayerScreen.PLAYERS.name
     ) {
         composable(route = PlayerScreen.PLAYERS.name) {
-            val playersUiState by playersViewModel.uiState.collectAsState()
+            val databasePlayers by playersViewModel.databasePlayers.collectAsState()
             PlayersScreen(
                 navigateUp = { navController.navigateUp() },
                 onFloatingButtonClick = { navController.navigate(LupusInFabulaScreen.NEW_PLAYER.name) },
-                playersDetails = playersUiState.playersDetails,
+                floatingButtonImage = { Icons.Default.Add },
+                playersDetails = databasePlayers.playersDetails,
             )
         }
         composable(route = PlayerScreen.NEW_PLAYER.name) {

@@ -19,13 +19,16 @@ import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
+import com.example.lupusinfabulav1.ui.navigation.GameScreen
+import com.example.lupusinfabulav1.ui.navigation.PlayerScreen
+import com.example.lupusinfabulav1.ui.navigation.PlayersListScreen
 
 @Composable
 fun HomePageScreen(
-    onNavigateToPlayersForRole: () -> Unit,
-    onNavigateToNewPlayer: () -> Unit,
-    onNavigateToVillage: () -> Unit,
-    onNavigateToPlayersList: () -> Unit,
+    onNavigateToPlayers: () -> Unit,
+    onNavigateToPlayersLists: () -> Unit,
+    onNavigateToGame: () -> Unit,
+    //onNavigateToPlayersList: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -47,20 +50,36 @@ fun HomePageScreen(
 
             ScreenCard(
                 modifier = modifierColumn,
-                name = LupusInFabulaScreen.PLAYERS_FOR_ROLE.name,
-                onClick = { onNavigateToPlayersForRole() })
+                name = PlayerScreen.PLAYERS.name,
+                onClick = { onNavigateToPlayers() }
+            )
             ScreenCard(
                 modifier = modifierColumn,
-                name = LupusInFabulaScreen.NEW_PLAYER.name,
-                onClick = { onNavigateToNewPlayer() })
+                name = PlayersListScreen.PLAYERS_LISTS.name,
+                onClick = { onNavigateToPlayersLists() }
+            )
             ScreenCard(
                 modifier = modifierColumn,
-                name = LupusInFabulaScreen.VILLAGE.name,
-                onClick = { onNavigateToVillage() })
-            ScreenCard(
-                modifier = modifierColumn,
-                name = LupusInFabulaScreen.PLAYERS_LISTS.name,
-                onClick = { onNavigateToPlayersList() })
+                name = GameScreen.VILLAGE.name,
+                onClick = { onNavigateToGame() }
+            )
+
+//            ScreenCard(
+//                modifier = modifierColumn,
+//                name = LupusInFabulaScreen.PLAYERS_FOR_ROLE.name,
+//                onClick = { onNavigateToPlayersForRole() })
+//            ScreenCard(
+//                modifier = modifierColumn,
+//                name = LupusInFabulaScreen.NEW_PLAYER.name,
+//                onClick = { onNavigateToNewPlayer() })
+//            ScreenCard(
+//                modifier = modifierColumn,
+//                name = LupusInFabulaScreen.VILLAGE.name,
+//                onClick = { onNavigateToVillage() })
+//            ScreenCard(
+//                modifier = modifierColumn,
+//                name = LupusInFabulaScreen.PLAYERS_LISTS.name,
+//                onClick = { onNavigateToPlayersList() })
         }
     }
 }

@@ -25,11 +25,6 @@ import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.playersList.PlayersListContent
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class PlayersEditListDestination (
-    val listId: Int,
-    val playersIdList: List<Int>
-)
 
 @Composable
 fun PlayersScreen(
