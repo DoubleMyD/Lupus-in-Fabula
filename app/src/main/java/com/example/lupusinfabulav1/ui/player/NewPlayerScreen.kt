@@ -42,8 +42,8 @@ import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.ImageRepository
 import com.example.lupusinfabulav1.model.PlayerImageSource
 import com.example.lupusinfabulav1.model.getPainter
-import com.example.lupusinfabulav1.ui.AppViewModelProvider
-import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
+//import com.example.lupusinfabulav1.ui.AppViewModelProvider
+//import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.util.getBitmapFromDrawable
@@ -90,7 +90,7 @@ fun NewPlayerScreen(
     Scaffold(
         topBar = {
             LupusInFabulaAppBar(
-                title = LupusInFabulaScreen.VILLAGE.title,
+                title = "New Player prova",//LupusInFabulaScreen.VILLAGE.title,
                 canNavigateBack = true,
                 navigateUp = navigateUp
             )
@@ -187,7 +187,7 @@ fun EditNumberField(
 @Composable
 fun NewPlayerScreenPreview() {
     NewPlayerScreen(
-        viewModel = viewModel(factory = AppViewModelProvider.Factory),
+        viewModel = viewModel(),
         navigateUp = { },
         onConfirmClick = { },
         onCancelClick = { }

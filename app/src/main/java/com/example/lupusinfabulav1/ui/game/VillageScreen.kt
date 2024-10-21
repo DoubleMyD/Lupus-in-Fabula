@@ -20,7 +20,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
-import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
+//import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.VillageUiState
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.playersList.PlayersListContent
@@ -47,7 +47,7 @@ fun VillageScreen7(
     Scaffold(
         topBar = {
             LupusInFabulaAppBar(
-                title = LupusInFabulaScreen.VILLAGE.title,
+                title = "prova",//LupusInFabulaScreen.VILLAGE.title,
                 canNavigateBack = true,
                 navigateUp = navigateUp
             )

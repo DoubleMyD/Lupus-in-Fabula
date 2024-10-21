@@ -17,11 +17,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.R
-import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
+//import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
-import com.example.lupusinfabulav1.ui.navigation.GameScreen
-import com.example.lupusinfabulav1.ui.navigation.PlayerScreen
-import com.example.lupusinfabulav1.ui.navigation.PlayersListScreen
+//import com.example.lupusinfabulav1.ui.navigation.GameScreen
+import com.example.lupusinfabulav1.ui.navigation.PlayerDestination
+//import com.example.lupusinfabulav1.ui.navigation.PlayersListScreen
 
 @Composable
 fun HomePageScreen(
@@ -34,7 +34,7 @@ fun HomePageScreen(
     Scaffold(
         topBar = {
             LupusInFabulaAppBar(
-                title = LupusInFabulaScreen.HOME_PAGE.title,
+                title = "prova",//LupusInFabulaScreen.HOME_PAGE.title,
                 canNavigateBack = false
             )
         },
@@ -50,17 +50,17 @@ fun HomePageScreen(
 
             ScreenCard(
                 modifier = modifierColumn,
-                name = PlayerScreen.PLAYERS.name,
+                name = PlayerDestination.Players.toString(),
                 onClick = { onNavigateToPlayers() }
             )
             ScreenCard(
                 modifier = modifierColumn,
-                name = PlayersListScreen.PLAYERS_LISTS.name,
+                name = "Lista giocatori",//PlayersListScreen.PLAYERS_LISTS.name,
                 onClick = { onNavigateToPlayersLists() }
             )
             ScreenCard(
                 modifier = modifierColumn,
-                name = GameScreen.VILLAGE.name,
+                name = "Game prova",//GameScreen.VILLAGE.name,
                 onClick = { onNavigateToGame() }
             )
 

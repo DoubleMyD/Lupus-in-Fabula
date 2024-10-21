@@ -43,7 +43,7 @@ import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerImageSource
 import com.example.lupusinfabulav1.model.getPainter
-import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
+//import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.util.InputDialog
 
@@ -60,7 +60,7 @@ fun PlayersListsScreen(
     Scaffold(
         topBar = {
             LupusInFabulaAppBar(
-                title = LupusInFabulaScreen.VILLAGE.title,
+                title = "list prova",//LupusInFabulaScreen.VILLAGE.title,
                 canNavigateBack = true,
                 navigateUp = navigateUp
             )

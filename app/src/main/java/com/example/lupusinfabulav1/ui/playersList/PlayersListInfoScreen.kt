@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,14 +27,13 @@ import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.database.entity.PlayersList
 import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
-import kotlinx.serialization.Serializable
 
 
 @Composable
-fun EditPlayersListScreen(
+fun PlayersListInfoScreen(
     //navigateBack: () -> Unit,
     navigateUp: () -> Unit,
-    uiState: EditPlayersListUiState,
+    uiState: InfoPlayersListUiState,
     modifier: Modifier = Modifier,
     onFloatingButtonClick: () -> Unit = {},
 ) {
@@ -58,7 +57,7 @@ fun EditPlayersListScreen(
                     )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = Icons.Default.Edit,
                     contentDescription = null
                 )
             }
@@ -111,10 +110,10 @@ fun EditPlayersListScreen(
 @Preview
 @Composable
 fun EditPlayersListScreenPreview() {
-    EditPlayersListScreen(
+    PlayersListInfoScreen(
         //navigateBack = { },
         navigateUp = { },
-        uiState = EditPlayersListUiState(
+        uiState = InfoPlayersListUiState(
             listId = 1,
             playersList = PlayersList(
                 id = 1,

@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.lupusinfabulav1.ui.LupusInFabulaApp
+import com.example.lupusinfabulav1.ui.navigation.MainNavHost2
+
+//import com.example.lupusinfabulav1.ui.LupusInFabulaApp
 
 private const val TAG = "MainActivity"
 
@@ -19,8 +21,7 @@ class MainActivity : AppCompatActivity() {
             Surface(
                 modifier = Modifier.fillMaxSize()
             ){
-                LupusApp()
-                //LupusInFabulaApp()
+                MainNavHost2()
             }
         }
         /*

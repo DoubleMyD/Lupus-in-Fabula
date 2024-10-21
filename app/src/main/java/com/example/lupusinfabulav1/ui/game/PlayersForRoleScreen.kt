@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.ui.PlayersForRoleUiState
 import com.example.lupusinfabulav1.model.Role
-import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
+//import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.CancelAndConfirmButtons
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 
@@ -47,7 +47,7 @@ fun PlayersForRoleScreen(
     Scaffold(
         topBar = {
             LupusInFabulaAppBar(
-                title = LupusInFabulaScreen.VILLAGE.title,
+                title = "prova",//LupusInFabulaScreen.VILLAGE.title,
                 canNavigateBack = true,
                 navigateUp = navigateUp
             )

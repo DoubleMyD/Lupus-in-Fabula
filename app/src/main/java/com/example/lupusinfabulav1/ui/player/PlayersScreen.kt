@@ -1,5 +1,6 @@
 package com.example.lupusinfabulav1.ui.player
 
+//import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -20,10 +21,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.lupusinfabulav1.model.PlayerDetails
-import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
 import com.example.lupusinfabulav1.ui.playersList.PlayersListContent
-import kotlinx.serialization.Serializable
 
 
 @Composable
@@ -46,7 +45,7 @@ fun PlayersScreen(
     Scaffold(
         topBar = {
             LupusInFabulaAppBar(
-                title = LupusInFabulaScreen.VILLAGE.title,
+                title = "play screen prova",//LupusInFabulaScreen.VILLAGE.title,
                 canNavigateBack = true,
                 navigateUp = navigateUp
             )
