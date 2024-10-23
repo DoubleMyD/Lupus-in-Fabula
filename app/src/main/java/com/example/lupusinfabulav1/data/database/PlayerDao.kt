@@ -27,4 +27,6 @@ interface PlayerDao {
     @Query("SELECT * from players ORDER BY name ASC")
     fun getAllPlayers(): Flow<List<Player>>
 
+    @Query("SELECT * from players WHERE name = :name")
+    fun getPlayerByName(name: String): Flow<Player>
 }

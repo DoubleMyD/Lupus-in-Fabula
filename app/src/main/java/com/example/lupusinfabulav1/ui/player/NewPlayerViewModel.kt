@@ -2,6 +2,7 @@ package com.example.lupusinfabulav1.ui.player
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lupusinfabulav1.data.PlayersRepository
@@ -12,7 +13,9 @@ import com.example.lupusinfabulav1.model.Role
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import okio.IOException
 
 // Define possible UI events, such as showing a message
 sealed class NewPlayerEvent{
@@ -32,36 +35,28 @@ class NewPlayerViewModel(
      * Add a new player to the game.
      * return false if the name is not available or already taken, true if the player is added successfully
      */
-    suspend fun savePlayer(context: Context, playerName: String, bitmap: Bitmap) {
-        val imageSourceLocation = imageIO.saveImageToStorage(context, bitmap, playerName)
+    suspend fun savePlayer(context: Context, playerName: String, bitmap: Bitmap) : Boolean {
+        val trimmedPlayerName = playerName.trim()
+        if (!isNameAvailable(trimmedPlayerName)) {
+            Log.d("SavePlayer", "Name not available")
+            _uiEvent.emit(NewPlayerEvent.ErrorNameNotAvailable)
+            return false
+        }
+        try {
+            val imageSourceLocation = imageIO.saveImageToStorage(context, bitmap, trimmedPlayerName)
 
-        val newPlayer = Player(0, playerName, Role.CITTADINO, true, imageSourceLocation)
-        playersRepository.insertPlayer(newPlayer)
-    }
-
-    fun isNameAvailable(name: String) : Boolean{
-        /*TODO(refactor to search in the database)*/
-        val isNameAvailable = !playerManager.players.value.any { it.name == name } && name.isNotEmpty()
-        if (isNameAvailable) {
+            val newPlayer = Player(0, trimmedPlayerName, Role.CITTADINO, true, imageSourceLocation)
+            playersRepository.insertPlayer(newPlayer)
             return true
-        } else {
-            viewModelScope.launch {
-                _uiEvent.emit(NewPlayerEvent.ErrorNameNotAvailable)
-            }
+        } catch(e: IOException){
+            Log.e("SavePlayer", "Failed to save player: ${e.message}")
             return false
         }
     }
 
-//    // Factory for Dependency Injection
-//    companion object {
-//        val Factory: ViewModelProvider.Factory = viewModelFactory {
-//            initializer {
-//                val application = (this[APPLICATION_KEY] as LupusInFabulaApplication)
-//                val playerManager = application.container.playerManager
-//                val playersRepository = application.container.playersRepository
-//                val imageIO = application.container.imageIO
-//                NewPlayerViewModel(playersRepository = playersRepository, playerManager = playerManager, imageIO = imageIO)
-//            }
-//        }
-//    }
+    // Function to check if a player with the given name exists in the database
+    private suspend fun isNameAvailable(name: String): Boolean {
+        return playersRepository.getPlayerByName(name) // Returns Flow<Player?>
+            .firstOrNull() == null
+    }
 }

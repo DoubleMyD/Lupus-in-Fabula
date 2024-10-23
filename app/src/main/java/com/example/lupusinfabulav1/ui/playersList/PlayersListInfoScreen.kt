@@ -36,30 +36,33 @@ fun PlayersListInfoScreen(
     uiState: InfoPlayersListUiState,
     modifier: Modifier = Modifier,
     onFloatingButtonClick: () -> Unit = {},
+    readOnlyMode: Boolean = false,
 ) {
 
     Scaffold(
         topBar = {
             LupusInFabulaAppBar(
-                title = "Edit PlayerS List",
+                title = "Info Players List",
                 canNavigateBack = true,
                 navigateUp = navigateUp
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onFloatingButtonClick() },
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier
-                    .padding(
-                        end = WindowInsets.safeDrawing.asPaddingValues()
-                            .calculateEndPadding(LocalLayoutDirection.current)
+            if (!readOnlyMode) {
+                FloatingActionButton(
+                    onClick = { onFloatingButtonClick() },
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier
+                        .padding(
+                            end = WindowInsets.safeDrawing.asPaddingValues()
+                                .calculateEndPadding(LocalLayoutDirection.current)
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null
                     )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = null
-                )
+                }
             }
         },
         modifier = modifier
@@ -109,7 +112,7 @@ fun PlayersListInfoScreen(
 
 @Preview
 @Composable
-fun EditPlayersListScreenPreview() {
+fun PlayersListInfoScreenPreview() {
     PlayersListInfoScreen(
         //navigateBack = { },
         navigateUp = { },

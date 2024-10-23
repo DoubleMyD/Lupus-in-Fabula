@@ -30,6 +30,13 @@ class OfflinePlayersListsRepository(
         playersListDao.update(playersList)
 
 
+    override suspend fun getAllListsWithPlayersDetails(): Map<PlayersList, List<PlayerDetails>> {
+        val playersLists = getAllPlayersListsStream().first() // Collect the list of PlayerLists once
+        return playersLists.associateWith { playersList ->
+            getPlayersDetailsFromPlayersList(playersList.id)
+        }
+    }
+
     override suspend fun getPlayersDetailsFromPlayersList(listId: Int): List<PlayerDetails> {
         val playersList = playersListDao.getPlayersList(listId)
             .first() // getPlayersList returns a Flow, so you need to collect it.
@@ -60,70 +67,111 @@ class OfflinePlayersListsRepository(
         playersListDao.update(updatedPlayersList)
     }
 
-
-    override suspend fun addPlayerIdToList(listId: Int, playersId: List<Int>) {
+    // Refactor to handle both single and multiple player IDs
+    override suspend fun addPlayerIdToList(listId: Int, vararg playerIds: Int) {
         // Get the current PlayersList from the database
         val playersList = playersListDao.getPlayersList(listId).first()
 
         // Create a set of existing player IDs to avoid duplicates
         val existingPlayerIds = playersList.playersId.toSet()
 
-        // Filter the new player IDs to keep only those not already in the list
-        val newPlayerIds = playersId.filterNot { it in existingPlayerIds }
+        // Filter new player IDs to exclude duplicates
+        val newPlayerIds = playerIds.filterNot { it in existingPlayerIds }
 
-        // Add the new player IDs to the existing list
-        val updatedPlayersId = playersList.playersId + newPlayerIds
+        if (newPlayerIds.isNotEmpty()) {
+            // Add new player IDs to the existing list
+            val updatedPlayersId = playersList.playersId + newPlayerIds
 
-        // Create an updated PlayersList and update it in the database
-        val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
-        playersListDao.update(updatedPlayersList)
+            // Create and update the new PlayersList
+            val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
+            playersListDao.update(updatedPlayersList)
+        }
     }
 
-    override suspend fun removePlayerIdFromList(listId: Int, playersId: List<Int>) {
+    override suspend fun removePlayerIdFromList(listId: Int, vararg playerIds: Int) {
         // Get the current PlayersList from the database
         val playersList = playersListDao.getPlayersList(listId).first()
 
-        // Create a set of existing player IDs to avoid duplicates
+        // Create a set of existing player IDs
         val existingPlayerIds = playersList.playersId.toSet()
 
-        // Filter the new player IDs to keep only those not already in the list
-        val newPlayerIds = playersId.filter { it in existingPlayerIds }
+        // Filter out the IDs that are not present in the existing list
+        val idsToRemove = playerIds.filter { it in existingPlayerIds }
 
-        // Add the new player IDs to the existing list
-        val updatedPlayersId = playersList.playersId - newPlayerIds.toSet()
+        if (idsToRemove.isNotEmpty()) {
+            // Remove the player IDs from the existing list
+            val updatedPlayersId = playersList.playersId - idsToRemove.toSet()
 
-        // Create an updated PlayersList and update it in the database
-        val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
-        playersListDao.update(updatedPlayersList)
-    }
-
-
-    override suspend fun addPlayerIdToList(listId: Int, playerId: Int) {
-        // Get the current PlayersList from the database
-        val playersList = playersListDao.getPlayersList(listId)
-            .first() // Retrieve the list (use Flow/collect in real-time scenarios)
-
-        // Add the new playerId to the list if it doesn't already exist
-        if (!playersList.playersId.contains(playerId)) {
-            val updatedPlayersId = playersList.playersId.toMutableList().apply { add(playerId) }
-
-            // Create an updated PlayersList and update it in the database
+            // Create and update the new PlayersList
             val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
             playersListDao.update(updatedPlayersList)
         }
     }
 
-    override suspend fun removePlayerIdFromList(listId: Int, playerId: Int) {
-        // Get the current PlayersList from the database
-        val playersList = playersListDao.getPlayersList(listId).first() // Retrieve the list
 
-        // Remove the playerId if it exists in the list
-        if (playersList.playersId.contains(playerId)) {
-            val updatedPlayersId = playersList.playersId.toMutableList().apply { remove(playerId) }
-
-            // Create an updated PlayersList and update it in the database
-            val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
-            playersListDao.update(updatedPlayersList)
-        }
-    }
+//    override suspend fun addPlayerIdToList(listId: Int, playersId: List<Int>) {
+//        // Get the current PlayersList from the database
+//        val playersList = playersListDao.getPlayersList(listId).first()
+//
+//        // Create a set of existing player IDs to avoid duplicates
+//        val existingPlayerIds = playersList.playersId.toSet()
+//
+//        // Filter the new player IDs to keep only those not already in the list
+//        val newPlayerIds = playersId.filterNot { it in existingPlayerIds }
+//
+//        // Add the new player IDs to the existing list
+//        val updatedPlayersId = playersList.playersId + newPlayerIds
+//
+//        // Create an updated PlayersList and update it in the database
+//        val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
+//        playersListDao.update(updatedPlayersList)
+//    }
+//
+//    override suspend fun removePlayerIdFromList(listId: Int, playersId: List<Int>) {
+//        // Get the current PlayersList from the database
+//        val playersList = playersListDao.getPlayersList(listId).first()
+//
+//        // Create a set of existing player IDs to avoid duplicates
+//        val existingPlayerIds = playersList.playersId.toSet()
+//
+//        // Filter the new player IDs to keep only those not already in the list
+//        val newPlayerIds = playersId.filter { it in existingPlayerIds }
+//
+//        // Add the new player IDs to the existing list
+//        val updatedPlayersId = playersList.playersId - newPlayerIds.toSet()
+//
+//        // Create an updated PlayersList and update it in the database
+//        val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
+//        playersListDao.update(updatedPlayersList)
+//    }
+//
+//
+//    override suspend fun addPlayerIdToList(listId: Int, playerId: Int) {
+//        // Get the current PlayersList from the database
+//        val playersList = playersListDao.getPlayersList(listId)
+//            .first() // Retrieve the list (use Flow/collect in real-time scenarios)
+//
+//        // Add the new playerId to the list if it doesn't already exist
+//        if (!playersList.playersId.contains(playerId)) {
+//            val updatedPlayersId = playersList.playersId.toMutableList().apply { add(playerId) }
+//
+//            // Create an updated PlayersList and update it in the database
+//            val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
+//            playersListDao.update(updatedPlayersList)
+//        }
+//    }
+//
+//    override suspend fun removePlayerIdFromList(listId: Int, playerId: Int) {
+//        // Get the current PlayersList from the database
+//        val playersList = playersListDao.getPlayersList(listId).first() // Retrieve the list
+//
+//        // Remove the playerId if it exists in the list
+//        if (playersList.playersId.contains(playerId)) {
+//            val updatedPlayersId = playersList.playersId.toMutableList().apply { remove(playerId) }
+//
+//            // Create an updated PlayersList and update it in the database
+//            val updatedPlayersList = playersList.copy(playersId = updatedPlayersId)
+//            playersListDao.update(updatedPlayersList)
+//        }
+//    }
 }

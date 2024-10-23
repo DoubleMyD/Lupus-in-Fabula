@@ -15,4 +15,6 @@ class OfflinePlayersRepository(private val playerDao: PlayerDao) : PlayersReposi
     override suspend fun deletePlayer(player: Player) = playerDao.delete(player)
 
     override suspend fun updatePlayer(player: Player) = playerDao.update(player)
+
+    override fun getPlayerByName(name: String): Flow<Player?> = playerDao.getPlayerByName(name)
 }

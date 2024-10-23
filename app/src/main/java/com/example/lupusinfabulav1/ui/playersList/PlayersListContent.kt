@@ -1,11 +1,14 @@
 package com.example.lupusinfabulav1.ui.playersList
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -23,8 +26,24 @@ fun PlayersListContent(
     onPlayerLongClick: (PlayerDetails) -> Unit = {},
     cardBackgroundColor: (PlayerDetails) -> Color = { Color.White },
     playerCardAlpha: (PlayerDetails) -> Float = { 1f },
+    scrollToPlayerName: String? = null
 ) {
+    // State to control LazyColumn's scroll position
+    val listState = rememberLazyListState()
+
+    // Find the index of the player we want to scroll to
+    val targetIndex = playersDetails.map { it.name }.indexOf(scrollToPlayerName)
+
+    // Scroll to the target player when the scrollToPlayer changes
+    LaunchedEffect(scrollToPlayerName) {
+        if (targetIndex != -1) {
+            // Center the item on the screen
+            listState.animateScrollToItem(targetIndex)
+        }
+    }
+
     LazyColumn(
+        state = listState,
         modifier = modifier
             .background(Color.Cyan)
     ) {

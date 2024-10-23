@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 
 
 data class PlayersListsUiState(
-    val playersLists: Map<PlayersList, List<PlayerDetails>> = emptyMap()
+    val playersLists: Map<PlayersList, List<PlayerDetails>> = emptyMap(),
+    val selectedListId: Int? = null
 )
 
 class PlayersListsViewModel(
@@ -38,21 +39,36 @@ class PlayersListsViewModel(
 
     private fun loadAllListsPlayersDetails() {
         viewModelScope.launch {
-            // First, collect the list of PlayersList from the repository
-            playersListsRepository.getAllPlayersListsStream()
-                .collect { playersLists ->
-                    // For each PlayersList, fetch the associated PlayerDetails concurrently
-                    val updatedPlayersLists = playersLists.associateWith { playersList ->
-                        val playersDetails =
-                            playersListsRepository.getPlayersDetailsFromPlayersList(playersList.id)
-                        playersDetails
-                    }
+            // Call the repository function to fetch all lists with player details
+            val updatedPlayersLists = playersListsRepository.getAllListsWithPlayersDetails()
 
-                    // Update the UI state after fetching all PlayerDetails for all lists
-                    _uiState.update { currentState ->
-                        currentState.copy(playersLists = updatedPlayersLists)
-                    }
-                }
+            // Update the UI state
+            _uiState.update { currentState ->
+                currentState.copy(playersLists = updatedPlayersLists)
+            }
+        }
+//        viewModelScope.launch {
+//            // First, collect the list of PlayersList from the repository
+//            playersListsRepository.getAllPlayersListsStream()
+//                .collect { playersLists ->
+//                    // For each PlayersList, fetch the associated PlayerDetails concurrently
+//                    val updatedPlayersLists = playersLists.associateWith { playersList ->
+//                        val playersDetails =
+//                            playersListsRepository.getPlayersDetailsFromPlayersList(playersList.id)
+//                        playersDetails
+//                    }
+//
+//                    // Update the UI state after fetching all PlayerDetails for all lists
+//                    _uiState.update { currentState ->
+//                        currentState.copy(playersLists = updatedPlayersLists)
+//                    }
+//                }
+//        }
+    }
+
+    fun updateSelectedListId(listId: Int) {
+        _uiState.update { currentState ->
+            currentState.copy(selectedListId = listId)
         }
     }
 

@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 
 
 @Composable
@@ -57,5 +58,16 @@ fun InputDialog(
                 Text(text = "Cancel")
             }
         }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun InputDialogPreview() {
+    InputDialog(
+        title = "Create New List",
+        onDismiss = {},
+        onConfirm = {},
+        placeholder = "Enter list name"
     )
 }

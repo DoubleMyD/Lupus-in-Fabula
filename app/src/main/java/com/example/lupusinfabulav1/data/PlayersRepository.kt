@@ -13,6 +13,9 @@ interface PlayersRepository {
     suspend fun deletePlayer(player: Player)
 
     suspend fun updatePlayer(player: Player)
+
+
+    fun getPlayerByName(name: String): Flow<Player?>
 }
 
 

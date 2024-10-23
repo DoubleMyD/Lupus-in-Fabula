@@ -1,5 +1,7 @@
 package com.example.lupusinfabulav1.ui.player
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -52,9 +54,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NewPlayerScreen(
-    viewModel: NewPlayerViewModel,
     navigateUp: () -> Unit,
-    onConfirmClick: () -> Unit,
+    onConfirmClickNavigation: () -> Unit,
+    onConfirmClickAction: suspend (Context, String, Bitmap) -> Boolean,
     onCancelClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -146,14 +148,14 @@ fun NewPlayerScreen(
             Spacer(modifier = Modifier.weight(1f))
             CancelAndConfirmButtons(
                 onConfirmClick = {
-                    if (viewModel.isNameAvailable(name = name)) {
+                    if (bitmap != null && name.isNotEmpty()) {
                         coroutineScope.launch {
-                            if (bitmap != null) {
-                                viewModel.savePlayer(context, name, bitmap)
+                            val actionOk = onConfirmClickAction(context, name, bitmap)
+                            if (actionOk) {
+                                onConfirmClickNavigation()
                             }
                         }
                     }
-                    onConfirmClick()
                 },
                 onCancelClick = onCancelClick,
                 modifier = Modifier.weight(1f)
@@ -187,9 +189,9 @@ fun EditNumberField(
 @Composable
 fun NewPlayerScreenPreview() {
     NewPlayerScreen(
-        viewModel = viewModel(),
         navigateUp = { },
-        onConfirmClick = { },
-        onCancelClick = { }
+        onConfirmClickNavigation = { },
+        onCancelClick = { },
+        onConfirmClickAction = { _, _, _ -> true}
     )
 }

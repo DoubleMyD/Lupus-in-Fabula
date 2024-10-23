@@ -47,7 +47,7 @@ fun PlayersForRoleScreen(
     Scaffold(
         topBar = {
             LupusInFabulaAppBar(
-                title = "prova",//LupusInFabulaScreen.VILLAGE.title,
+                title = "Players For Role",//LupusInFabulaScreen.VILLAGE.title,
                 canNavigateBack = true,
                 navigateUp = navigateUp
             )

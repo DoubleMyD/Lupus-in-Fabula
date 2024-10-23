@@ -17,16 +17,18 @@ interface PlayersListsRepository {
     suspend fun updatePlayersList(playersList: PlayersList)
 
 
-
+    suspend fun getAllListsWithPlayersDetails(): Map<PlayersList, List<PlayerDetails>>
     suspend fun getPlayersDetailsFromPlayersList(listId: Int): List<PlayerDetails>
 
-    //suspend fun getPlayersDetailsFromList(listId: Int): Flow<List<PlayerDetails>>
+//    suspend fun getPlayersDetailsFromList(listId: Int): Flow<List<PlayerDetails>>
 
-    suspend fun addPlayerIdToList(listId: Int, playerId: Int)
-    suspend fun addPlayerIdToList(listId: Int, playersId: List<Int>)
-
-    suspend fun removePlayerIdFromList(listId: Int, playersId: List<Int>)
-    suspend fun removePlayerIdFromList(listId: Int, playerId: Int)
+//    suspend fun addPlayerIdToList(listId: Int, playerId: Int)
+//    suspend fun addPlayerIdToList(listId: Int, playersId: List<Int>)
+//
+//    suspend fun removePlayerIdFromList(listId: Int, playersId: List<Int>)
+//    suspend fun removePlayerIdFromList(listId: Int, playerId: Int)
 
     suspend fun updatePlayersIdOfList(listId: Int, addedPlayers: List<Int>, removedPlayers: List<Int>)
+    suspend fun addPlayerIdToList(listId: Int, vararg playerIds: Int)
+    suspend fun removePlayerIdFromList(listId: Int, vararg playerIds: Int)
 }

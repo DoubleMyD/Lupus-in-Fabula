@@ -18,6 +18,7 @@ import com.example.lupusinfabulav1.ui.playersList.EditPlayersListViewModel
 import com.example.lupusinfabulav1.ui.player.PlayersViewModel
 import com.example.lupusinfabulav1.ui.playersList.InfoPlayersListViewModel
 import com.example.lupusinfabulav1.ui.playersList.PlayersListsViewModel
+import com.example.lupusinfabulav1.ui.game.ChoosePlayersListViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -49,4 +50,5 @@ val appModule = module {
     viewModel { VillageViewModel(playerManager = get(), voteManager = get()) }
     viewModel { InfoPlayersListViewModel(playersListsRepository = get()) }
     viewModel { EditPlayersListViewModel(playersRepository = get(), playersListsRepository = get(), navigator = get()) }
+    viewModel { ChoosePlayersListViewModel(playersListsRepository = get(), playerManager = get()) }
 }

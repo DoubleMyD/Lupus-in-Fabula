@@ -42,6 +42,10 @@ class PlayersForRoleViewModel(
         }
     }
 
+    fun assignRoleToPlayers() {
+        playerManager.assignRoleToPlayers(_uiState.value.playersForRole)
+    }
+
     fun checkIfAllPlayersSelected(): Boolean {
         val isAllSelected = _uiState.value.playersForRole.values.sum() == _uiState.value.playersSize
 

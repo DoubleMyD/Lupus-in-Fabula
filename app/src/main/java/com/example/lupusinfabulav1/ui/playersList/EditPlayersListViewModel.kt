@@ -55,6 +55,7 @@ class EditPlayersListViewModel(
             navigator.navigate(
                 destination = PlayerDestination.NewPlayer(
                     returnToHomeScreen = false,
+                    returnToPlayers = false,
                     returnToEditPlayersList = true,
                     playersListId =  uiState.value.listId,
                     playersId = uiState.value.selectedPlayersId,
