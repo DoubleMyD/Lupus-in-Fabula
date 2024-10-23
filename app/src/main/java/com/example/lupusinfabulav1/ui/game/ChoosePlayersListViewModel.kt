@@ -7,7 +7,6 @@ import com.example.lupusinfabulav1.data.PlayersListsRepository
 import com.example.lupusinfabulav1.data.database.entity.PlayersList
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerManager
-import com.example.lupusinfabulav1.ui.playersList.PlayersListsUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,8 +63,7 @@ class ChoosePlayersListViewModel(
         viewModelScope.launch {
             val players = playersListsRepository.getPlayersDetailsFromPlayersList(selectedListId)
 
-            // Use the spread operator to pass the list as vararg
-            playerManager.addPlayers(*players.toTypedArray())
+            playerManager.initializePlayers(players)
         }
         return true
     }

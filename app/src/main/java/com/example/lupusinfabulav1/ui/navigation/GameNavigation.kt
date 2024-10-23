@@ -76,7 +76,7 @@ fun NavGraphBuilder.gameNavigation(
             onCancelClick = { navController.navigateUp() },
             uiState = playersForRoleUiState,
             onSliderValueChange = { newValue ->
-                playersForRoleViewModel.checkAndUpdateSliderValue(
+                playersForRoleViewModel.updateSliderValue(//checkAndUpdateSliderValue(
                     newValue
                 )
             },
