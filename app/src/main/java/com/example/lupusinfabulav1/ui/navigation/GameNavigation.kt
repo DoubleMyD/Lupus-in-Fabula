@@ -76,9 +76,7 @@ fun NavGraphBuilder.gameNavigation(
             onCancelClick = { navController.navigateUp() },
             uiState = playersForRoleUiState,
             onSliderValueChange = { newValue ->
-                playersForRoleViewModel.updateSliderValue(//checkAndUpdateSliderValue(
-                    newValue
-                )
+                playersForRoleViewModel.updateSliderValue(( playersForRoleViewModel.getValidValue(newValue)) ) //checkAndUpdateSliderValue
             },
             onRandomizeAllClick = { playersForRoleViewModel.onRandomizeAllClick() },
             onRoleSelection = { selectedRole ->

@@ -91,14 +91,14 @@ class PlayersForRoleViewModel(
     }*/
 
     fun updateSliderValue(newValue: Float) {
-        val validValue = validRangeManager.getValidValue(newValue)
+        //val validValue = validRangeManager.getValidValue(newValue)
         _uiState.update { currentState ->
             currentState.copy(
-                sliderValue = validValue, //newValue,
+                sliderValue = newValue, //newValue,
             )
         }
 
-        updatePlayersForRole(_uiState.value.currentRole, validValue.toInt())//newValue.toInt())
+        updatePlayersForRole(_uiState.value.currentRole, newValue.toInt())//newValue.toInt())
         updateMaxAndMinAllowedValue()
         updateRemainingPlayers()
     }
@@ -141,9 +141,8 @@ class PlayersForRoleViewModel(
         val randomValue =
             (validRangeManager.validRangeState.value.minAllowedValue..validRangeManager.validRangeState.value.maxAllowedValue).random()
         //checkAndUpdateSliderValue(randomValue.toFloat())
-        if (validRangeManager.checkValue(randomValue.toFloat())) {
-            updateSliderValue(randomValue.toFloat())
-        }
+        val validValue = getValidValue(randomValue.toFloat())
+        updateSliderValue(validValue)
     }
 
 
@@ -249,9 +248,8 @@ class PlayersForRoleViewModel(
         _uiState.update { currentState -> currentState.copy(currentRole = selectedRole) }
         val currentPlayersForRole = _uiState.value.playersForRole[selectedRole] ?: 1f
 
-        if (validRangeManager.checkValue(currentPlayersForRole.toFloat())) {
-            updateSliderValue(currentPlayersForRole.toFloat())
-        }
+        val validValue = getValidValue(currentPlayersForRole.toFloat())
+        updateSliderValue(validValue)
     }
 
     private fun updatePlayersForRole(role: Role, newValue: Int) {
@@ -266,5 +264,9 @@ class PlayersForRoleViewModel(
         _uiState.update { currentState ->
             currentState.copy(playersForRole = updatedPlayersForRole)
         }
+    }
+
+    fun getValidValue(newValue: Float): Float {
+        return validRangeManager.getValidValue(newValue)
     }
 }
