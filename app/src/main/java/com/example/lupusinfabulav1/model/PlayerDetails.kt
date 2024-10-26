@@ -53,9 +53,9 @@ data class PlayerDetails(
     val imageSource: PlayerImageSource = PlayerImageSource.Resource(ImageRepository.defaultImages.random())
 ) {
     // Provide methods that return a new instance instead of mutating the object
-    fun kill(): PlayerDetails = copy(alive = false)
-    fun revive(): PlayerDetails = copy(alive = true)
-    fun changeRole(newRole: Role): PlayerDetails = copy(role = newRole)
+    //fun kill(): PlayerDetails = copy(alive = false)
+    //fun revive(): PlayerDetails = copy(alive = true)
+    //fun changeRole(newRole: Role): PlayerDetails = copy(role = newRole)
 }
 
 fun PlayerDetails.toPlayer(context: Context): Player = Player(

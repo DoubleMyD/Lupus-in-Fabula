@@ -94,6 +94,7 @@ fun NavGraphBuilder.gameNavigation(
 
         VillageScreen7(
             navigateUp = { navController.navigateUp() },
+            viewModel = villageViewModel,
             uiState = villageUiState,
             onCenterIconTap = villageViewModel::nextRole,
             onCenterIconLongPress = { },    //navController.navigate(LupusInFabulaScreen.PLAYERS_LIST.name)

@@ -1,6 +1,6 @@
 package com.example.lupusinfabulav1.ui.game
 
-import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -34,6 +34,8 @@ import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.model.MostVotedPlayer
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.Role
+import com.example.lupusinfabulav1.model.RoleVotes
+import com.example.lupusinfabulav1.ui.GameState
 import com.example.lupusinfabulav1.ui.VillageUiState
 import com.example.lupusinfabulav1.ui.player.playerCard.PlayerCard
 import kotlinx.coroutines.delay
@@ -60,20 +62,24 @@ fun VillageContent(
 ) {
     // Memoize the calculations for all required variables
     val layoutWeights =
-        remember(uiState.playersDetails) { calculateWeights(uiState.playersDetails) }
+        remember(uiState.playersState.playersDetails) { calculateWeights(uiState.playersState.playersDetails) }
     val animationDelays =
-        remember(uiState.playersDetails, shouldDelayAnimation) {
-            if (shouldDelayAnimation) calculateAnimationDelays(uiState.playersDetails)
-            else List(uiState.playersDetails.size) { 0L }
+        remember(uiState.playersState.playersDetails, shouldDelayAnimation) {
+            if (shouldDelayAnimation) calculateAnimationDelays(uiState.playersState.playersDetails)
+            else List(uiState.playersState.playersDetails.size) { 0L }
         }
 
+    val currentRole = when (uiState.gameState) {
+        is GameState.InProgress -> uiState.gameState.currentRole
+        else -> Role.CITTADINO
+    }
     // Use Box to center an item (icon or composable) in the middle of the screen
     Box(
         propagateMinConstraints = true,
         contentAlignment = Alignment.Center, // Center the content
         modifier = modifier
             .fillMaxSize()
-            .background(uiState.currentRole.color.copy(alpha = 0.05f)), // Ensure the Box takes up the entire screen
+            .background(currentRole.color.copy(alpha = 0.05f)), // Ensure the Box takes up the entire screen
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -82,8 +88,9 @@ fun VillageContent(
         ) {
             PlayerRow(
                 animationDelay = animationDelays[0],
-                playerDetails = uiState.playersDetails.first(),
+                playerDetails = uiState.playersState.playersDetails.first(),
                 uiState = uiState,
+                currentRole = currentRole,
                 leftSpaceWeight = layoutWeights.totalSpacingWeight / 2f,
                 rightSpaceWeight = layoutWeights.totalSpacingWeight / 2f,
                 cardWeight = layoutWeights.singleCardWeight,
@@ -92,15 +99,20 @@ fun VillageContent(
                 modifier = Modifier.weight(1f)
             )
 
-            val numRows = (uiState.playersDetails.size - 2) / 2
-            val isOdd = uiState.playersDetails.size % 2 == 1
-            val rightPlayers = uiState.playersDetails.subList(1, numRows + 1)
+            val numRows = (uiState.playersState.playersDetails.size - 2) / 2
+            val isOdd = uiState.playersState.playersDetails.size % 2 == 1
+            val rightPlayers = uiState.playersState.playersDetails.subList(1, numRows + 1)
             val leftPlayers = if (isOdd) {
-                uiState.playersDetails.subList(numRows + 3, uiState.playersDetails.size).reversed()
+                uiState.playersState.playersDetails.subList(
+                    numRows + 3,
+                    uiState.playersState.playersDetails.size
+                ).reversed()
             } else {
-                uiState.playersDetails.subList(numRows + 2, uiState.playersDetails.size).reversed()
+                uiState.playersState.playersDetails.subList(
+                    numRows + 2,
+                    uiState.playersState.playersDetails.size
+                ).reversed()
             }
-            Log.d("VillageContent", " players: ${uiState.playersDetails.size}")
             // Render middle player rows
             MiddlePlayerRows(
                 numRows = numRows,
@@ -109,6 +121,7 @@ fun VillageContent(
                 animationDelays = animationDelays,
                 layoutWeights = layoutWeights,
                 uiState = uiState,
+                currentRole = currentRole,
                 onPlayerTap = onPlayerTap,
                 onPlayerLongPress = onPlayerLongPress,
                 modifier = Modifier.weight(numRows.toFloat())
@@ -118,18 +131,19 @@ fun VillageContent(
                     animationDelays[numRows + 2],
                     animationDelays[numRows + 1]
                 ),//left and right player
-                firstRowPlayerDetails = uiState.playersDetails[numRows + 2],
-                secondRowPlayerDetails = uiState.playersDetails[numRows + 1],
+                firstRowPlayerDetails = uiState.playersState.playersDetails[numRows + 2],
+                secondRowPlayerDetails = uiState.playersState.playersDetails[numRows + 1],
                 layoutWeights = layoutWeights,
                 uiState = uiState,
+                currentRole = currentRole,
                 onPlayerTap = onPlayerTap,
                 onPlayerLongPress = onPlayerLongPress,
                 numRows = numRows,
                 modifier = Modifier.weight(1f)
             )
         }
-        CenterImage(layoutWeights, uiState, onCenterIconClick, onCenterIconLongPress)
-        Text(text = uiState.playersDetails.size.toString())
+        CenterImage(layoutWeights, currentRole.image, onCenterIconClick, onCenterIconLongPress)
+        Text(text = uiState.playersState.playersDetails.size.toString())
     }
 }
 
@@ -141,6 +155,7 @@ fun MiddlePlayerRows(
     animationDelays: List<Long>,
     layoutWeights: VillageLayoutWeights,
     uiState: VillageUiState,
+    currentRole: Role,
     onPlayerTap: (PlayerDetails, PlayerDetails) -> Unit,
     onPlayerLongPress: (PlayerDetails) -> Unit,
     modifier: Modifier = Modifier
@@ -149,9 +164,10 @@ fun MiddlePlayerRows(
         Column(modifier = Modifier.weight(1f)) {
             for (i in 0 until numRows) {
                 PlayerRow(
-                    animationDelay = animationDelays[uiState.playersDetails.size - i - 1],
+                    animationDelay = animationDelays[uiState.playersState.playersDetails.size - i - 1],
                     playerDetails = leftPlayerDetails[i],
                     uiState = uiState,
+                    currentRole = currentRole,
                     leftSpaceWeight = layoutWeights.singleEdgeWeights[i],
                     rightSpaceWeight = layoutWeights.middleWeights[i] / 2f,
                     cardWeight = layoutWeights.singleCardWeight,
@@ -167,6 +183,7 @@ fun MiddlePlayerRows(
                     animationDelay = animationDelays[i + 1],
                     playerDetails = rightPlayerDetails[i],
                     uiState = uiState,
+                    currentRole = currentRole,
                     leftSpaceWeight = layoutWeights.middleWeights[i] / 2f,
                     rightSpaceWeight = layoutWeights.singleEdgeWeights[i],
                     cardWeight = layoutWeights.singleCardWeight,
@@ -210,7 +227,7 @@ fun AnimatePlayerRow(
 @Composable
 fun CenterImage(
     layoutWeights: VillageLayoutWeights,
-    uiState: VillageUiState,
+    @DrawableRes imageResourceId: Int,
     onClick: () -> Unit,
     onCenterIconLongPress: () -> Unit
 ) {
@@ -220,7 +237,7 @@ fun CenterImage(
     ) {
         Spacer(modifier = Modifier.weight(layoutWeights.singleCardWeight + layoutWeights.maxMiddleWeight / 2))
         Image(
-            painter = painterResource(id = uiState.currentRole.image),
+            painter = painterResource(id = imageResourceId),
             contentDescription = null,
             modifier = Modifier
                 .weight(layoutWeights.totalSpacingWeight - layoutWeights.maxMiddleWeight * 0.4f)
@@ -244,6 +261,7 @@ fun LastRow2(
     secondRowPlayerDetails: PlayerDetails,
     layoutWeights: VillageLayoutWeights,
     uiState: VillageUiState,
+    currentRole: Role,
     onPlayerTap: (PlayerDetails, PlayerDetails) -> Unit,
     onPlayerLongPress: (PlayerDetails) -> Unit,
     numRows: Int,
@@ -251,7 +269,7 @@ fun LastRow2(
 ) {
     Row(modifier = modifier) {
         Spacer(modifier = Modifier.weight(layoutWeights.totalSpacingWeight / 2f))
-        val isOdd = uiState.playersDetails.size % 2 == 1
+        val isOdd = uiState.playersState.playersDetails.size % 2 == 1
         if (isOdd) {
             Box(modifier = Modifier.weight(layoutWeights.singleCardWeight)) {
                 AnimatePlayerRow(
@@ -259,13 +277,29 @@ fun LastRow2(
                     delayMillis = delays.first,
                 ) {
                     PlayerCard(
-                        alphaColor = getBackgroundAlphaColor(firstRowPlayerDetails, uiState),
-                        votedCount = getPlayerVotedCount(firstRowPlayerDetails, uiState),
-                        rolesVotedBy = getVotedByRole(firstRowPlayerDetails, uiState),
-                        border = getBorder(firstRowPlayerDetails, uiState),
+                        alphaColor = getBackgroundAlphaColor(
+                            playerDetails = firstRowPlayerDetails,
+                            currentRole = currentRole,
+                            currentVoting = uiState.vote.currentVoting
+                        ), //uiState),
+                        votedCount = getPlayerVotedCount(
+                            playerDetails = firstRowPlayerDetails,
+                            uiState.vote.currentVoting
+                        ),
+                        rolesVotedBy = getVotedByRole(
+                            playerDetails = firstRowPlayerDetails,
+                            uiState.vote.votedPlayerByRole
+                        ),
+                        border = getBorder(
+                            playerDetails = firstRowPlayerDetails,
+                            gameStarted = uiState.gameState is GameState.InProgress,
+                            selectedPlayerDetails = uiState.playersState.selectedPlayer,
+                            currentVoting = uiState.vote.currentVoting,
+                            currentRole = currentRole
+                        ),
                         playerDetails = firstRowPlayerDetails,
                         onPlayerTap = {
-                            uiState.selectedPlayerDetails?.let {
+                            uiState.playersState.selectedPlayer?.let {
                                 onPlayerTap(
                                     it,
                                     firstRowPlayerDetails
@@ -284,13 +318,29 @@ fun LastRow2(
                 delayMillis = delays.second,
             ) {
                 PlayerCard(
-                    alphaColor = getBackgroundAlphaColor(secondRowPlayerDetails, uiState),
-                    votedCount = getPlayerVotedCount(secondRowPlayerDetails, uiState),
-                    rolesVotedBy = getVotedByRole(secondRowPlayerDetails, uiState),
-                    border = getBorder(secondRowPlayerDetails, uiState),
+                    alphaColor = getBackgroundAlphaColor(
+                        playerDetails = secondRowPlayerDetails,
+                        currentRole = currentRole,
+                        currentVoting = uiState.vote.currentVoting
+                    ), //uiState),
+                    votedCount = getPlayerVotedCount(
+                        playerDetails = secondRowPlayerDetails,
+                        uiState.vote.currentVoting
+                    ),
+                    rolesVotedBy = getVotedByRole(
+                        playerDetails = secondRowPlayerDetails,
+                        uiState.vote.votedPlayerByRole
+                    ),
+                    border = getBorder(
+                        playerDetails = secondRowPlayerDetails,
+                        gameStarted = uiState.gameState is GameState.InProgress,
+                        selectedPlayerDetails = uiState.playersState.selectedPlayer,
+                        currentVoting = uiState.vote.currentVoting,
+                        currentRole = currentRole
+                    ),
                     playerDetails = secondRowPlayerDetails,
                     onPlayerTap = {
-                        uiState.selectedPlayerDetails?.let {
+                        uiState.playersState.selectedPlayer?.let {
                             onPlayerTap(
                                 it,
                                 secondRowPlayerDetails
@@ -310,6 +360,7 @@ private fun PlayerRow(
     animationDelay: Long,
     playerDetails: PlayerDetails,
     uiState: VillageUiState,
+    currentRole: Role,
     leftSpaceWeight: Float,
     rightSpaceWeight: Float,
     cardWeight: Float,
@@ -327,13 +378,29 @@ private fun PlayerRow(
             modifier = Modifier.weight(cardWeight)
         ) {
             PlayerCard(
-                alphaColor = getBackgroundAlphaColor(playerDetails, uiState),
-                votedCount = getPlayerVotedCount(playerDetails, uiState),
-                rolesVotedBy = getVotedByRole(playerDetails, uiState),
-                border = getBorder(playerDetails, uiState),
+                alphaColor = getBackgroundAlphaColor(
+                    playerDetails = playerDetails,
+                    currentRole = currentRole,
+                    currentVoting = uiState.vote.currentVoting
+                ), //uiState),
+                votedCount = getPlayerVotedCount(
+                    playerDetails = playerDetails,
+                    uiState.vote.currentVoting
+                ),
+                rolesVotedBy = getVotedByRole(
+                    playerDetails = playerDetails,
+                    votedPlayerByRole = uiState.vote.votedPlayerByRole
+                ),
+                border = getBorder(
+                    playerDetails = playerDetails,
+                    gameStarted = uiState.gameState is GameState.InProgress,
+                    selectedPlayerDetails = uiState.playersState.selectedPlayer,
+                    currentVoting = uiState.vote.currentVoting,
+                    currentRole = currentRole
+                ),
                 playerDetails = playerDetails,
                 onPlayerTap = {
-                    uiState.selectedPlayerDetails?.let {
+                    uiState.playersState.selectedPlayer?.let {
                         onPlayerTap(
                             it,
                             playerDetails
@@ -422,43 +489,101 @@ private fun fastStartCurve(
     return minValue + (maxValue - minValue) * (t.pow(0.2f))
 }
 
-private fun getBackgroundAlphaColor(playerDetails: PlayerDetails, uiState: VillageUiState): Float {
-    val hasVoted = when (uiState.currentRole) {
-        Role.CUPIDO -> uiState.currentVoting.votesPairPlayers.count { it.voter == playerDetails } == 2
-        else -> uiState.currentVoting.votesPairPlayers.any { it.voter == playerDetails }
+private fun getBackgroundAlphaColor(
+    playerDetails: PlayerDetails,
+    currentRole: Role,
+    currentVoting: RoleVotes
+): Float {
+    val hasVoted = when (currentRole) {
+        Role.CUPIDO -> currentVoting.votesPairPlayers.count { it.voter == playerDetails } == 2
+        else -> currentVoting.votesPairPlayers.any { it.voter == playerDetails }
     }
     return if (hasVoted) 0.4f else 0.1f
 }
 
-private fun getVotedByRole(playerDetails: PlayerDetails, uiState: VillageUiState): List<Role> {
-    return Role.entries.filter { role ->
-        when (val votedPlayer = uiState.votedPlayerByRole[role]) {
-            is MostVotedPlayer.SinglePlayer -> votedPlayer.playerDetails == playerDetails
-            is MostVotedPlayer.PairPlayers -> votedPlayer.playerDetails1 == playerDetails || votedPlayer.playerDetails2 == playerDetails
-            null -> false
+private fun getVotedByRole(
+    playerDetails: PlayerDetails,
+    votedPlayerByRole: Map<Role, MostVotedPlayer>
+): List<Role> {
+    return if (playerDetails.alive.not()) emptyList()
+    else {
+        Role.entries.filter { role ->
+            when (val votedPlayer = votedPlayerByRole[role]) {
+                is MostVotedPlayer.SinglePlayer -> votedPlayer.playerDetails.id == playerDetails.id && votedPlayer.playerDetails.alive
+                is MostVotedPlayer.PairPlayers -> votedPlayer.playerDetails1.id == playerDetails.id || votedPlayer.playerDetails2.id == playerDetails.id
+                null -> false
+            }
         }
     }
 }
 
-private fun getPlayerVotedCount(playerDetails: PlayerDetails, uiState: VillageUiState): Int {
-    return uiState.currentVoting.votesPairPlayers.count { it.votedPlayerDetails == playerDetails }
+private fun getPlayerVotedCount(playerDetails: PlayerDetails, currentVoting: RoleVotes): Int {
+    return currentVoting.votesPairPlayers.count { it.votedPlayerDetails == playerDetails }
 }
 
 @Composable
-private fun getBorder(playerDetails: PlayerDetails, uiState: VillageUiState): BorderStroke {
+private fun getBorder(
+    playerDetails: PlayerDetails,
+    gameStarted: Boolean,
+    selectedPlayerDetails: PlayerDetails?,
+    currentVoting: RoleVotes,
+    currentRole: Role
+): BorderStroke {
     return when {
-        uiState.gameStarted.not() -> CardDefaults.outlinedCardBorder()
-        playerDetails.alive && playerDetails == uiState.selectedPlayerDetails -> BorderStroke(
+        gameStarted.not() -> CardDefaults.outlinedCardBorder()
+        playerDetails.alive && playerDetails == selectedPlayerDetails -> BorderStroke(
             dimensionResource(id = R.dimen.border_width_large),
             Color.Black
         )
 
-        uiState.currentVoting.voters.contains(playerDetails) -> BorderStroke(
+        currentVoting.voters.contains(playerDetails) -> BorderStroke(
             dimensionResource(id = R.dimen.border_width_medium),
-            uiState.currentRole.color
+            currentRole.color
         )
 
         playerDetails.alive -> CardDefaults.outlinedCardBorder()
         else -> CardDefaults.outlinedCardBorder(false)
     }
 }
+
+
+//private fun getBackgroundAlphaColor(playerDetails: PlayerDetails, currentRole: Role, /*uiState: VillageUiState*/): Float {
+//    val hasVoted = when (uiState.currentRole) {
+//        Role.CUPIDO -> uiState.currentVoting.votesPairPlayers.count { it.voter == playerDetails } == 2
+//        else -> uiState.currentVoting.votesPairPlayers.any { it.voter == playerDetails }
+//    }
+//    return if (hasVoted) 0.4f else 0.1f
+//}
+//
+//private fun getVotedByRole(playerDetails: PlayerDetails, uiState: VillageUiState): List<Role> {
+//    return Role.entries.filter { role ->
+//        when (val votedPlayer = uiState.votedPlayerByRole[role]) {
+//            is MostVotedPlayer.SinglePlayer -> votedPlayer.playerDetails == playerDetails
+//            is MostVotedPlayer.PairPlayers -> votedPlayer.playerDetails1 == playerDetails || votedPlayer.playerDetails2 == playerDetails
+//            null -> false
+//        }
+//    }
+//}
+//
+//private fun getPlayerVotedCount(playerDetails: PlayerDetails, uiState: VillageUiState): Int {
+//    return uiState.currentVoting.votesPairPlayers.count { it.votedPlayerDetails == playerDetails }
+//}
+//
+//@Composable
+//private fun getBorder(playerDetails: PlayerDetails, uiState: VillageUiState): BorderStroke {
+//    return when {
+//        uiState.gameStarted.not() -> CardDefaults.outlinedCardBorder()
+//        playerDetails.alive && playerDetails == uiState.selectedPlayerDetails -> BorderStroke(
+//            dimensionResource(id = R.dimen.border_width_large),
+//            Color.Black
+//        )
+//
+//        uiState.currentVoting.voters.contains(playerDetails) -> BorderStroke(
+//            dimensionResource(id = R.dimen.border_width_medium),
+//            uiState.currentRole.color
+//        )
+//
+//        playerDetails.alive -> CardDefaults.outlinedCardBorder()
+//        else -> CardDefaults.outlinedCardBorder(false)
+//    }
+//}

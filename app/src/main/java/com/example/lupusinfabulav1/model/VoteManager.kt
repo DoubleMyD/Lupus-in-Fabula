@@ -1,6 +1,8 @@
 package com.example.lupusinfabulav1.model
 
-private const val TAG = "VoteManager"
+import com.example.lupusinfabulav1.ui.game.VillageEvent
+
+//private const val TAG = "VoteManager"
 
 data class VotePairPlayers(
     val voter: PlayerDetails,
@@ -86,6 +88,23 @@ class VoteManager {
 
     fun getLastVotingState(): RoleVotes {
         return votingHistory.last()
+    }
+
+    fun isDuplicateCupidoVote(voter: PlayerDetails, votedPlayerDetails: PlayerDetails): Boolean {
+        val lastVoting = getLastVotingState()
+        return lastVoting.votesPairPlayers.any { it.voter == voter && it.votedPlayerDetails == votedPlayerDetails }
+
+    }
+
+    fun isValidVote(voter: PlayerDetails, votedPlayerDetails: PlayerDetails): VillageEvent {
+        return when {
+            !votedPlayerDetails.alive -> VillageEvent.VotedPlayerIsDead
+            isLastVote() -> VillageEvent.AllPlayersHaveVoted
+            ( getLastVotingState().role == Role.CUPIDO &&
+                    isDuplicateCupidoVote(voter, votedPlayerDetails) )-> { VillageEvent.CupidoAlreadyVoted
+            }
+            else -> VillageEvent.NullEvent
+        }
     }
 
     private fun getMostVotedSinglePlayer(lastVoting: RoleVotes): MostVotedPlayer.SinglePlayer? {

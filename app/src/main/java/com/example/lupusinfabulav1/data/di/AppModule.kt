@@ -8,6 +8,7 @@ import com.example.lupusinfabulav1.data.database.ImageIO
 import com.example.lupusinfabulav1.data.database.LupusInFabulaDatabase
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Randomizer
+import com.example.lupusinfabulav1.model.RoundResultManager
 import com.example.lupusinfabulav1.model.ValidRangeManager
 import com.example.lupusinfabulav1.model.VoteManager
 import com.example.lupusinfabulav1.ui.game.PlayersForRoleViewModel
@@ -45,6 +46,7 @@ val appModule = module {
     single<ImageIO> { ImageIO() }
     single<Randomizer> { Randomizer() }
     single<ValidRangeManager> { ValidRangeManager() }
+    single<RoundResultManager> { RoundResultManager() }
 
 
     // ViewModels
@@ -52,7 +54,7 @@ val appModule = module {
     viewModel { PlayersViewModel(playersRepository = get()) }
     viewModel { PlayersListsViewModel(playersListsRepository = get(), playerManager = get()) }
     viewModel { PlayersForRoleViewModel(playerManager = get(), validRangeManager = get(), randomizer = get()) }
-    viewModel { VillageViewModel(playerManager = get(), voteManager = get()) }
+    viewModel { VillageViewModel(playerManager = get(), voteManager = get(), roundResultManager = get()) }
     viewModel { InfoPlayersListViewModel(playersListsRepository = get()) }
     viewModel { EditPlayersListViewModel(playersRepository = get(), playersListsRepository = get(), navigator = get()) }
     viewModel { ChoosePlayersListViewModel(playersListsRepository = get(), playerManager = get()) }
