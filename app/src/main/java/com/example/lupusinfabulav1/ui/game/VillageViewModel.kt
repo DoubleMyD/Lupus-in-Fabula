@@ -7,6 +7,7 @@ import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerManager
 import com.example.lupusinfabulav1.model.Role
 import com.example.lupusinfabulav1.model.RoleVotes
+import com.example.lupusinfabulav1.model.RoundResultEvent
 import com.example.lupusinfabulav1.model.VoteManager
 import com.example.lupusinfabulav1.model.RoundResultManager
 import com.example.lupusinfabulav1.ui.GameState
@@ -30,17 +31,17 @@ sealed class VillageEvent {
     data object Tie : VillageEvent()
     data object TieRestartVoting : VillageEvent()
     data object CupidoAlreadyVoted : VillageEvent()
-    data class RoleEvent(val roleEvent: RoleTypeEvent) : VillageEvent()
+    //data class RoleEvent(val roleEvent: RoleTypeEvent) : VillageEvent()
 }
-
-sealed class RoleTypeEvent {
-    data class AssassinKilledPlayers(val playerDetailsKilled: PlayerDetails) : RoleTypeEvent()
-    data class CupidoKilledPlayers(val playersKilled: Pair<PlayerDetails, PlayerDetails>) :
-        RoleTypeEvent()
-
-    data class FaciliCostumiSavedPlayer(val playerDetailsSaved: PlayerDetails) : RoleTypeEvent()
-    data class VeggenteDiscoverKiller(val killer: PlayerDetails) : RoleTypeEvent()
-}
+//
+//sealed class RoleTypeEvent {
+//    data class AssassinKilledPlayers(val playerDetailsKilled: PlayerDetails) : RoleTypeEvent()
+//    data class CupidoKilledPlayers(val playersKilled: Pair<PlayerDetails, PlayerDetails>) :
+//        RoleTypeEvent()
+//
+//    data class FaciliCostumiSavedPlayer(val playerDetailsSaved: PlayerDetails) : RoleTypeEvent()
+//    data class VeggenteDiscoverKiller(val killer: PlayerDetails) : RoleTypeEvent()
+//}
 
 class VillageViewModel(
     private val playerManager: PlayerManager,
@@ -53,6 +54,9 @@ class VillageViewModel(
     // Using StateFlow for events (not ideal)
     private val _uiEvent = MutableStateFlow<VillageEvent?>(null)
     val uiEvent: StateFlow<VillageEvent?> = _uiEvent.asStateFlow()
+
+    private val _roundResultEvent = MutableStateFlow<List<RoundResultEvent>>(emptyList())
+    val roundResultEvent: StateFlow<List<RoundResultEvent>> = _roundResultEvent.asStateFlow()
 
     private val roles = Role.entries.toMutableList()
     private var roleIndex = 0
@@ -239,15 +243,15 @@ class VillageViewModel(
             votedPlayerByRole = votedPlayerByRole
         )
         updateKilledPlayer(killedPlayersDetails = voteResult.killedPlayers)
-        voteResult.events.forEach { event ->
-            triggerAndClearEvent(event)
-        }
+//        voteResult.events.forEach { event ->
+//            triggerAndClearEvent(event)
+//        }
 
         val winner = roundResultManager.getWinners(_uiState.value.playersState.playersDetails)
         when (winner) {
             Role.ASSASSINO -> updateIsGameFinished(_uiState.value.playersState.playersDetails.filter { it.role == Role.ASSASSINO })
             Role.CITTADINO -> updateIsGameFinished(_uiState.value.playersState.playersDetails.filter { it.role != Role.ASSASSINO })
-            else -> {}
+            else -> triggerRoundResultEvent(voteResult.events)
         }
     }
 
@@ -299,14 +303,17 @@ class VillageViewModel(
 
     // Function to trigger an event and clear it after a delay
     private fun triggerAndClearEvent(event: VillageEvent) {
-        val delayMillis: Long = when (event) {
-            is VillageEvent.RoleEvent -> 100
-            else -> 7500
-        }
+        val delayMillis: Long = 7500
         viewModelScope.launch {
             _uiEvent.value = event  // Emit the event
             delay(delayMillis)             // Delay to allow UI to handle the event (e.g., Toast duration)
             _uiEvent.value = null   // Clear the event
+        }
+    }
+
+    private fun triggerRoundResultEvent(events: List<RoundResultEvent>) {
+        viewModelScope.launch {
+            _roundResultEvent.value = events
         }
     }
 
@@ -328,7 +335,6 @@ class VillageViewModel(
     }
 
     private fun updatePlayerRole(playerDetailsToUpdate: PlayerDetails, newRole: Role) {
-        //playerManager.assignRole(playerDetailsToUpdate.id, newRole)
         val updatedPlayers = _uiState.value.playersState.playersDetails.map { player ->
             if (player == playerDetailsToUpdate) {
                 player.copy(role = newRole)

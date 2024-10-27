@@ -1,7 +1,6 @@
 package com.example.lupusinfabulav1.ui.game
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,14 +27,14 @@ import com.example.lupusinfabulav1.R
 import com.example.lupusinfabulav1.data.fake.FakePlayersRepository
 import com.example.lupusinfabulav1.model.PlayerDetails
 import com.example.lupusinfabulav1.model.PlayerManager
+import com.example.lupusinfabulav1.model.RoundResultEvent
 import com.example.lupusinfabulav1.model.RoundResultManager
 import com.example.lupusinfabulav1.model.VoteManager
 import com.example.lupusinfabulav1.ui.PlayersState
-//import com.example.lupusinfabulav1.ui.LupusInFabulaScreen
 import com.example.lupusinfabulav1.ui.VillageUiState
 import com.example.lupusinfabulav1.ui.commonui.LupusInFabulaAppBar
-import com.example.lupusinfabulav1.ui.playersList.PlayersListContent
 import com.example.lupusinfabulav1.ui.player.playerCard.PlayerCardInfo
+import com.example.lupusinfabulav1.ui.playersList.PlayersListContent
 
 //private const val TAG = "VillageScreen"
 
@@ -48,8 +48,10 @@ fun VillageScreen7(
     onCenterIconLongPress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var roundResult by remember { mutableStateOf("") }
     //Log.d("VillageScreen", "playerstate: ${uiState.playersState.playersDetails.map {"\n$it"}} ")
     HandleVillageEvents(viewModel = viewModel, context = LocalContext.current)
+    HandleRoundResultEvents(viewModel = viewModel, context = LocalContext.current, updateExampleString = {roundResult = it})
 
     var shouldDelayAnimation by remember { mutableStateOf(true) }
 
@@ -71,9 +73,18 @@ fun VillageScreen7(
         // Show player info dialog
         playerDetailsToShowInfo?.let { player ->
             PlayerInfoDialog(
-                { playerDetailsToShowInfo = null },
+                onDismiss = { playerDetailsToShowInfo = null },
                 playerDetails = player
             )
+        }
+
+        if(roundResult.isNotEmpty()){
+            Dialog(
+                onDismissRequest = { roundResult = "" },
+                properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
+            ) {
+                Text(text = roundResult)
+            }
         }
 
         val pageState = rememberPagerState { 2 }
@@ -147,21 +158,50 @@ fun HandleVillageEvents(viewModel: VillageViewModel, context: Context) {
             is VillageEvent.CupidoAlreadyVoted -> {
                 Toast.makeText(context, R.string.cupido_already_voted, Toast.LENGTH_SHORT).show()
             }
-            is VillageEvent.RoleEvent -> handleRoleEvent(context, (villageUiEvent as VillageEvent.RoleEvent).roleEvent)
-
             else -> Unit
             //Toast.makeText(context, "An unexpected error occurred", Toast.LENGTH_SHORT).show()
         }
-        Log.d("Village event", "Event triggered: $villageUiEvent")
     }
 }
 
-private fun handleRoleEvent(context: Context, roleTypeEvent: RoleTypeEvent) {
-    when(roleTypeEvent){
-        is RoleTypeEvent.AssassinKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_assassin_killed_players, roleTypeEvent.playerDetailsKilled.name), Toast.LENGTH_SHORT).show()
-        is RoleTypeEvent.CupidoKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_cupido_killed_players, roleTypeEvent.playersKilled.first.name, roleTypeEvent.playersKilled.second.name), Toast.LENGTH_SHORT).show()
-        is RoleTypeEvent.FaciliCostumiSavedPlayer -> Toast.makeText(context, R.string.role_event_facili_costumi_saved_player, Toast.LENGTH_SHORT).show()
-        is RoleTypeEvent.VeggenteDiscoverKiller -> Toast.makeText(context, context.getString(R.string.role_event_veggente_discover_killer, roleTypeEvent.killer.name), Toast.LENGTH_SHORT).show()
+@Composable
+fun HandleRoundResultEvents(
+    viewModel: VillageViewModel,
+    context: Context,
+    updateExampleString: (String) -> Unit
+) {
+    val roundResult by viewModel.roundResultEvent.collectAsState()
+    var string = ""
+    val updateString = { s: String -> string = string + "\n" + s }
+
+    LaunchedEffect(roundResult) {
+        roundResult.forEach { event ->
+            when (val roleEvent = event) {
+                is RoundResultEvent.AssassinKilledPlayers -> updateString(
+                    context.getString(R.string.role_event_assassin_killed_players, roleEvent.playerDetailsKilled.name)
+                )
+
+                is RoundResultEvent.CupidoKilledPlayers -> updateString(
+                    context.getString(
+                        R.string.role_event_cupido_killed_players,
+                        roleEvent.playersKilled.first.name,
+                        roleEvent.playersKilled.second.name
+                    )
+                )
+
+                is RoundResultEvent.FaciliCostumiSavedPlayer -> updateString(
+                    context.getString(R.string.role_event_facili_costumi_saved_player)
+                )
+
+                is RoundResultEvent.VeggenteDiscoverKiller -> updateString(
+                    context.getString(
+                        R.string.role_event_veggente_discover_killer,
+                        roleEvent.killer.name
+                    )
+                )
+            }
+        }
+        updateExampleString(string)
     }
 }
 

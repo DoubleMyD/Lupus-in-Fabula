@@ -1,12 +1,18 @@
 package com.example.lupusinfabulav1.model
 
-import com.example.lupusinfabulav1.ui.game.RoleTypeEvent
-import com.example.lupusinfabulav1.ui.game.VillageEvent
-
 data class RoundResult(
-    val events: List<VillageEvent.RoleEvent>,
+    val events: List<RoundResultEvent>,
     val killedPlayers: List<PlayerDetails>
 )
+
+sealed class RoundResultEvent{
+    data class AssassinKilledPlayers(val playerDetailsKilled: PlayerDetails) : RoundResultEvent()
+    data class CupidoKilledPlayers(val playersKilled: Pair<PlayerDetails, PlayerDetails>) :
+        RoundResultEvent()
+
+    data class FaciliCostumiSavedPlayer(val playerDetailsSaved: PlayerDetails) : RoundResultEvent()
+    data class VeggenteDiscoverKiller(val killer: PlayerDetails) : RoundResultEvent()
+}
 
 class RoundResultManager {
     private val roundResultHistory = mutableListOf<RoundResult>()
@@ -32,9 +38,7 @@ class RoundResultManager {
         if (faciliCostumiSavedPlayer(votedPlayerByRole)) {
             val savedPlayer = votedPlayerByRole[Role.FACILI_COSTUMI] as MostVotedPlayer.SinglePlayer
             roundResult = roundResult.copy(
-                events = roundResult.events + VillageEvent.RoleEvent(
-                    RoleTypeEvent.FaciliCostumiSavedPlayer(savedPlayer.playerDetails)
-                )
+                events = roundResult.events + RoundResultEvent.FaciliCostumiSavedPlayer(savedPlayer.playerDetails)
             )
         } else {
             if (killedPlayerIsCupido(votedPlayerByRole)) {
@@ -100,14 +104,14 @@ class RoundResultManager {
     }
 
     private fun handleCupidoKilled(cupidoVotedPlayers: MostVotedPlayer.PairPlayers): RoundResult {
-        val cupidoKilledPlayersEvent = RoleTypeEvent.CupidoKilledPlayers(
+        val cupidoKilledPlayersEvent = RoundResultEvent.CupidoKilledPlayers(
             Pair(
                 cupidoVotedPlayers.playerDetails1,
                 cupidoVotedPlayers.playerDetails2
             )
         )
         return RoundResult(
-            events = listOf(VillageEvent.RoleEvent(cupidoKilledPlayersEvent)),
+            events = listOf(cupidoKilledPlayersEvent),
             killedPlayers = listOf(
                 cupidoVotedPlayers.playerDetails1,
                 cupidoVotedPlayers.playerDetails2
@@ -117,22 +121,14 @@ class RoundResultManager {
 
     private fun handleAssassinKilled(assasinVotedPlayer: MostVotedPlayer.SinglePlayer): RoundResult {
         return RoundResult(
-            events = listOf(
-                VillageEvent.RoleEvent(
-                    RoleTypeEvent.AssassinKilledPlayers(assasinVotedPlayer.playerDetails)
-                )
-            ),
+            events = listOf( RoundResultEvent.AssassinKilledPlayers(assasinVotedPlayer.playerDetails) ),
             killedPlayers = listOf(assasinVotedPlayer.playerDetails)
         )
     }
 
     private fun handleVeggenteDiscover(veggenteVotedPlayer: MostVotedPlayer.SinglePlayer): RoundResult {
         return RoundResult(
-            events = listOf(
-                VillageEvent.RoleEvent(
-                    RoleTypeEvent.VeggenteDiscoverKiller(veggenteVotedPlayer.playerDetails)
-                )
-            ),
+            events = listOf( RoundResultEvent.VeggenteDiscoverKiller(veggenteVotedPlayer.playerDetails) ),
             killedPlayers = emptyList()
         )
     }

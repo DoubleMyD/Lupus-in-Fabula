@@ -1,20 +1,15 @@
 package com.example.lupusinfabulav1.ui
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import com.example.lupusinfabulav1.R
-import com.example.lupusinfabulav1.ui.player.NewPlayerEvent
-import com.example.lupusinfabulav1.ui.player.NewPlayerViewModel
 import com.example.lupusinfabulav1.ui.game.PlayersForRoleEvent
 import com.example.lupusinfabulav1.ui.game.PlayersForRoleViewModel
-import com.example.lupusinfabulav1.ui.game.RoleTypeEvent
-import com.example.lupusinfabulav1.ui.game.VillageEvent
-import com.example.lupusinfabulav1.ui.game.VillageViewModel
+import com.example.lupusinfabulav1.ui.player.NewPlayerEvent
+import com.example.lupusinfabulav1.ui.player.NewPlayerViewModel
 
 private const val TAG = "App Events"
 
@@ -48,47 +43,47 @@ fun HandlePlayersForRoleEvents(viewModel: PlayersForRoleViewModel, context: Cont
         }
     }
 }
-
-@Composable
-fun HandleVillageEvents(viewModel: VillageViewModel, context: Context) {
-    //val villageUiEvent = viewModel.uiEvent.collectAsState(initial = null)
-    val villageUiEvent by viewModel.uiEvent.collectAsState()
-
-    LaunchedEffect(villageUiEvent, ) {
-        when (villageUiEvent) {
-            is VillageEvent.ErrorNotAllPlayersHaveVoted -> {
-                Toast.makeText(context, R.string.error_not_all_players_have_voted, Toast.LENGTH_SHORT).show()
-            }
-            is VillageEvent.AllPlayersHaveVoted -> {
-                Toast.makeText(context, R.string.all_players_have_voted, Toast.LENGTH_SHORT).show()
-            }
-            is VillageEvent.Tie -> {
-                Toast.makeText(context, R.string.tie, Toast.LENGTH_SHORT).show()
-            }
-            is VillageEvent.TieRestartVoting -> {
-                Toast.makeText(context, R.string.tie_restart_voting, Toast.LENGTH_SHORT).show()
-            }
-            is VillageEvent.GameNotStarted -> {
-                Toast.makeText(context, R.string.game_not_started, Toast.LENGTH_SHORT).show()
-            }
-
-            is VillageEvent.CupidoAlreadyVoted -> {
-                Toast.makeText(context, R.string.cupido_already_voted, Toast.LENGTH_SHORT).show()
-            }
-            is VillageEvent.RoleEvent -> handleRoleEvent(context, (villageUiEvent as VillageEvent.RoleEvent).roleEvent)
-
-            else -> Unit
-            //Toast.makeText(context, "An unexpected error occurred", Toast.LENGTH_SHORT).show()
-        }
-        Log.d(TAG, "Event triggered: $villageUiEvent")
-    }
-}
-
-private fun handleRoleEvent(context: Context, roleTypeEvent: RoleTypeEvent) {
-    when(roleTypeEvent){
-        is RoleTypeEvent.AssassinKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_assassin_killed_players, roleTypeEvent.playerDetailsKilled.name), Toast.LENGTH_SHORT).show()
-        is RoleTypeEvent.CupidoKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_cupido_killed_players, roleTypeEvent.playersKilled.first.name, roleTypeEvent.playersKilled.second.name), Toast.LENGTH_SHORT).show()
-        is RoleTypeEvent.FaciliCostumiSavedPlayer -> Toast.makeText(context, R.string.role_event_facili_costumi_saved_player, Toast.LENGTH_SHORT).show()
-        is RoleTypeEvent.VeggenteDiscoverKiller -> Toast.makeText(context, context.getString(R.string.role_event_veggente_discover_killer, roleTypeEvent.killer.name), Toast.LENGTH_SHORT).show()
-    }
-}
+//
+//@Composable
+//fun HandleVillageEvents(viewModel: VillageViewModel, context: Context) {
+//    //val villageUiEvent = viewModel.uiEvent.collectAsState(initial = null)
+//    val villageUiEvent by viewModel.uiEvent.collectAsState()
+//
+//    LaunchedEffect(villageUiEvent, ) {
+//        when (villageUiEvent) {
+//            is VillageEvent.ErrorNotAllPlayersHaveVoted -> {
+//                Toast.makeText(context, R.string.error_not_all_players_have_voted, Toast.LENGTH_SHORT).show()
+//            }
+//            is VillageEvent.AllPlayersHaveVoted -> {
+//                Toast.makeText(context, R.string.all_players_have_voted, Toast.LENGTH_SHORT).show()
+//            }
+//            is VillageEvent.Tie -> {
+//                Toast.makeText(context, R.string.tie, Toast.LENGTH_SHORT).show()
+//            }
+//            is VillageEvent.TieRestartVoting -> {
+//                Toast.makeText(context, R.string.tie_restart_voting, Toast.LENGTH_SHORT).show()
+//            }
+//            is VillageEvent.GameNotStarted -> {
+//                Toast.makeText(context, R.string.game_not_started, Toast.LENGTH_SHORT).show()
+//            }
+//
+//            is VillageEvent.CupidoAlreadyVoted -> {
+//                Toast.makeText(context, R.string.cupido_already_voted, Toast.LENGTH_SHORT).show()
+//            }
+//            is VillageEvent.RoleEvent -> handleRoleEvent(context, (villageUiEvent as VillageEvent.RoleEvent).roleEvent)
+//
+//            else -> Unit
+//            //Toast.makeText(context, "An unexpected error occurred", Toast.LENGTH_SHORT).show()
+//        }
+//        Log.d(TAG, "Event triggered: $villageUiEvent")
+//    }
+//}
+//
+//private fun handleRoleEvent(context: Context, roleTypeEvent: RoleTypeEvent) {
+//    when(roleTypeEvent){
+//        is RoleTypeEvent.AssassinKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_assassin_killed_players, roleTypeEvent.playerDetailsKilled.name), Toast.LENGTH_SHORT).show()
+//        is RoleTypeEvent.CupidoKilledPlayers -> Toast.makeText(context, context.getString(R.string.role_event_cupido_killed_players, roleTypeEvent.playersKilled.first.name, roleTypeEvent.playersKilled.second.name), Toast.LENGTH_SHORT).show()
+//        is RoleTypeEvent.FaciliCostumiSavedPlayer -> Toast.makeText(context, R.string.role_event_facili_costumi_saved_player, Toast.LENGTH_SHORT).show()
+//        is RoleTypeEvent.VeggenteDiscoverKiller -> Toast.makeText(context, context.getString(R.string.role_event_veggente_discover_killer, roleTypeEvent.killer.name), Toast.LENGTH_SHORT).show()
+//    }
+//}
